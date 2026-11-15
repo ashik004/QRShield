@@ -11,9 +11,17 @@ public enum NavigationRoute: Equatable {
     case settings
 }
 
+public enum CustomizeReturnTarget {
+    case main
+    case templatesRoute
+    case generateTemplatesTab
+}
+
 public struct ContentView: View {
     @State private var selectedTab: AppTab = .home
+    @State private var generateSegment: Int = 0 // 0: Content, 1: Template
     @State private var currentRoute: NavigationRoute = .main
+    @State private var customizeReturnTarget: CustomizeReturnTarget = .main
     @State private var showProPaywall: Bool = false
     @State private var isShowingScanner: Bool = false
     
@@ -29,7 +37,10 @@ public struct ContentView: View {
                     
                 case .templates:
                     TemplatesView(
+                        showHeader: true,
+                        showSearchBar: true,
                         onSelectTemplate: { template in
+                            customizeReturnTarget = .templatesRoute
                             currentRoute = .customize(
                                 content: template.defaultContent,
                                 type: .website,
@@ -38,7 +49,6 @@ public struct ContentView: View {
                         }
                     )
                     .safeAreaInset(edge: .top) {
-                        // Clean back button bar for when Templates is pushed from Home quick tile
                         HStack {
                             Button(action: { currentRoute = .main }) {
                                 HStack(spacing: 6) {
@@ -61,7 +71,19 @@ public struct ContentView: View {
                         content: content,
                         contentType: type,
                         styleConfig: style,
-                        onBack: { currentRoute = .main },
+                        onBack: {
+                            // When user taps Back on Customize screen, return to the Template view if chosen from template!
+                            switch customizeReturnTarget {
+                            case .generateTemplatesTab:
+                                selectedTab = .generate
+                                generateSegment = 1 // Template tab in Generate view
+                                currentRoute = .main
+                            case .templatesRoute:
+                                currentRoute = .templates // Template screen
+                            case .main:
+                                currentRoute = .main
+                            }
+                        },
                         onSaved: {
                             currentRoute = .myCodes(onlyFavorites: false)
                         }
@@ -72,6 +94,7 @@ public struct ContentView: View {
                         initialOnlyFavorites: onlyFavorites,
                         onBack: { currentRoute = .main },
                         onEditItem: { item in
+                            customizeReturnTarget = .main
                             currentRoute = .customize(
                                 content: item.rawContent,
                                 type: item.contentType,
@@ -146,12 +169,14 @@ public struct ContentView: View {
             HomeView(
                 onNavigateToGenerate: {
                     selectedTab = .generate
+                    generateSegment = 0
                 },
                 onNavigateToScan: {
                     isShowingScanner = true
                 },
                 onNavigateToTemplates: {
-                    currentRoute = .templates
+                    selectedTab = .generate
+                    generateSegment = 1
                 },
                 onNavigateToMyCodes: {
                     currentRoute = .myCodes(onlyFavorites: false)
@@ -169,7 +194,9 @@ public struct ContentView: View {
             
         case .generate:
             GenerateQRView(
+                selectedSegment: $generateSegment,
                 onProceedToCustomize: { payload, type in
+                    customizeReturnTarget = .main
                     currentRoute = .customize(
                         content: payload,
                         type: type,
@@ -177,6 +204,7 @@ public struct ContentView: View {
                     )
                 },
                 onSelectTemplate: { template in
+                    customizeReturnTarget = .generateTemplatesTab
                     currentRoute = .customize(
                         content: template.defaultContent,
                         type: .website,
@@ -186,7 +214,6 @@ public struct ContentView: View {
             )
             
         case .scan:
-            // If the user navigates directly to Scan tab, show scanner smoothly
             Color.black
                 .ignoresSafeArea()
                 .onAppear {

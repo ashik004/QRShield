@@ -1,7 +1,7 @@
 import SwiftUI
 
 public struct GenerateQRView: View {
-    @State private var selectedSegment: Int = 0 // 0: Content, 1: Template
+    @Binding public var selectedSegment: Int // 0: Content, 1: Template
     @State private var activeInputType: QRContentType? = nil
     @State private var contentData: QRContentData = QRContentData(type: .website)
     
@@ -9,16 +9,18 @@ public struct GenerateQRView: View {
     public var onSelectTemplate: (QRTemplate) -> Void
     
     public init(
+        selectedSegment: Binding<Int>,
         onProceedToCustomize: @escaping (String, QRContentType) -> Void,
         onSelectTemplate: @escaping (QRTemplate) -> Void
     ) {
+        self._selectedSegment = selectedSegment
         self.onProceedToCustomize = onProceedToCustomize
         self.onSelectTemplate = onSelectTemplate
     }
     
     public var body: some View {
         VStack(spacing: 0) {
-            // Header: Clean title (No back button per specification)
+            // Header: Clean title (No back button)
             HStack {
                 Spacer()
                 Text("Generate QR Code")
@@ -42,7 +44,7 @@ public struct GenerateQRView: View {
             .padding(.vertical, 8)
             
             if selectedSegment == 0 {
-                // Content Types List with full, smooth scrolling
+                // Content Types List with full smooth scrolling
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 12) {
                         ForEach(QRContentType.allCases) { type in
@@ -51,16 +53,20 @@ public struct GenerateQRView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
-                    .padding(.bottom, 120) // Full clearance above tab bar
+                    .padding(.bottom, 130) // Full clearance above tab bar
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                // Embedded Templates View
+                // Embedded Templates View: No title & no search bar per specification!
                 TemplatesView(
+                    showHeader: false,
+                    showSearchBar: false,
                     onSelectTemplate: onSelectTemplate
                 )
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
         .sheet(item: $activeInputType) { type in
             InputFormModalView(
