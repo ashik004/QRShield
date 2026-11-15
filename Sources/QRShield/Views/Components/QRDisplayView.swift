@@ -1,0 +1,103 @@
+import SwiftUI
+
+public struct QRDisplayView: View {
+    public let content: String
+    public let styleConfig: QRStyleConfig
+    public var size: CGFloat = 260
+    
+    @State private var qrImage: UIImage? = nil
+    
+    public init(content: String, styleConfig: QRStyleConfig, size: CGFloat = 260) {
+        self.content = content
+        self.styleConfig = styleConfig
+        self.size = size
+    }
+    
+    public var body: some View {
+        VStack(spacing: 0) {
+            // Frame Top Banner if applicable
+            if styleConfig.frameStyle == .scanMeBottom {
+                // We'll show bottom banner below
+            }
+            
+            ZStack {
+                // Card container
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(Color(hex: styleConfig.backgroundColorHex))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                            .stroke(
+                                styleConfig.frameStyle == .neonGlow
+                                    ? Color.shieldPurple
+                                    : (styleConfig.frameStyle == .cardBorder ? Color(hex: "1F2937") : Color.white),
+                                lineWidth: styleConfig.frameStyle == .none ? 0 : 3
+                            )
+                    )
+                    .shadow(
+                        color: styleConfig.frameStyle == .neonGlow
+                            ? Color.shieldPurple.opacity(0.35)
+                            : Color.black.opacity(0.08),
+                        radius: 16,
+                        x: 0,
+                        y: 8
+                    )
+                
+                if let image = qrImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .interpolation(.high)
+                        .scaledToFit()
+                        .padding(18)
+                } else {
+                    ProgressView()
+                        .tint(Color.shieldPurple)
+                }
+            }
+            .frame(width: size, height: size)
+            
+            // Frame Bottom Banner
+            if styleConfig.frameStyle == .scanMeBottom {
+                HStack(spacing: 6) {
+                    Image(systemName: "camera.viewfinder")
+                        .font(.system(size: 13, weight: .bold))
+                    Text("SCAN ME")
+                        .font(.system(size: 12, weight: .black, design: .rounded))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                )
+                .offset(y: -12)
+                .zIndex(2)
+            }
+        }
+        .onAppear {
+            renderQR()
+        }
+        .onChange(of: content) { _ in
+            renderQR()
+        }
+        .onChange(of: styleConfig) { _ in
+            renderQR()
+        }
+    }
+    
+    private func renderQR() {
+        let gen = QRCodeGeneratorService.shared
+        DispatchQueue.global(qos: .userInitiated).async {
+            let rendered = gen.generateQRCode(from: content, style: styleConfig, size: CGSize(width: size * 3, height: size * 3))
+            DispatchQueue.main.async {
+                self.qrImage = rendered
+            }
+        }
+    }
+}
