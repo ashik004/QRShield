@@ -24,6 +24,7 @@
 		7FF20B99455C786108939DFE /* QRTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8F0463E27BA40C56AB983D2 /* QRTemplate.swift */; };
 		8AA097492906DB200BF44B51 /* ScanResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D77816C4A8B7A1DF2A8E06D3 /* ScanResultView.swift */; };
 		A3264E95B85037217823D205 /* TemplateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42AA0A735CA6371AF8788739 /* TemplateCardView.swift */; };
+		A3264E95B85037217823D299 /* QRTemplateCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42AA0A735CA6371AF8788799 /* QRTemplateCardView.swift */; };
 		A804C50887CBC8EBA4007DB3 /* QuickAccessGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0599B2033A1C4E411DB2E8A3 /* QuickAccessGrid.swift */; };
 		B350CBBCB737A7B5EA7D31E6 /* QRCodeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A1E69F1E94A1C22913B31B /* QRCodeItem.swift */; };
 		BAAB1ECA0B515804A46D2F3B /* MyCodesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4152A76BA03F87B647148213 /* MyCodesView.swift */; };
@@ -44,6 +45,7 @@
 		3B31831B08EBB9E9672F4993 /* CameraScannerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraScannerService.swift; sourceTree = "<group>"; };
 		4152A76BA03F87B647148213 /* MyCodesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyCodesView.swift; sourceTree = "<group>"; };
 		42AA0A735CA6371AF8788739 /* TemplateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateCardView.swift; sourceTree = "<group>"; };
+		42AA0A735CA6371AF8788799 /* QRTemplateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRTemplateCardView.swift; sourceTree = "<group>"; };
 		4377C4AD19040DEF3DA6675D /* GenerateQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateQRView.swift; sourceTree = "<group>"; };
 		49937BFEEAA44887EC1883A3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4AAD18835E8DB244ED18C28B /* SafetyCheckerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyCheckerService.swift; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 				5D97A648C588C299FC5FDEF7 /* QRDisplayView.swift */,
 				0599B2033A1C4E411DB2E8A3 /* QuickAccessGrid.swift */,
 				42AA0A735CA6371AF8788739 /* TemplateCardView.swift */,
+				42AA0A735CA6371AF8788799 /* QRTemplateCardView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -262,6 +265,7 @@
 				3B4BEB01EA0CBED4FBE9E339 /* QRDisplayView.swift in Sources */,
 				A804C50887CBC8EBA4007DB3 /* QuickAccessGrid.swift in Sources */,
 				A3264E95B85037217823D205 /* TemplateCardView.swift in Sources */,
+				A3264E95B85037217823D299 /* QRTemplateCardView.swift in Sources */,
 				02CEE6A1D1F860D1C15175EF /* CheckingLinkSafetyView.swift in Sources */,
 				DDF92004241AC7B0215846B8 /* CustomizeQRView.swift in Sources */,
 				4B467BF31593EC312483E860 /* GenerateQRView.swift in Sources */,

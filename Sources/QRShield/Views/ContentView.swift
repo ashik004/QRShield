@@ -3,7 +3,7 @@ import SwiftUI
 public enum NavigationRoute: Equatable {
     case main
     case templates
-    case customize(content: String, type: QRContentType, style: QRStyleConfig)
+    case customize(content: String, type: QRContentType, style: QRStyleConfig, template: QRTemplate? = nil)
     case myCodes(onlyFavorites: Bool)
     case checkingSafety(content: String)
     case scanResult(result: SafetyAnalysisResult)
@@ -44,7 +44,8 @@ public struct ContentView: View {
                             currentRoute = .customize(
                                 content: template.defaultContent,
                                 type: .website,
-                                style: template.styleConfig
+                                style: template.styleConfig,
+                                template: template
                             )
                         }
                     )
@@ -66,11 +67,12 @@ public struct ContentView: View {
                         .background(Color.white)
                     }
                     
-                case .customize(let content, let type, let style):
+                case .customize(let content, let type, let style, let template):
                     CustomizeQRView(
                         content: content,
                         contentType: type,
                         styleConfig: style,
+                        selectedTemplate: template,
                         onBack: {
                             // When user taps Back on Customize screen, return to the Template view if chosen from template!
                             switch customizeReturnTarget {
@@ -98,7 +100,8 @@ public struct ContentView: View {
                             currentRoute = .customize(
                                 content: item.rawContent,
                                 type: item.contentType,
-                                style: item.styleConfig
+                                style: item.styleConfig,
+                                template: nil
                             )
                         }
                     )
@@ -200,7 +203,8 @@ public struct ContentView: View {
                     currentRoute = .customize(
                         content: payload,
                         type: type,
-                        style: QRStyleConfig()
+                        style: QRStyleConfig(),
+                        template: nil
                     )
                 },
                 onSelectTemplate: { template in
@@ -208,7 +212,8 @@ public struct ContentView: View {
                     currentRoute = .customize(
                         content: template.defaultContent,
                         type: .website,
-                        style: template.styleConfig
+                        style: template.styleConfig,
+                        template: template
                     )
                 }
             )

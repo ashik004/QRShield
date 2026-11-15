@@ -118,6 +118,9 @@ public struct TemplatesView: View {
             }
         }) {
             HStack(spacing: 5) {
+                Image(systemName: category.sfSymbol)
+                    .font(.system(size: 11, weight: .semibold))
+                
                 Text(category.rawValue)
                     .font(.system(size: 13, weight: selectedCategory == category ? .bold : .medium))
                 
