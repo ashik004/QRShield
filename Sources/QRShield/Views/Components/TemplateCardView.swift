@@ -1,10 +1,17 @@
 import SwiftUI
 
+public struct SpringCardButtonStyle: ButtonStyle {
+    public init() {}
+    public func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: configuration.isPressed)
+    }
+}
+
 public struct TemplateCardView: View {
     public let template: QRTemplate
     public var onSelect: () -> Void
-    
-    @State private var isPressed: Bool = false
     
     public init(template: QRTemplate, onSelect: @escaping () -> Void) {
         self.template = template
@@ -64,14 +71,7 @@ public struct TemplateCardView: View {
                 .padding(.horizontal, 4)
             }
         }
-        .buttonStyle(.plain)
-        .scaleEffect(isPressed ? 0.96 : 1.0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPressed)
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 0)
-                .onChanged { _ in isPressed = true }
-                .onEnded { _ in isPressed = false }
-        )
+        .buttonStyle(SpringCardButtonStyle())
     }
     
     // MARK: - Realistic Stylized QR Code Graphic Layer
@@ -202,7 +202,6 @@ public struct TemplateCardView: View {
     private var overlayBadges: some View {
         switch template.badgePosition {
         case .bannerLeft:
-            // Left vertical banner (like Black Friday %)
             if let badge = template.badgeText {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
