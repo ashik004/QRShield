@@ -60,11 +60,11 @@ public struct CustomTabBar: View {
                                 endPoint: .bottomTrailing
                             )
                         )
-                        .frame(width: 58, height: 58)
-                        .shadow(color: Color(hex: "6C5CE7").opacity(0.45), radius: 10, x: 0, y: 5)
+                        .frame(width: 56, height: 56)
+                        .shadow(color: Color(hex: "6C5CE7").opacity(0.4), radius: 8, x: 0, y: 4)
                     
                     Image(systemName: "viewfinder")
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 25, weight: .bold))
                         .foregroundColor(.white)
                 }
                 .offset(y: -14)
@@ -78,11 +78,11 @@ public struct CustomTabBar: View {
             tabButton(for: .settings)
         }
         .padding(.horizontal, 8)
-        .padding(.top, 10)
-        .padding(.bottom, 22)
+        .padding(.top, 6)
+        .padding(.bottom, 2) // Extra space removed!
         .background(
             Color.white
-                .shadow(color: Color.black.opacity(0.06), radius: 15, x: 0, y: -4)
+                .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: -4)
                 .ignoresSafeArea(edges: .bottom)
         )
     }
@@ -93,13 +93,14 @@ public struct CustomTabBar: View {
             feedback.impactOccurred()
             selectedTab = tab
         }) {
-            VStack(spacing: 4) {
+            VStack(spacing: 3) {
                 Image(systemName: tab.iconName)
                     .font(.system(size: 20, weight: selectedTab == tab ? .semibold : .regular))
                     .foregroundColor(selectedTab == tab ? Color.shieldPurple : Color(hex: "9CA3AF"))
+                    .frame(height: 24)
                 
                 Text(tab.title)
-                    .font(.system(size: 11, weight: selectedTab == tab ? .semibold : .medium))
+                    .font(.system(size: 11, weight: selectedTab == tab ? .bold : .medium))
                     .foregroundColor(selectedTab == tab ? Color.shieldPurple : Color(hex: "9CA3AF"))
             }
             .frame(maxWidth: .infinity)

@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import AVFoundation
 
 public struct ScanQRCodeView: View {
     @StateObject private var cameraService = CameraScannerService()
@@ -7,6 +8,7 @@ public struct ScanQRCodeView: View {
     @State private var showTipsSheet: Bool = false
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
     @State private var showSimulatorPicker: Bool = false
+    @State private var viewAppeared: Bool = false
     
     public var onBack: () -> Void
     public var onCodeDetected: (String) -> Void
@@ -18,23 +20,23 @@ public struct ScanQRCodeView: View {
     
     public var body: some View {
         ZStack {
+            // Dark Base Background
+            Color.black.ignoresSafeArea()
+            
             // Camera feed or mock camera background
             if cameraService.isCameraAvailable {
                 CameraPreviewView(session: cameraService.captureSession)
                     .ignoresSafeArea()
+                    .opacity(viewAppeared ? 1.0 : 0.0)
+                    .animation(.easeInOut(duration: 0.25), value: viewAppeared)
             } else {
-                // Mock camera background for simulator or when camera is restricted
-                ZStack {
-                    Color.black.ignoresSafeArea()
-                    
-                    // Ambient camera background texture
-                    LinearGradient(
-                        colors: [Color(hex: "1F2937"), Color(hex: "111827")],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .ignoresSafeArea()
-                }
+                // Mock ambient dark camera texture for simulator or when camera is restricted
+                LinearGradient(
+                    colors: [Color(hex: "1F2937"), Color(hex: "111827")],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+                .ignoresSafeArea()
             }
             
             // Viewfinder Overlay & Cutout
@@ -158,6 +160,9 @@ public struct ScanQRCodeView: View {
             withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
                 scanLineOffset = 110
             }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                viewAppeared = true
+            }
         }
         .onDisappear {
             cameraService.stopSession()
@@ -237,7 +242,17 @@ public struct ScanQRCodeView: View {
     }
 }
 
-/// Camera Preview Layer
+/// Custom Hardware-Accelerated Camera Preview Layer without asynchronous jumping
+public final class CameraPreviewContainerView: UIView {
+    public override class var layerClass: AnyClass {
+        return AVCaptureVideoPreviewLayer.self
+    }
+    
+    public var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+        return layer as! AVCaptureVideoPreviewLayer
+    }
+}
+
 public struct CameraPreviewView: UIViewRepresentable {
     public let session: AVCaptureSession
     
@@ -245,27 +260,18 @@ public struct CameraPreviewView: UIViewRepresentable {
         self.session = session
     }
     
-    public func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: .zero)
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(previewLayer)
-        context.coordinator.previewLayer = previewLayer
+    public func makeUIView(context: Context) -> CameraPreviewContainerView {
+        let view = CameraPreviewContainerView()
+        view.backgroundColor = .black
+        view.videoPreviewLayer.session = session
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill
         return view
     }
     
-    public func updateUIView(_ uiView: UIView, context: Context) {
-        DispatchQueue.main.async {
-            context.coordinator.previewLayer?.frame = uiView.bounds
+    public func updateUIView(_ uiView: CameraPreviewContainerView, context: Context) {
+        if uiView.videoPreviewLayer.session !== session {
+            uiView.videoPreviewLayer.session = session
         }
-    }
-    
-    public func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-    
-    public class Coordinator {
-        var previewLayer: AVCaptureVideoPreviewLayer?
     }
 }
 

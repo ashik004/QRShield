@@ -3,10 +3,8 @@ import SwiftUI
 public enum NavigationRoute: Equatable {
     case main
     case templates
-    case generate
     case customize(content: String, type: QRContentType, style: QRStyleConfig)
     case myCodes(onlyFavorites: Bool)
-    case scan
     case checkingSafety(content: String)
     case scanResult(result: SafetyAnalysisResult)
     case history
@@ -17,6 +15,7 @@ public struct ContentView: View {
     @State private var selectedTab: AppTab = .home
     @State private var currentRoute: NavigationRoute = .main
     @State private var showProPaywall: Bool = false
+    @State private var isShowingScanner: Bool = false
     
     public init() {}
     
@@ -30,7 +29,6 @@ public struct ContentView: View {
                     
                 case .templates:
                     TemplatesView(
-                        onBack: { currentRoute = .main },
                         onSelectTemplate: { template in
                             currentRoute = .customize(
                                 content: template.defaultContent,
@@ -39,25 +37,24 @@ public struct ContentView: View {
                             )
                         }
                     )
-                    
-                case .generate:
-                    GenerateQRView(
-                        onBack: { currentRoute = .main },
-                        onProceedToCustomize: { payload, type in
-                            currentRoute = .customize(
-                                content: payload,
-                                type: type,
-                                style: QRStyleConfig()
-                            )
-                        },
-                        onSelectTemplate: { template in
-                            currentRoute = .customize(
-                                content: template.defaultContent,
-                                type: .website,
-                                style: template.styleConfig
-                            )
+                    .safeAreaInset(edge: .top) {
+                        // Clean back button bar for when Templates is pushed from Home quick tile
+                        HStack {
+                            Button(action: { currentRoute = .main }) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chevron.left")
+                                        .font(.system(size: 16, weight: .bold))
+                                    Text("Back")
+                                        .font(.system(size: 16, weight: .semibold))
+                                }
+                                .foregroundColor(Color.shieldPurple)
+                            }
+                            Spacer()
                         }
-                    )
+                        .padding(.horizontal, 20)
+                        .padding(.top, 10)
+                        .background(Color.white)
+                    }
                     
                 case .customize(let content, let type, let style):
                     CustomizeQRView(
@@ -83,18 +80,10 @@ public struct ContentView: View {
                         }
                     )
                     
-                case .scan:
-                    ScanQRCodeView(
-                        onBack: { currentRoute = .main },
-                        onCodeDetected: { code in
-                            currentRoute = .checkingSafety(content: code)
-                        }
-                    )
-                    
                 case .checkingSafety(let content):
                     CheckingLinkSafetyView(
                         rawContent: content,
-                        onBack: { currentRoute = .scan },
+                        onBack: { currentRoute = .main },
                         onFinished: { result in
                             currentRoute = .scanResult(result: result)
                         }
@@ -103,7 +92,7 @@ public struct ContentView: View {
                 case .scanResult(let result):
                     ScanResultView(
                         result: result,
-                        onBack: { currentRoute = .scan },
+                        onBack: { currentRoute = .main },
                         onDone: { currentRoute = .main }
                     )
                     
@@ -124,13 +113,28 @@ public struct ContentView: View {
                 CustomTabBar(
                     selectedTab: $selectedTab,
                     onScanTapped: {
-                        currentRoute = .scan
+                        isShowingScanner = true
                     }
                 )
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
-        .sheet(isPresented: $showProPaywall) {
+        // Butter-smooth full screen scanner cover (Zero jumping!)
+        .fullScreenCover(isPresented: $isShowingScanner) {
+            ScanQRCodeView(
+                onBack: {
+                    isShowingScanner = false
+                },
+                onCodeDetected: { code in
+                    isShowingScanner = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        currentRoute = .checkingSafety(content: code)
+                    }
+                }
+            )
+        }
+        // Fully viewed Pro Paywall
+        .fullScreenCover(isPresented: $showProPaywall) {
             ProPaywallView()
         }
     }
@@ -141,10 +145,10 @@ public struct ContentView: View {
         case .home:
             HomeView(
                 onNavigateToGenerate: {
-                    currentRoute = .generate
+                    selectedTab = .generate
                 },
                 onNavigateToScan: {
-                    currentRoute = .scan
+                    isShowingScanner = true
                 },
                 onNavigateToTemplates: {
                     currentRoute = .templates
@@ -153,7 +157,7 @@ public struct ContentView: View {
                     currentRoute = .myCodes(onlyFavorites: false)
                 },
                 onNavigateToHistory: {
-                    currentRoute = .history
+                    selectedTab = .history
                 },
                 onNavigateToFavorites: {
                     currentRoute = .myCodes(onlyFavorites: true)
@@ -165,7 +169,6 @@ public struct ContentView: View {
             
         case .generate:
             GenerateQRView(
-                onBack: { selectedTab = .home },
                 onProceedToCustomize: { payload, type in
                     currentRoute = .customize(
                         content: payload,
@@ -183,12 +186,13 @@ public struct ContentView: View {
             )
             
         case .scan:
-            ScanQRCodeView(
-                onBack: { selectedTab = .home },
-                onCodeDetected: { code in
-                    currentRoute = .checkingSafety(content: code)
+            // If the user navigates directly to Scan tab, show scanner smoothly
+            Color.black
+                .ignoresSafeArea()
+                .onAppear {
+                    isShowingScanner = true
+                    selectedTab = .home
                 }
-            )
             
         case .history:
             HistoryView(
