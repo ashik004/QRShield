@@ -5,45 +5,30 @@ public struct GenerateQRView: View {
     @State private var activeInputType: QRContentType? = nil
     @State private var contentData: QRContentData = QRContentData(type: .website)
     
-    public var onBack: () -> Void
     public var onProceedToCustomize: (String, QRContentType) -> Void
     public var onSelectTemplate: (QRTemplate) -> Void
     
     public init(
-        onBack: @escaping () -> Void,
         onProceedToCustomize: @escaping (String, QRContentType) -> Void,
         onSelectTemplate: @escaping (QRTemplate) -> Void
     ) {
-        self.onBack = onBack
         self.onProceedToCustomize = onProceedToCustomize
         self.onSelectTemplate = onSelectTemplate
     }
     
     public var body: some View {
         VStack(spacing: 0) {
-            // Header
+            // Header: Clean title (No back button per specification)
             HStack {
-                Button(action: onBack) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
-                        .frame(width: 38, height: 38)
-                        .background(Color(hex: "F3F4F6"))
-                        .clipShape(Circle())
-                }
-                
                 Spacer()
-                
                 Text("Generate QR Code")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.system(size: 20, weight: .bold))
                     .foregroundColor(Color(hex: "1F2937"))
-                
                 Spacer()
-                
-                Color.clear.frame(width: 38, height: 38)
             }
             .padding(.horizontal, 20)
-            .padding(.vertical, 12)
+            .padding(.top, 14)
+            .padding(.bottom, 8)
             
             // Segmented Control [ Content | Template ]
             HStack(spacing: 0) {
@@ -54,11 +39,11 @@ public struct GenerateQRView: View {
             .background(Color(hex: "F3F4F6"))
             .clipShape(Capsule())
             .padding(.horizontal, 24)
-            .padding(.vertical, 10)
+            .padding(.vertical, 8)
             
             if selectedSegment == 0 {
-                // Content Types List
-                ScrollView(showsIndicators: false) {
+                // Content Types List with full, smooth scrolling
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 12) {
                         ForEach(QRContentType.allCases) { type in
                             typeRow(type)
@@ -66,12 +51,12 @@ public struct GenerateQRView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
-                    .padding(.bottom, 30)
+                    .padding(.bottom, 120) // Full clearance above tab bar
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 // Embedded Templates View
                 TemplatesView(
-                    onBack: { selectedSegment = 0 },
                     onSelectTemplate: onSelectTemplate
                 )
             }
@@ -123,16 +108,22 @@ public struct GenerateQRView: View {
                 ZStack {
                     Circle()
                         .fill(Color(hex: "F3F0FF"))
-                        .frame(width: 44, height: 44)
+                        .frame(width: 46, height: 46)
                     
                     Image(systemName: type.iconName)
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.system(size: 19, weight: .bold))
                         .foregroundColor(Color.shieldPurple)
                 }
                 
-                Text(type.rawValue)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(type.rawValue)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(Color(hex: "1F2937"))
+                    
+                    Text(subtitle(for: type))
+                        .font(.system(size: 12, weight: .regular))
+                        .foregroundColor(Color(hex: "9CA3AF"))
+                }
                 
                 Spacer()
                 
@@ -141,7 +132,7 @@ public struct GenerateQRView: View {
                     .foregroundColor(Color(hex: "9CA3AF"))
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(Color.white)
@@ -149,9 +140,23 @@ public struct GenerateQRView: View {
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .stroke(Color(hex: "F3F4F6"), lineWidth: 1.5)
                     )
+                    .shadow(color: Color.black.opacity(0.02), radius: 6, x: 0, y: 2)
             )
         }
         .buttonStyle(.plain)
+    }
+    
+    private func subtitle(for type: QRContentType) -> String {
+        switch type {
+        case .website: return "Open any website, URL, or portfolio"
+        case .wifi: return "Connect to Wi-Fi network instantly"
+        case .contact: return "Share contact details & vCard file"
+        case .phone: return "Direct one-tap phone call"
+        case .text: return "Display plain text or note"
+        case .email: return "Send pre-written email message"
+        case .location: return "Open map navigation pin"
+        case .social: return "Link to social media profile"
+        }
     }
 }
 
