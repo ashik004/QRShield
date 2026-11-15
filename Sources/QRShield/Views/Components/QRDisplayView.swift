@@ -13,13 +13,20 @@ public struct QRDisplayView: View {
         self.size = size
     }
     
+    private var activeImage: UIImage? {
+        if let qrImage = qrImage {
+            return qrImage
+        }
+        // Immediate synchronous fallback so it NEVER shows a blank state!
+        return QRCodeGeneratorService.shared.generateQRCode(
+            from: content,
+            style: styleConfig,
+            size: CGSize(width: size * 3, height: size * 3)
+        )
+    }
+    
     public var body: some View {
         VStack(spacing: 0) {
-            // Frame Top Banner if applicable
-            if styleConfig.frameStyle == .scanMeBottom {
-                // We'll show bottom banner below
-            }
-            
             ZStack {
                 // Card container
                 RoundedRectangle(cornerRadius: 24, style: .continuous)
@@ -42,10 +49,10 @@ public struct QRDisplayView: View {
                         y: 8
                     )
                 
-                if let image = qrImage {
+                if let image = activeImage {
                     Image(uiImage: image)
                         .resizable()
-                        .interpolation(.high)
+                        .interpolation(.none)
                         .scaledToFit()
                         .padding(18)
                 } else {
@@ -93,11 +100,7 @@ public struct QRDisplayView: View {
     
     private func renderQR() {
         let gen = QRCodeGeneratorService.shared
-        DispatchQueue.global(qos: .userInitiated).async {
-            let rendered = gen.generateQRCode(from: content, style: styleConfig, size: CGSize(width: size * 3, height: size * 3))
-            DispatchQueue.main.async {
-                self.qrImage = rendered
-            }
-        }
+        let rendered = gen.generateQRCode(from: content, style: styleConfig, size: CGSize(width: size * 3, height: size * 3))
+        self.qrImage = rendered
     }
 }

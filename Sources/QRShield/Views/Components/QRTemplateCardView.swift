@@ -33,6 +33,7 @@ public struct SVGShineWaveShape: Shape {
 /// Scalable native SwiftUI QR Template Card based on SVG architecture
 public struct QRTemplateCardView: View {
     public let template: QRTemplate
+    public var styleConfig: QRStyleConfig?
     public var qrImage: UIImage?
     public var content: String?
     public var customFooterText: String?
@@ -42,20 +43,63 @@ public struct QRTemplateCardView: View {
     
     public init(
         template: QRTemplate,
+        styleConfig: QRStyleConfig? = nil,
         qrImage: UIImage? = nil,
         content: String? = nil,
         customFooterText: String? = nil,
         cardWidth: CGFloat = 344
     ) {
         self.template = template
+        self.styleConfig = styleConfig
         self.qrImage = qrImage
         self.content = content
         self.customFooterText = customFooterText
         self.cardWidth = cardWidth
     }
     
+    private var effectiveStyle: QRStyleConfig {
+        styleConfig ?? template.styleConfig
+    }
+    
+    private var effectiveContent: String {
+        if let text = content, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return text
+        }
+        return template.defaultContent
+    }
+    
+    private var effectiveGradient: LinearGradient {
+        if let customStyle = styleConfig, customStyle.colorTheme != template.styleConfig.colorTheme {
+            return LinearGradient(
+                colors: customStyle.colorTheme.hexColors.map { Color(hex: $0) },
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        }
+        return template.linearGradient
+    }
+    
+    private var effectiveAccentColor: Color {
+        if let customStyle = styleConfig, customStyle.colorTheme != template.styleConfig.colorTheme,
+           let firstHex = customStyle.colorTheme.hexColors.first {
+            return Color(hex: firstHex)
+        }
+        return template.accentColor
+    }
+    
     private var activeQRImage: UIImage? {
-        qrImage ?? dynamicQRImage
+        if let qrImage = qrImage {
+            return qrImage
+        }
+        if let dynamicQRImage = dynamicQRImage {
+            return dynamicQRImage
+        }
+        // Guaranteed synchronous fallback so activeQRImage is NEVER nil!
+        return QRCodeGeneratorService.shared.generateQRCode(
+            from: effectiveContent,
+            style: effectiveStyle,
+            size: CGSize(width: 800, height: 800)
+        )
     }
     
     public var body: some View {
@@ -65,7 +109,7 @@ public struct QRTemplateCardView: View {
         ZStack(alignment: .topLeading) {
             // 1. Rounded Card Background Container: x=8, y=8, w=344, h=404, rx=30
             RoundedRectangle(cornerRadius: 30 * s, style: .continuous)
-                .fill(template.linearGradient)
+                .fill(effectiveGradient)
                 .frame(width: 344 * s, height: 404 * s)
                 .offset(x: 8 * s, y: 8 * s)
             
@@ -131,9 +175,12 @@ public struct QRTemplateCardView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 24 * s, style: .continuous)
                     .fill(Color.white)
+                    .overlay(
+                        frameBorderOverlay(s: s)
+                    )
                     .shadow(
-                        color: Color(hex: "111827").opacity(0.18),
-                        radius: 10 * s,
+                        color: frameShadowColor,
+                        radius: frameShadowRadius(s: s),
                         x: 0,
                         y: 8 * s
                     )
@@ -145,32 +192,63 @@ public struct QRTemplateCardView: View {
                         .interpolation(.none)
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 196 * s, height: 196 * s)
-                } else {
-                    ProgressView()
-                        .frame(width: 196 * s, height: 196 * s)
                 }
                 
                 // 7. Center Circular Gradient Badge: cx=180, cy=251
-                ZStack {
-                    // Outer white circle with accent stroke
-                    Circle()
-                        .fill(Color.white)
-                        .frame(width: 54 * s, height: 54 * s)
-                        .overlay(
-                            Circle()
-                                .stroke(template.accentColor, lineWidth: 4 * s)
-                        )
-                        .shadow(color: Color.black.opacity(0.15), radius: 4 * s, x: 0, y: 2 * s)
-                    
-                    // Inner gradient circle
-                    Circle()
-                        .fill(template.linearGradient)
-                        .frame(width: 40 * s, height: 40 * s)
-                    
-                    // Category / Template SF Symbol icon
-                    Image(systemName: template.categoryIcon)
-                        .font(.system(size: 17 * s, weight: .bold))
-                        .foregroundColor(.white)
+                if effectiveStyle.logoType != .none {
+                    ZStack {
+                        // Outer white circle with accent stroke
+                        Circle()
+                            .fill(Color.white)
+                            .frame(width: 54 * s, height: 54 * s)
+                            .overlay(
+                                Circle()
+                                    .stroke(effectiveAccentColor, lineWidth: 4 * s)
+                            )
+                            .shadow(color: Color.black.opacity(0.15), radius: 4 * s, x: 0, y: 2 * s)
+                        
+                        // Inner gradient circle
+                        Circle()
+                            .fill(effectiveGradient)
+                            .frame(width: 40 * s, height: 40 * s)
+                        
+                        // Logo Icon or Custom User Image
+                        if effectiveStyle.logoType == .custom,
+                           let customData = effectiveStyle.customLogoData,
+                           let customImg = UIImage(data: customData) {
+                            Image(uiImage: customImg)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 30 * s, height: 30 * s)
+                                .clipShape(Circle())
+                        } else if let iconName = effectiveStyle.logoType.systemIcon {
+                            Image(systemName: iconName)
+                                .font(.system(size: 17 * s, weight: .bold))
+                                .foregroundColor(.white)
+                        } else {
+                            Image(systemName: template.categoryIcon)
+                                .font(.system(size: 17 * s, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                }
+                
+                // Optional Bottom Scan Me Frame Banner
+                if effectiveStyle.frameStyle == .scanMeBottom {
+                    HStack(spacing: 4 * s) {
+                        Image(systemName: "camera.viewfinder")
+                            .font(.system(size: 10 * s, weight: .bold))
+                        Text("SCAN ME")
+                            .font(.system(size: 9 * s, weight: .black, design: .rounded))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12 * s)
+                    .padding(.vertical, 4 * s)
+                    .background(
+                        Capsule().fill(effectiveGradient)
+                    )
+                    .offset(y: 110 * s)
+                    .zIndex(2)
                 }
             }
             .frame(width: 250 * s, height: 224 * s)
@@ -198,20 +276,96 @@ public struct QRTemplateCardView: View {
         .onChange(of: content) { _ in
             generateDynamicQR()
         }
+        .onChange(of: styleConfig) { _ in
+            generateDynamicQR()
+        }
+    }
+    
+    // MARK: - Frame Styling Helpers
+    @ViewBuilder
+    private func frameBorderOverlay(s: CGFloat) -> some View {
+        switch effectiveStyle.frameStyle {
+        case .none:
+            EmptyView()
+        case .cardBorder:
+            RoundedRectangle(cornerRadius: 24 * s, style: .continuous)
+                .stroke(Color(hex: "1F2937"), lineWidth: 3 * s)
+        case .neonGlow:
+            RoundedRectangle(cornerRadius: 24 * s, style: .continuous)
+                .stroke(effectiveAccentColor, lineWidth: 3.5 * s)
+        case .scanMeBottom:
+            RoundedRectangle(cornerRadius: 24 * s, style: .continuous)
+                .stroke(effectiveAccentColor.opacity(0.4), lineWidth: 2 * s)
+        case .modernBracket:
+            TechBracketsOverlay(s: s, color: effectiveAccentColor)
+        }
+    }
+    
+    private var frameShadowColor: Color {
+        if effectiveStyle.frameStyle == .neonGlow {
+            return effectiveAccentColor.opacity(0.65)
+        }
+        return Color(hex: "111827").opacity(0.18)
+    }
+    
+    private func frameShadowRadius(s: CGFloat) -> CGFloat {
+        if effectiveStyle.frameStyle == .neonGlow {
+            return 16 * s
+        }
+        return 10 * s
     }
     
     private func generateDynamicQR() {
         if qrImage != nil { return }
-        let payload = content ?? template.defaultContent
         
-        // Generate high-resolution styled QR
         let generated = QRCodeGeneratorService.shared.generateQRCode(
-            from: payload,
-            style: template.styleConfig,
-            size: CGSize(width: 600, height: 600)
+            from: effectiveContent,
+            style: effectiveStyle,
+            size: CGSize(width: 800, height: 800)
         )
-        DispatchQueue.main.async {
-            self.dynamicQRImage = generated
+        self.dynamicQRImage = generated
+    }
+}
+
+/// Tech corner brackets frame overlay
+public struct TechBracketsOverlay: View {
+    public let s: CGFloat
+    public let color: Color
+    
+    public init(s: CGFloat, color: Color) {
+        self.s = s
+        self.color = color
+    }
+    
+    public var body: some View {
+        GeometryReader { geo in
+            let w = geo.size.width
+            let h = geo.size.height
+            let arm: CGFloat = 20 * s
+            let lw: CGFloat = 3 * s
+            
+            Path { path in
+                // Top-Left
+                path.move(to: CGPoint(x: 10 * s, y: 10 * s + arm))
+                path.addLine(to: CGPoint(x: 10 * s, y: 10 * s))
+                path.addLine(to: CGPoint(x: 10 * s + arm, y: 10 * s))
+                
+                // Top-Right
+                path.move(to: CGPoint(x: w - 10 * s - arm, y: 10 * s))
+                path.addLine(to: CGPoint(x: w - 10 * s, y: 10 * s))
+                path.addLine(to: CGPoint(x: w - 10 * s, y: 10 * s + arm))
+                
+                // Bottom-Left
+                path.move(to: CGPoint(x: 10 * s, y: h - 10 * s - arm))
+                path.addLine(to: CGPoint(x: 10 * s, y: h - 10 * s))
+                path.addLine(to: CGPoint(x: 10 * s + arm, y: h - 10 * s))
+                
+                // Bottom-Right
+                path.move(to: CGPoint(x: w - 10 * s - arm, y: h - 10 * s))
+                path.addLine(to: CGPoint(x: w - 10 * s, y: h - 10 * s))
+                path.addLine(to: CGPoint(x: w - 10 * s, y: h - 10 * s - arm))
+            }
+            .stroke(color, lineWidth: lw)
         }
     }
 }
@@ -221,10 +375,19 @@ public struct QRTemplateCardView: View {
 public extension QRTemplateCardView {
     /// Renders the card as a high-resolution UIImage ready for saving to Photos or sharing
     func renderAsImage(scale: CGFloat = 3.0) -> UIImage? {
+        let payload = effectiveContent
+        let style = effectiveStyle
+        let nonNilQR = activeQRImage ?? QRCodeGeneratorService.shared.generateQRCode(
+            from: payload,
+            style: style,
+            size: CGSize(width: 800, height: 800)
+        )
+        
         let renderView = QRTemplateCardView(
             template: self.template,
-            qrImage: self.activeQRImage,
-            content: self.content,
+            styleConfig: style,
+            qrImage: nonNilQR,
+            content: payload,
             customFooterText: self.customFooterText,
             cardWidth: 360
         )
@@ -241,18 +404,32 @@ public extension QRTemplateCardView {
 public struct QRTemplateExporter {
     public static func renderCard(
         template: QRTemplate,
+        styleConfig: QRStyleConfig? = nil,
         qrImage: UIImage? = nil,
         content: String? = nil,
         customFooterText: String? = nil,
         scale: CGFloat = 3.0
     ) -> UIImage? {
+        let payload = (content?.isEmpty == false ? content! : template.defaultContent)
+        let effectiveStyle = styleConfig ?? template.styleConfig
+        
+        // 1. Pre-render non-nil QR image to guarantee ImageRenderer never captures a blank container
+        let nonNilQR = qrImage ?? QRCodeGeneratorService.shared.generateQRCode(
+            from: payload,
+            style: effectiveStyle,
+            size: CGSize(width: 800, height: 800)
+        )
+        
+        // 2. Instantiate view with guaranteed non-nil QR image
         let view = QRTemplateCardView(
             template: template,
-            qrImage: qrImage,
-            content: content,
+            styleConfig: effectiveStyle,
+            qrImage: nonNilQR,
+            content: payload,
             customFooterText: customFooterText,
             cardWidth: 360
         )
+        
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale
         renderer.proposedSize = ProposedViewSize(width: 360, height: 420)

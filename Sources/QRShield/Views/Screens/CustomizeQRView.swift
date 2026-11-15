@@ -22,8 +22,8 @@ public struct CustomizeQRView: View {
     
     @State private var activeTab: CustomizerTab = .style
     @State private var selectedPhotoItem: PhotosPickerItem? = nil
-    @State private var showSaveSuccessToast: Bool = false
     @State private var showShareSheet: Bool = false
+    @State private var showExportSuccessModal: Bool = false
     @State private var renderedUIImage: UIImage? = nil
     @State private var customFooterText: String = ""
     
@@ -46,7 +46,7 @@ public struct CustomizeQRView: View {
     ) {
         self.content = content
         self.contentType = contentType
-        self._styleConfig = State(initialValue: styleConfig)
+        self._styleConfig = State(initialValue: selectedTemplate?.styleConfig ?? styleConfig)
         self.selectedTemplate = selectedTemplate
         self._customFooterText = State(initialValue: selectedTemplate?.footerText ?? "Scan Me")
         self.onBack = onBack
@@ -96,12 +96,13 @@ public struct CustomizeQRView: View {
                     if let template = selectedTemplate {
                         QRTemplateCardView(
                             template: template,
+                            styleConfig: styleConfig,
                             content: content,
                             customFooterText: customFooterText.isEmpty ? template.footerText : customFooterText,
                             cardWidth: 260
                         )
                         .shadow(
-                            color: Color(hex: template.gradientHexColors.first ?? "7C3AED").opacity(0.28),
+                            color: Color(hex: styleConfig.colorTheme.hexColors.first ?? template.gradientHexColors.first ?? "7C3AED").opacity(0.28),
                             radius: 14,
                             x: 0,
                             y: 8
@@ -229,31 +230,99 @@ public struct CustomizeQRView: View {
                 ShareSheet(activityItems: [img])
             }
         }
-        .overlay(
-            // Toast Notification
-            Group {
-                if showSaveSuccessToast {
-                    VStack {
-                        Spacer()
-                        HStack(spacing: 10) {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundColor(.white)
-                                .font(.system(size: 18))
-                            Text("QR Code saved to Photos & Library!")
-                                .foregroundColor(.white)
-                                .font(.system(size: 14, weight: .semibold))
-                        }
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 12)
-                        .background(Color(hex: "10B981"))
-                        .clipShape(Capsule())
-                        .shadow(color: Color.black.opacity(0.15), radius: 10, x: 0, y: 5)
-                        .padding(.bottom, 90)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+        .sheet(isPresented: $showExportSuccessModal) {
+            exportSuccessSheet
+        }
+    }
+    
+    // MARK: - Export Success Sheet
+    private var exportSuccessSheet: some View {
+        VStack(spacing: 20) {
+            Capsule()
+                .fill(Color(hex: "D1D5DB"))
+                .frame(width: 40, height: 5)
+                .padding(.top, 12)
+            
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(Color(hex: "10B981"))
+                    .font(.system(size: 22))
+                Text("Saved to Camera Roll & Library!")
+                    .font(.system(size: 17, weight: .bold))
+                    .foregroundColor(Color(hex: "1F2937"))
+            }
+            .padding(.top, 4)
+            
+            // Image Preview
+            if let img = renderedUIImage {
+                Image(uiImage: img)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 280)
+                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 8)
+                    .padding(.horizontal, 30)
+            }
+            
+            Spacer()
+            
+            VStack(spacing: 12) {
+                // Share Button
+                Button(action: {
+                    showExportSuccessModal = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showShareSheet = true
                     }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 16, weight: .bold))
+                        Text("Share QR Code")
+                            .font(.system(size: 16, weight: .bold))
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.shieldPurple)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                
+                // View in My Codes
+                Button(action: {
+                    showExportSuccessModal = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        onSaved()
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "folder.fill")
+                            .font(.system(size: 15, weight: .semibold))
+                        Text("View in My Codes")
+                            .font(.system(size: 15, weight: .semibold))
+                    }
+                    .foregroundColor(Color.shieldPurple)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.shieldPurple.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                
+                // Done Button
+                Button(action: {
+                    showExportSuccessModal = false
+                    onBack()
+                }) {
+                    Text("Done")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(Color(hex: "6B7280"))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
                 }
             }
-        )
+            .padding(.horizontal, 24)
+            .padding(.bottom, 20)
+        }
+        .presentationDetents([.fraction(0.72), .large])
     }
     
     // MARK: - Tab Button Component
@@ -380,7 +449,7 @@ public struct CustomizeQRView: View {
                             guard let newItem else { return }
                             Task {
                                 if let data = try? await newItem.loadTransferable(type: Data.self),
-                                   let img = UIImage(data: data) {
+                                   let _ = UIImage(data: data) {
                                     await MainActor.run {
                                         styleConfig.logoType = .custom
                                         styleConfig.customLogoData = data
@@ -464,12 +533,13 @@ public struct CustomizeQRView: View {
         if let template = selectedTemplate {
             renderedUIImage = QRTemplateExporter.renderCard(
                 template: template,
+                styleConfig: styleConfig,
                 content: content,
                 customFooterText: customFooterText.isEmpty ? template.footerText : customFooterText,
                 scale: 3.0
             )
         } else {
-            renderedUIImage = QRCodeGeneratorService.shared.generateQRCode(from: content, style: styleConfig)
+            renderedUIImage = QRCodeGeneratorService.shared.generateQRCode(from: content, style: styleConfig, size: CGSize(width: 800, height: 800))
         }
         
         if renderedUIImage != nil {
@@ -502,38 +572,33 @@ public struct CustomizeQRView: View {
             category: selectedTemplate?.category ?? contentType.category,
             createdAt: Date(),
             isFavorite: false,
-            styleConfig: styleConfig
+            styleConfig: styleConfig,
+            templateId: selectedTemplate?.id,
+            customFooterText: customFooterText.isEmpty ? selectedTemplate?.footerText : customFooterText
         )
         
         QRStorageService.shared.save(item: item)
         
         // Export High-Resolution UIImage using ImageRenderer for templates or QRCodeGeneratorService
+        let exportedImage: UIImage?
         if let template = selectedTemplate {
-            if let cardImage = QRTemplateExporter.renderCard(
+            exportedImage = QRTemplateExporter.renderCard(
                 template: template,
+                styleConfig: styleConfig,
                 content: content,
                 customFooterText: customFooterText.isEmpty ? template.footerText : customFooterText,
                 scale: 3.0
-            ) {
-                UIImageWriteToSavedPhotosAlbum(cardImage, nil, nil, nil)
-                renderedUIImage = cardImage
-            }
+            )
         } else {
-            if let image = QRCodeGeneratorService.shared.generateQRCode(from: content, style: styleConfig) {
-                UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-                renderedUIImage = image
-            }
+            exportedImage = QRCodeGeneratorService.shared.generateQRCode(from: content, style: styleConfig, size: CGSize(width: 800, height: 800))
         }
         
-        withAnimation {
-            showSaveSuccessToast = true
+        if let cardImage = exportedImage {
+            UIImageWriteToSavedPhotosAlbum(cardImage, nil, nil, nil)
+            renderedUIImage = cardImage
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
-            withAnimation {
-                showSaveSuccessToast = false
-            }
-            onSaved()
-        }
+        // Immediately present the export sheet so the user sees the rendered QR code with no blank screen!
+        showExportSuccessModal = true
     }
 }

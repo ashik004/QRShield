@@ -10,6 +10,8 @@ public struct QRCodeItem: Identifiable, Codable, Equatable {
     public var createdAt: Date
     public var isFavorite: Bool
     public var styleConfig: QRStyleConfig
+    public var templateId: String?
+    public var customFooterText: String?
     
     public init(
         id: UUID = UUID(),
@@ -20,7 +22,9 @@ public struct QRCodeItem: Identifiable, Codable, Equatable {
         category: QRTemplateCategory,
         createdAt: Date = Date(),
         isFavorite: Bool = false,
-        styleConfig: QRStyleConfig = QRStyleConfig()
+        styleConfig: QRStyleConfig = QRStyleConfig(),
+        templateId: String? = nil,
+        customFooterText: String? = nil
     ) {
         self.id = id
         self.title = title
@@ -31,6 +35,8 @@ public struct QRCodeItem: Identifiable, Codable, Equatable {
         self.createdAt = createdAt
         self.isFavorite = isFavorite
         self.styleConfig = styleConfig
+        self.templateId = templateId
+        self.customFooterText = customFooterText
     }
     
     public var relativeTimeString: String {

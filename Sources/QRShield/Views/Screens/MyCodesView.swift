@@ -95,16 +95,15 @@ public struct MyCodesView: View {
             .padding(.horizontal, 20)
             .padding(.top, 4)
             
-            // Filter Chips Bar [ All | Social | Wi-Fi | Business ]
+            // Filter Chips Bar: Supports all categories
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
-                    filterChip(title: "All", category: .all)
-                    filterChip(title: "Social", category: .social)
-                    filterChip(title: "Wi-Fi", category: .wifi)
-                    filterChip(title: "Business", category: .business)
+                HStack(spacing: 8) {
+                    ForEach(QRTemplateCategory.allCases) { cat in
+                        filterChip(title: cat.rawValue, category: cat)
+                    }
                 }
                 .padding(.horizontal, 20)
-                .padding(.vertical, 12)
+                .padding(.vertical, 10)
             }
             
             // List of Saved Codes
@@ -273,14 +272,26 @@ public struct CodeDetailModalView: View {
     
     public var body: some View {
         NavigationView {
-            VStack(spacing: 24) {
+            VStack(spacing: 20) {
                 Spacer()
                 
-                QRDisplayView(
-                    content: item.rawContent,
-                    styleConfig: item.styleConfig,
-                    size: 260
-                )
+                if let templateId = item.templateId,
+                   let template = QRTemplate.predefinedTemplates.first(where: { $0.id == templateId }) {
+                    QRTemplateCardView(
+                        template: template,
+                        styleConfig: item.styleConfig,
+                        content: item.rawContent,
+                        customFooterText: item.customFooterText,
+                        cardWidth: 260
+                    )
+                    .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
+                } else {
+                    QRDisplayView(
+                        content: item.rawContent,
+                        styleConfig: item.styleConfig,
+                        size: 260
+                    )
+                }
                 
                 VStack(spacing: 6) {
                     Text(item.title)
@@ -296,7 +307,7 @@ public struct CodeDetailModalView: View {
                 
                 Spacer()
                 
-                // Copy & Share buttons
+                // Copy & Save Photo buttons
                 HStack(spacing: 14) {
                     Button(action: {
                         UIPasteboard.general.string = item.rawContent
@@ -316,7 +327,21 @@ public struct CodeDetailModalView: View {
                     }
                     
                     Button(action: {
-                        if let img = QRCodeGeneratorService.shared.generateQRCode(from: item.rawContent, style: item.styleConfig) {
+                        let exportImg: UIImage?
+                        if let templateId = item.templateId,
+                           let template = QRTemplate.predefinedTemplates.first(where: { $0.id == templateId }) {
+                            exportImg = QRTemplateExporter.renderCard(
+                                template: template,
+                                styleConfig: item.styleConfig,
+                                content: item.rawContent,
+                                customFooterText: item.customFooterText,
+                                scale: 3.0
+                            )
+                        } else {
+                            exportImg = QRCodeGeneratorService.shared.generateQRCode(from: item.rawContent, style: item.styleConfig)
+                        }
+                        
+                        if let img = exportImg {
                             UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
                             let feedback = UINotificationFeedbackGenerator()
                             feedback.notificationOccurred(.success)
