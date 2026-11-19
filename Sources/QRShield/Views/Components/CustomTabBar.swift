@@ -199,17 +199,22 @@ public struct CustomTabBar: View {
         Button(action: {
             let feedback = UIImpactFeedbackGenerator(style: .light)
             feedback.impactOccurred()
-            selectedTab = tab
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.82)) {
+                selectedTab = tab
+            }
         }) {
             VStack(spacing: 3) {
                 Image(systemName: tab.iconName)
                     .font(.system(size: 20, weight: selectedTab == tab ? .semibold : .regular))
                     .foregroundColor(selectedTab == tab ? Color.shieldPurple : Color(hex: "9CA3AF"))
                     .frame(height: 24)
+                    .scaleEffect(selectedTab == tab ? 1.08 : 1.0)
+                    .animation(.spring(response: 0.28, dampingFraction: 0.75), value: selectedTab)
                 
                 Text(tab.title)
                     .font(.system(size: 11, weight: selectedTab == tab ? .bold : .medium))
                     .foregroundColor(selectedTab == tab ? Color.shieldPurple : Color(hex: "9CA3AF"))
+                    .animation(.easeInOut(duration: 0.2), value: selectedTab)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())

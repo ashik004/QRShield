@@ -1,5 +1,26 @@
 import SwiftUI
 
+public enum NavigationDirection {
+    case forward
+    case backward
+}
+
+public extension AnyTransition {
+    static func screenTransition(direction: NavigationDirection) -> AnyTransition {
+        if direction == .forward {
+            return .asymmetric(
+                insertion: .move(edge: .trailing).combined(with: .opacity),
+                removal: .move(edge: .leading).combined(with: .opacity)
+            )
+        } else {
+            return .asymmetric(
+                insertion: .move(edge: .leading).combined(with: .opacity),
+                removal: .move(edge: .trailing).combined(with: .opacity)
+            )
+        }
+    }
+}
+
 public enum NavigationRoute: Equatable {
     case main
     case generate
@@ -22,6 +43,7 @@ public enum CustomizeReturnTarget: Equatable {
 public struct ContentView: View {
     @State private var selectedTab: AppTab = .home
     @State private var currentRoute: NavigationRoute = .main
+    @State private var navigationDirection: NavigationDirection = .forward
     @State private var customizeReturnTarget: CustomizeReturnTarget = .main
     @State private var showProPaywall: Bool = false
     @State private var isShowingScanner: Bool = false
@@ -30,27 +52,29 @@ public struct ContentView: View {
     
     public var body: some View {
         ZStack(alignment: .bottom) {
-            // Main Content Area
-            Group {
+            // Main Content Area with butter-smooth animated screen transitions
+            ZStack {
                 switch currentRoute {
                 case .main:
                     tabContent
+                        .transition(.screenTransition(direction: navigationDirection))
                     
                 case .generate:
                     GenerateQRView(
                         title: "Generate QR Code",
                         selectedTemplate: nil,
-                        onBack: { currentRoute = .main },
+                        onBack: { goBack(to: .main) },
                         onProceedToCustomize: { payload, type, _ in
                             customizeReturnTarget = .generate
-                            currentRoute = .customize(
+                            navigate(to: .customize(
                                 content: payload,
                                 type: type,
                                 style: QRStyleConfig(),
                                 template: nil
-                            )
+                            ), direction: .forward)
                         }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                     
                 case .create(let template):
                     GenerateQRView(
@@ -58,19 +82,20 @@ public struct ContentView: View {
                         selectedTemplate: template,
                         onBack: {
                             selectedTab = .template
-                            currentRoute = .main
+                            goBack(to: .main)
                         },
                         onProceedToCustomize: { payload, type, t in
                             let chosenTemplate = t ?? template
                             customizeReturnTarget = .create(template: chosenTemplate)
-                            currentRoute = .customize(
+                            navigate(to: .customize(
                                 content: payload,
                                 type: type,
                                 style: chosenTemplate.styleConfig,
                                 template: chosenTemplate
-                            )
+                            ), direction: .forward)
                         }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                     
                 case .customize(let content, let type, let style, let template):
                     CustomizeQRView(
@@ -81,65 +106,71 @@ public struct ContentView: View {
                         onBack: {
                             switch customizeReturnTarget {
                             case .create(let tmpl):
-                                currentRoute = .create(template: tmpl)
+                                goBack(to: .create(template: tmpl))
                             case .generate:
-                                currentRoute = .generate
+                                goBack(to: .generate)
                             case .templateTab:
                                 selectedTab = .template
-                                currentRoute = .main
+                                goBack(to: .main)
                             case .main:
-                                currentRoute = .main
+                                goBack(to: .main)
                             }
                         },
                         onSaved: {
-                            currentRoute = .myCodes(onlyFavorites: false)
+                            navigate(to: .myCodes(onlyFavorites: false), direction: .forward)
                         }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                     
                 case .myCodes(let onlyFavorites):
                     MyCodesView(
                         initialOnlyFavorites: onlyFavorites,
-                        onBack: { currentRoute = .main },
+                        onBack: { goBack(to: .main) },
                         onEditItem: { item in
                             customizeReturnTarget = .main
-                            currentRoute = .customize(
+                            navigate(to: .customize(
                                 content: item.rawContent,
                                 type: item.contentType,
                                 style: item.styleConfig,
                                 template: nil
-                            )
+                            ), direction: .forward)
                         }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                     
                 case .checkingSafety(let content):
                     CheckingLinkSafetyView(
                         rawContent: content,
-                        onBack: { currentRoute = .main },
+                        onBack: { goBack(to: .main) },
                         onFinished: { result in
-                            currentRoute = .scanResult(result: result)
+                            navigate(to: .scanResult(result: result), direction: .forward)
                         }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                     
                 case .scanResult(let result):
                     ScanResultView(
                         result: result,
-                        onBack: { currentRoute = .main },
-                        onDone: { currentRoute = .main }
+                        onBack: { goBack(to: .main) },
+                        onDone: { goBack(to: .main) }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                     
                 case .history:
-                    HistoryView(onBack: { currentRoute = .main })
+                    HistoryView(onBack: { goBack(to: .main) })
+                        .transition(.screenTransition(direction: navigationDirection))
                     
                 case .settings:
                     SettingsView(
-                        onBack: { currentRoute = .main },
+                        onBack: { goBack(to: .main) },
                         onOpenPro: { showProPaywall = true }
                     )
+                    .transition(.screenTransition(direction: navigationDirection))
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
-            // Bottom Tab Bar (shown on root tabs)
+            // Bottom Tab Bar (shown on root tabs with smooth slide & fade)
             if currentRoute == .main {
                 CustomTabBar(
                     selectedTab: $selectedTab,
@@ -147,6 +178,10 @@ public struct ContentView: View {
                         isShowingScanner = true
                     }
                 )
+                .transition(.asymmetric(
+                    insertion: .move(edge: .bottom).combined(with: .opacity),
+                    removal: .move(edge: .bottom).combined(with: .opacity)
+                ))
             }
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
@@ -159,7 +194,7 @@ public struct ContentView: View {
                 onCodeDetected: { code in
                     isShowingScanner = false
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        currentRoute = .checkingSafety(content: code)
+                        navigate(to: .checkingSafety(content: code), direction: .forward)
                     }
                 }
             )
@@ -170,62 +205,86 @@ public struct ContentView: View {
         }
     }
     
+    // MARK: - Navigation Helpers
+    private func navigate(to route: NavigationRoute, direction: NavigationDirection = .forward) {
+        withAnimation(.spring(response: 0.36, dampingFraction: 0.86)) {
+            self.navigationDirection = direction
+            self.currentRoute = route
+        }
+    }
+    
+    private func goBack(to route: NavigationRoute) {
+        navigate(to: route, direction: .backward)
+    }
+    
+    private func switchTab(to tab: AppTab) {
+        withAnimation(.spring(response: 0.32, dampingFraction: 0.85)) {
+            self.selectedTab = tab
+            self.currentRoute = .main
+        }
+    }
+    
     @ViewBuilder
     private var tabContent: some View {
-        switch selectedTab {
-        case .home:
-            HomeView(
-                onNavigateToGenerate: {
-                    currentRoute = .generate
-                },
-                onNavigateToScan: {
-                    isShowingScanner = true
-                },
-                onNavigateToTemplates: {
-                    selectedTab = .template
-                    currentRoute = .main
-                },
-                onNavigateToMyCodes: {
-                    currentRoute = .myCodes(onlyFavorites: false)
-                },
-                onNavigateToHistory: {
-                    selectedTab = .history
-                },
-                onNavigateToFavorites: {
-                    currentRoute = .myCodes(onlyFavorites: true)
-                },
-                onOpenPro: {
-                    showProPaywall = true
-                }
-            )
-            
-        case .template:
-            TemplatesView(
-                showHeader: true,
-                showSearchBar: false,
-                onSelectTemplate: { template in
-                    currentRoute = .create(template: template)
-                }
-            )
-            
-        case .scan:
-            Color.black
-                .ignoresSafeArea()
-                .onAppear {
-                    isShowingScanner = true
-                    selectedTab = .home
-                }
-            
-        case .history:
-            HistoryView(
-                onBack: { selectedTab = .home }
-            )
-            
-        case .settings:
-            SettingsView(
-                onBack: { selectedTab = .home },
-                onOpenPro: { showProPaywall = true }
-            )
+        ZStack {
+            switch selectedTab {
+            case .home:
+                HomeView(
+                    onNavigateToGenerate: {
+                        navigate(to: .generate, direction: .forward)
+                    },
+                    onNavigateToScan: {
+                        isShowingScanner = true
+                    },
+                    onNavigateToTemplates: {
+                        switchTab(to: .template)
+                    },
+                    onNavigateToMyCodes: {
+                        navigate(to: .myCodes(onlyFavorites: false), direction: .forward)
+                    },
+                    onNavigateToHistory: {
+                        switchTab(to: .history)
+                    },
+                    onNavigateToFavorites: {
+                        navigate(to: .myCodes(onlyFavorites: true), direction: .forward)
+                    },
+                    onOpenPro: {
+                        showProPaywall = true
+                    }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.99)))
+                
+            case .template:
+                TemplatesView(
+                    showHeader: true,
+                    showSearchBar: false,
+                    onSelectTemplate: { template in
+                        navigate(to: .create(template: template), direction: .forward)
+                    }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.99)))
+                
+            case .scan:
+                Color.black
+                    .ignoresSafeArea()
+                    .onAppear {
+                        isShowingScanner = true
+                        selectedTab = .home
+                    }
+                
+            case .history:
+                HistoryView(
+                    onBack: { switchTab(to: .home) }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.99)))
+                
+            case .settings:
+                SettingsView(
+                    onBack: { switchTab(to: .home) },
+                    onOpenPro: { showProPaywall = true }
+                )
+                .transition(.opacity.combined(with: .scale(scale: 0.99)))
+            }
         }
     }
 }
