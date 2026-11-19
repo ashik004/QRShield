@@ -95,36 +95,44 @@ public struct QRContentData: Codable, Equatable {
         case .wifi:
             let hiddenTag = wifiIsHidden ? "H:true;" : ""
             let auth = wifiEncryption == "None" ? "nopass" : wifiEncryption
-            return "WIFI:T:\(auth);S:\(wifiSSID);P:\(wifiPassword);\(hiddenTag);"
+            let ssid = wifiSSID.isEmpty ? "MyWiFi_Network" : wifiSSID
+            return "WIFI:T:\(auth);S:\(ssid);P:\(wifiPassword);\(hiddenTag);"
             
         case .contact:
+            let fn = firstName.isEmpty ? "John" : firstName
+            let ln = lastName.isEmpty ? "Doe" : lastName
             var vcard = "BEGIN:VCARD\nVERSION:3.0\n"
-            vcard += "N:\(lastName);\(firstName);;;\n"
-            vcard += "FN:\(firstName) \(lastName)\n"
+            vcard += "N:\(ln);\(fn);;;\n"
+            vcard += "FN:\(fn) \(ln)\n"
             if !company.isEmpty { vcard += "ORG:\(company)\n" }
             if !jobTitle.isEmpty { vcard += "TITLE:\(jobTitle)\n" }
-            if !contactPhone.isEmpty { vcard += "TEL;TYPE=CELL:\(contactPhone)\n" }
+            let phone = contactPhone.isEmpty ? "+15551234567" : contactPhone
+            vcard += "TEL;TYPE=CELL:\(phone)\n"
             if !contactEmail.isEmpty { vcard += "EMAIL:\(contactEmail)\n" }
             if !websiteUrl.isEmpty { vcard += "URL:\(websiteUrl)\n" }
             vcard += "END:VCARD"
             return vcard
             
         case .phone:
-            return "tel:\(phoneNumber.filter { "0123456789+".contains($0) })"
+            let clean = phoneNumber.filter { "0123456789+".contains($0) }
+            return "tel:\(clean.isEmpty ? "+15551234567" : clean)"
             
         case .text:
             return plainText.isEmpty ? "Hello from QR Shield" : plainText
             
         case .email:
+            let mail = emailAddress.isEmpty ? "contact@qrshield.app" : emailAddress
             let encodedSubject = emailSubject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
             let encodedBody = emailBody.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-            return "mailto:\(emailAddress)?subject=\(encodedSubject)&body=\(encodedBody)"
+            return "mailto:\(mail)?subject=\(encodedSubject)&body=\(encodedBody)"
             
         case .location:
-            return "geo:\(latitude),\(longitude)?q=\(latitude),\(longitude)(\(locationName.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""))"
+            let name = locationName.isEmpty ? "San Francisco" : locationName
+            return "geo:\(latitude),\(longitude)?q=\(latitude),\(longitude)(\(name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""))"
             
         case .social:
-            let user = socialUsername.trimmingCharacters(in: CharacterSet(charactersIn: "@ "))
+            var user = socialUsername.trimmingCharacters(in: CharacterSet(charactersIn: "@ "))
+            if user.isEmpty { user = "qrshield" }
             switch socialPlatform {
             case .instagram: return "https://instagram.com/\(user)"
             case .youtube: return "https://youtube.com/@\(user)"
