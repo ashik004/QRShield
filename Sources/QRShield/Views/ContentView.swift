@@ -2,7 +2,8 @@ import SwiftUI
 
 public enum NavigationRoute: Equatable {
     case main
-    case templates
+    case generate
+    case create(template: QRTemplate)
     case customize(content: String, type: QRContentType, style: QRStyleConfig, template: QRTemplate? = nil)
     case myCodes(onlyFavorites: Bool)
     case checkingSafety(content: String)
@@ -11,15 +12,15 @@ public enum NavigationRoute: Equatable {
     case settings
 }
 
-public enum CustomizeReturnTarget {
+public enum CustomizeReturnTarget: Equatable {
     case main
-    case templatesRoute
-    case generateTemplatesTab
+    case generate
+    case create(template: QRTemplate)
+    case templateTab
 }
 
 public struct ContentView: View {
     @State private var selectedTab: AppTab = .home
-    @State private var generateSegment: Int = 0 // 0: Content, 1: Template
     @State private var currentRoute: NavigationRoute = .main
     @State private var customizeReturnTarget: CustomizeReturnTarget = .main
     @State private var showProPaywall: Bool = false
@@ -35,37 +36,41 @@ public struct ContentView: View {
                 case .main:
                     tabContent
                     
-                case .templates:
-                    TemplatesView(
-                        showHeader: true,
-                        showSearchBar: true,
-                        onSelectTemplate: { template in
-                            customizeReturnTarget = .templatesRoute
+                case .generate:
+                    GenerateQRView(
+                        title: "Generate QR Code",
+                        selectedTemplate: nil,
+                        onBack: { currentRoute = .main },
+                        onProceedToCustomize: { payload, type, _ in
+                            customizeReturnTarget = .generate
                             currentRoute = .customize(
-                                content: template.defaultContent,
-                                type: .website,
-                                style: template.styleConfig,
-                                template: template
+                                content: payload,
+                                type: type,
+                                style: QRStyleConfig(),
+                                template: nil
                             )
                         }
                     )
-                    .safeAreaInset(edge: .top) {
-                        HStack {
-                            Button(action: { currentRoute = .main }) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "chevron.left")
-                                        .font(.system(size: 16, weight: .bold))
-                                    Text("Back")
-                                        .font(.system(size: 16, weight: .semibold))
-                                }
-                                .foregroundColor(Color.shieldPurple)
-                            }
-                            Spacer()
+                    
+                case .create(let template):
+                    GenerateQRView(
+                        title: "Create",
+                        selectedTemplate: template,
+                        onBack: {
+                            selectedTab = .template
+                            currentRoute = .main
+                        },
+                        onProceedToCustomize: { payload, type, t in
+                            let chosenTemplate = t ?? template
+                            customizeReturnTarget = .create(template: chosenTemplate)
+                            currentRoute = .customize(
+                                content: payload,
+                                type: type,
+                                style: chosenTemplate.styleConfig,
+                                template: chosenTemplate
+                            )
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.top, 10)
-                        .background(Color.white)
-                    }
+                    )
                     
                 case .customize(let content, let type, let style, let template):
                     CustomizeQRView(
@@ -74,14 +79,14 @@ public struct ContentView: View {
                         styleConfig: style,
                         selectedTemplate: template,
                         onBack: {
-                            // When user taps Back on Customize screen, return to the Template view if chosen from template!
                             switch customizeReturnTarget {
-                            case .generateTemplatesTab:
-                                selectedTab = .generate
-                                generateSegment = 1 // Template tab in Generate view
+                            case .create(let tmpl):
+                                currentRoute = .create(template: tmpl)
+                            case .generate:
+                                currentRoute = .generate
+                            case .templateTab:
+                                selectedTab = .template
                                 currentRoute = .main
-                            case .templatesRoute:
-                                currentRoute = .templates // Template screen
                             case .main:
                                 currentRoute = .main
                             }
@@ -171,15 +176,14 @@ public struct ContentView: View {
         case .home:
             HomeView(
                 onNavigateToGenerate: {
-                    selectedTab = .generate
-                    generateSegment = 0
+                    currentRoute = .generate
                 },
                 onNavigateToScan: {
                     isShowingScanner = true
                 },
                 onNavigateToTemplates: {
-                    selectedTab = .generate
-                    generateSegment = 1
+                    selectedTab = .template
+                    currentRoute = .main
                 },
                 onNavigateToMyCodes: {
                     currentRoute = .myCodes(onlyFavorites: false)
@@ -195,26 +199,12 @@ public struct ContentView: View {
                 }
             )
             
-        case .generate:
-            GenerateQRView(
-                selectedSegment: $generateSegment,
-                onProceedToCustomize: { payload, type in
-                    customizeReturnTarget = .main
-                    currentRoute = .customize(
-                        content: payload,
-                        type: type,
-                        style: QRStyleConfig(),
-                        template: nil
-                    )
-                },
+        case .template:
+            TemplatesView(
+                showHeader: true,
+                showSearchBar: false,
                 onSelectTemplate: { template in
-                    customizeReturnTarget = .generateTemplatesTab
-                    currentRoute = .customize(
-                        content: template.defaultContent,
-                        type: .website,
-                        style: template.styleConfig,
-                        template: template
-                    )
+                    currentRoute = .create(template: template)
                 }
             )
             

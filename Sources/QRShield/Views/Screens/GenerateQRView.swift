@@ -1,76 +1,131 @@
 import SwiftUI
 
 public struct GenerateQRView: View {
-    @Binding public var selectedSegment: Int // 0: Content, 1: Template
+    public var title: String
+    public var selectedTemplate: QRTemplate?
+    public var onBack: (() -> Void)?
+    public var onProceedToCustomize: (String, QRContentType, QRTemplate?) -> Void
+    
     @State private var activeInputType: QRContentType? = nil
     @State private var contentData: QRContentData = QRContentData(type: .website)
     
-    public var onProceedToCustomize: (String, QRContentType) -> Void
-    public var onSelectTemplate: (QRTemplate) -> Void
-    
     public init(
-        selectedSegment: Binding<Int>,
-        onProceedToCustomize: @escaping (String, QRContentType) -> Void,
-        onSelectTemplate: @escaping (QRTemplate) -> Void
+        title: String = "Generate QR Code",
+        selectedTemplate: QRTemplate? = nil,
+        onBack: (() -> Void)? = nil,
+        onProceedToCustomize: @escaping (String, QRContentType, QRTemplate?) -> Void
     ) {
-        self._selectedSegment = selectedSegment
+        self.title = title
+        self.selectedTemplate = selectedTemplate
+        self.onBack = onBack
         self.onProceedToCustomize = onProceedToCustomize
-        self.onSelectTemplate = onSelectTemplate
     }
     
     public var body: some View {
         VStack(spacing: 0) {
-            // Header: Clean title (No back button)
+            // Header Bar
             HStack {
+                if let onBack = onBack {
+                    Button(action: {
+                        let feedback = UIImpactFeedbackGenerator(style: .light)
+                        feedback.impactOccurred()
+                        onBack()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(Color(hex: "1F2937"))
+                            .frame(width: 38, height: 38)
+                            .background(Color(hex: "F3F4F6"))
+                            .clipShape(Circle())
+                    }
+                } else {
+                    Color.clear.frame(width: 38, height: 38)
+                }
+                
                 Spacer()
-                Text("Generate QR Code")
+                
+                Text(title)
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(Color(hex: "1F2937"))
+                
                 Spacer()
+                
+                Color.clear.frame(width: 38, height: 38)
             }
             .padding(.horizontal, 20)
             .padding(.top, 14)
-            .padding(.bottom, 8)
+            .padding(.bottom, 10)
             
-            // Segmented Control [ Content | Template ]
-            HStack(spacing: 0) {
-                segmentButton(title: "Content", index: 0)
-                segmentButton(title: "Template", index: 1)
-            }
-            .padding(4)
-            .background(Color(hex: "F3F4F6"))
-            .clipShape(Capsule())
-            .padding(.horizontal, 24)
-            .padding(.vertical, 8)
-            
-            if selectedSegment == 0 {
-                // Content Types in a sleek, modern Grid design
-                ScrollView(.vertical, showsIndicators: false) {
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: 14),
-                            GridItem(.flexible(), spacing: 14)
-                        ],
-                        spacing: 14
-                    ) {
-                        ForEach(QRContentType.allCases) { type in
-                            contentGridCard(type)
-                        }
+            // Selected Template Card Header (if chosen from Templates)
+            if let t = selectedTemplate {
+                HStack(spacing: 12) {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(
+                                LinearGradient(
+                                    colors: t.gradientHexColors.map { Color(hex: $0) },
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 44, height: 44)
+                        
+                        Image(systemName: t.categoryIcon)
+                            .font(.system(size: 20, weight: .bold))
+                            .foregroundColor(.white)
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 10)
-                    .padding(.bottom, 130) // Full clearance above bottom tab bar
+                    
+                    VStack(alignment: .leading, spacing: 3) {
+                        HStack(spacing: 6) {
+                            Text(t.name)
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(Color(hex: "111827"))
+                            
+                            Text(t.category.rawValue)
+                                .font(.system(size: 10, weight: .bold))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 2)
+                                .background(Color.shieldPurple.opacity(0.12))
+                                .foregroundColor(Color.shieldPurple)
+                                .clipShape(Capsule())
+                        }
+                        
+                        Text("Select content type to populate this template")
+                            .font(.system(size: 12))
+                            .foregroundColor(Color(hex: "6B7280"))
+                    }
+                    
+                    Spacer()
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                // Embedded Templates View: No title & no search bar per specification!
-                TemplatesView(
-                    showHeader: false,
-                    showSearchBar: false,
-                    onSelectTemplate: onSelectTemplate
+                .padding(12)
+                .background(Color(hex: "F9FAFB"))
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color(hex: "E5E7EB"), lineWidth: 1)
                 )
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 10)
             }
+            
+            // Content Types in a sleek, modern Grid design
+            ScrollView(.vertical, showsIndicators: false) {
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: 14),
+                        GridItem(.flexible(), spacing: 14)
+                    ],
+                    spacing: 14
+                ) {
+                    ForEach(QRContentType.allCases) { type in
+                        contentGridCard(type)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 6)
+                .padding(.bottom, 80)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
@@ -81,35 +136,12 @@ public struct GenerateQRView: View {
                 contentData: $contentData,
                 onCreate: { payload in
                     activeInputType = nil
-                    onProceedToCustomize(payload, type)
+                    onProceedToCustomize(payload, type, selectedTemplate)
                 }
             )
             .presentationDetents([.fraction(0.68), .large])
             .presentationDragIndicator(.visible)
         }
-    }
-    
-    // MARK: - Segment Button
-    private func segmentButton(title: String, index: Int) -> some View {
-        Button(action: {
-            let feedback = UIImpactFeedbackGenerator(style: .light)
-            feedback.impactOccurred()
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                selectedSegment = index
-            }
-        }) {
-            Text(title)
-                .font(.system(size: 14, weight: selectedSegment == index ? .bold : .semibold))
-                .foregroundColor(selectedSegment == index ? .white : Color(hex: "4B5563"))
-                .frame(maxWidth: .infinity)
-                .frame(height: 36)
-                .background(
-                    selectedSegment == index ?
-                    Capsule().fill(Color.shieldPurple) :
-                    nil
-                )
-        }
-        .buttonStyle(.plain)
     }
     
     // MARK: - Grid Card Component for Content Types
@@ -118,6 +150,13 @@ public struct GenerateQRView: View {
             let feedback = UIImpactFeedbackGenerator(style: .light)
             feedback.impactOccurred()
             contentData = QRContentData(type: type)
+            if let t = selectedTemplate, !t.defaultContent.isEmpty {
+                if type == .website {
+                    contentData.websiteUrl = t.defaultContent
+                } else if type == .text {
+                    contentData.plainText = t.defaultContent
+                }
+            }
             activeInputType = type
         }) {
             VStack(alignment: .leading, spacing: 12) {

@@ -132,7 +132,7 @@ public struct AnimatedScannerButton: View {
 
 public enum AppTab: Int, CaseIterable {
     case home = 0
-    case generate = 1
+    case template = 1
     case scan = 2
     case history = 3
     case settings = 4
@@ -140,7 +140,7 @@ public enum AppTab: Int, CaseIterable {
     public var title: String {
         switch self {
         case .home: return "Home"
-        case .generate: return "Generate"
+        case .template: return "Template"
         case .scan: return "Scan"
         case .history: return "History"
         case .settings: return "Settings"
@@ -150,7 +150,7 @@ public enum AppTab: Int, CaseIterable {
     public var iconName: String {
         switch self {
         case .home: return "house.fill"
-        case .generate: return "qrcode"
+        case .template: return "square.grid.2x2"
         case .scan: return "viewfinder"
         case .history: return "clock.arrow.circlepath"
         case .settings: return "gearshape.fill"
@@ -172,8 +172,8 @@ public struct CustomTabBar: View {
             // Home
             tabButton(for: .home)
             
-            // Generate
-            tabButton(for: .generate)
+            // Template (Replaced Generate)
+            tabButton(for: .template)
             
             // Center Elevated Animated Scan Button
             AnimatedScannerButton(action: onScanTapped)
