@@ -142,6 +142,15 @@ public struct QRStyleConfig: Codable, Equatable {
     public var customLogoData: Data? = nil
     public var frameStyle: QRFrameStyle = .none
     public var eyeStyle: QREyeStyle = .rounded
+    public var customText: String? = nil
+    public var textPositionAbove: Bool = false
+    public var textFont: String = "Default"
+    public var textColorHex: String = "111827"
+    
+    public var hasCustomText: Bool {
+        guard let customText = customText else { return false }
+        return !customText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
     
     public init(
         dotStyle: QRDotStyle = .rounded,
@@ -150,7 +159,11 @@ public struct QRStyleConfig: Codable, Equatable {
         logoType: QRLogoType = .none,
         customLogoData: Data? = nil,
         frameStyle: QRFrameStyle = .none,
-        eyeStyle: QREyeStyle = .rounded
+        eyeStyle: QREyeStyle = .rounded,
+        customText: String? = nil,
+        textPositionAbove: Bool = false,
+        textFont: String = "Default",
+        textColorHex: String = "111827"
     ) {
         self.dotStyle = dotStyle
         self.colorTheme = colorTheme
@@ -159,10 +172,15 @@ public struct QRStyleConfig: Codable, Equatable {
         self.customLogoData = customLogoData
         self.frameStyle = frameStyle
         self.eyeStyle = eyeStyle
+        self.customText = customText
+        self.textPositionAbove = textPositionAbove
+        self.textFont = textFont
+        self.textColorHex = textColorHex
     }
     
     private enum CodingKeys: String, CodingKey {
         case dotStyle, colorTheme, backgroundColorHex, logoType, customLogoData, frameStyle, eyeStyle
+        case customText, textPositionAbove, textFont, textColorHex
     }
     
     public init(from decoder: Decoder) throws {
@@ -174,5 +192,9 @@ public struct QRStyleConfig: Codable, Equatable {
         self.customLogoData = try container.decodeIfPresent(Data.self, forKey: .customLogoData)
         self.frameStyle = try container.decodeIfPresent(QRFrameStyle.self, forKey: .frameStyle) ?? .none
         self.eyeStyle = try container.decodeIfPresent(QREyeStyle.self, forKey: .eyeStyle) ?? .rounded
+        self.customText = try container.decodeIfPresent(String.self, forKey: .customText)
+        self.textPositionAbove = try container.decodeIfPresent(Bool.self, forKey: .textPositionAbove) ?? false
+        self.textFont = try container.decodeIfPresent(String.self, forKey: .textFont) ?? "Default"
+        self.textColorHex = try container.decodeIfPresent(String.self, forKey: .textColorHex) ?? "111827"
     }
 }

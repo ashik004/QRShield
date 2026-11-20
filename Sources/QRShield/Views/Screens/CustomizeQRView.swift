@@ -66,6 +66,10 @@ public struct CustomizeQRView: View {
     @State private var selectedFontOption: QRTextFontOption = .standard
     @State private var selectedTextColorHex: String = "111827"
     
+    // Live Preview State (Zero-lag synchronous + cancellable task)
+    @State private var livePreviewImage: UIImage? = nil
+    @State private var renderTask: Task<Void, Never>? = nil
+    
     // Export & Sharing
     @State private var showShareSheet: Bool = false
     @State private var showExportSuccessModal: Bool = false
@@ -139,6 +143,9 @@ public struct CustomizeQRView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Color.white.ignoresSafeArea())
+        .onAppear {
+            updateQRPreview(with: styleConfig)
+        }
         .sheet(isPresented: $showShareSheet) {
             if let img = renderedUIImage {
                 ShareSheet(activityItems: [img])
@@ -190,29 +197,12 @@ public struct CustomizeQRView: View {
     
     // MARK: - 2. Centered Live QR Code Preview Card
     private var liveQRPreviewCard: some View {
-        VStack(spacing: 6) {
-            if showTextAbove && !customLabelText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Text(customLabelText)
-                    .font(.system(size: 14, weight: .bold, design: selectedFontOption.fontDesign))
-                    .foregroundColor(Color(hex: selectedTextColorHex))
-                    .lineLimit(1)
-                    .transition(.opacity)
-            }
-            
-            QRDisplayView(
-                content: content,
-                styleConfig: styleConfig,
-                size: 210
-            )
-            
-            if !showTextAbove && !customLabelText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                Text(customLabelText)
-                    .font(.system(size: 14, weight: .bold, design: selectedFontOption.fontDesign))
-                    .foregroundColor(Color(hex: selectedTextColorHex))
-                    .lineLimit(1)
-                    .transition(.opacity)
-            }
-        }
+        QRDisplayView(
+            content: content,
+            styleConfig: styleConfig,
+            previewImage: livePreviewImage,
+            size: 210
+        )
         .frame(maxWidth: .infinity)
         .padding(.vertical, 8)
     }
@@ -272,6 +262,95 @@ public struct CustomizeQRView: View {
         .buttonStyle(.plain)
     }
     
+    // MARK: - Live Preview Updating (Solves Stale State & Off-By-One Race Condition)
+    private func updateQRPreview(
+        template: QRTemplate? = nil,
+        logo: QRLogoType? = nil,
+        customLogoData: Data? = nil,
+        color: QRColorTheme? = nil,
+        dotShape: QRDotStyle? = nil,
+        eyeStyle: QREyeStyle? = nil,
+        text: String? = nil,
+        textPositionAbove: Bool? = nil,
+        textFont: String? = nil,
+        textColorHex: String? = nil,
+        with explicitConfig: QRStyleConfig? = nil
+    ) {
+        // 1. Cancel in-flight background QR render task immediately
+        renderTask?.cancel()
+        
+        // 2. Build newly configured style config directly
+        var newConfig = explicitConfig ?? styleConfig
+        if let template = template {
+            selectedTemplate = template
+            newConfig = template.styleConfig
+            // Carry forward existing custom text settings
+            newConfig.customText = styleConfig.customText
+            newConfig.textPositionAbove = styleConfig.textPositionAbove
+            newConfig.textFont = styleConfig.textFont
+            newConfig.textColorHex = styleConfig.textColorHex
+        }
+        if let logo = logo {
+            newConfig.logoType = logo
+            if logo == .none {
+                newConfig.customLogoData = nil
+            }
+        }
+        if let data = customLogoData {
+            newConfig.logoType = .custom
+            newConfig.customLogoData = data
+        }
+        if let color = color {
+            newConfig.colorTheme = color
+        }
+        if let dotShape = dotShape {
+            newConfig.dotStyle = dotShape
+        }
+        if let eyeStyle = eyeStyle {
+            newConfig.eyeStyle = eyeStyle
+        }
+        if let text = text {
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            newConfig.customText = trimmed.isEmpty ? nil : text
+        }
+        if let textPositionAbove = textPositionAbove {
+            newConfig.textPositionAbove = textPositionAbove
+        }
+        if let textFont = textFont {
+            newConfig.textFont = textFont
+        }
+        if let textColorHex = textColorHex {
+            newConfig.textColorHex = textColorHex
+        }
+        
+        // 3. Immediately assign to state for UI selection highlights
+        self.styleConfig = newConfig
+        
+        // 4. Generate QR code immediately with the new configuration
+        let targetConfig = newConfig
+        let targetContent = content
+        
+        // Immediate synchronous generation / cache lookup
+        if let direct = QRCodeGeneratorService.shared.generateQRCode(
+            from: targetContent,
+            style: targetConfig,
+            size: CGSize(width: 630, height: 630)
+        ) {
+            self.livePreviewImage = direct
+        } else {
+            renderTask = Task { @MainActor in
+                guard !Task.isCancelled else { return }
+                let rendered = QRCodeGeneratorService.shared.generateQRCode(
+                    from: targetContent,
+                    style: targetConfig,
+                    size: CGSize(width: 630, height: 630)
+                )
+                guard !Task.isCancelled else { return }
+                self.livePreviewImage = rendered
+            }
+        }
+    }
+    
     // MARK: - Tab 1: Template Panel View
     private var templatePanelView: some View {
         VStack(spacing: 0) {
@@ -281,12 +360,17 @@ public struct CustomizeQRView: View {
                 Button(action: {
                     let feedback = UIImpactFeedbackGenerator(style: .light)
                     feedback.impactOccurred()
-                    withAnimation {
-                        styleConfig = initialStyleConfig
-                        selectedTemplate = initialTemplate
-                        customLabelText = ""
-                        showTextAbove = false
-                    }
+                    customLabelText = ""
+                    showTextAbove = false
+                    selectedFontOption = .standard
+                    selectedTextColorHex = "111827"
+                    var resetConfig = initialStyleConfig
+                    resetConfig.customText = nil
+                    resetConfig.textPositionAbove = false
+                    resetConfig.textFont = "Default"
+                    resetConfig.textColorHex = "111827"
+                    selectedTemplate = initialTemplate
+                    updateQRPreview(with: resetConfig)
                 }) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 13, weight: .bold))
@@ -371,10 +455,7 @@ public struct CustomizeQRView: View {
         return Button(action: {
             let feedback = UIImpactFeedbackGenerator(style: .medium)
             feedback.impactOccurred()
-            withAnimation(.easeInOut(duration: 0.2)) {
-                selectedTemplate = template
-                styleConfig = template.styleConfig
-            }
+            updateQRPreview(template: template)
         }) {
             VStack(spacing: 6) {
                 ZStack {
@@ -432,8 +513,7 @@ public struct CustomizeQRView: View {
                                         if let data = try? await newItem.loadTransferable(type: Data.self),
                                            let _ = UIImage(data: data) {
                                             await MainActor.run {
-                                                styleConfig.logoType = .custom
-                                                styleConfig.customLogoData = data
+                                                updateQRPreview(customLogoData: data)
                                             }
                                         }
                                     }
@@ -442,7 +522,7 @@ public struct CustomizeQRView: View {
                                 Button(action: {
                                     let feedback = UIImpactFeedbackGenerator(style: .light)
                                     feedback.impactOccurred()
-                                    styleConfig.logoType = logo
+                                    updateQRPreview(logo: logo)
                                 }) {
                                     logoItemBadge(for: logo)
                                 }
@@ -504,7 +584,7 @@ public struct CustomizeQRView: View {
                             Button(action: {
                                 let feedback = UIImpactFeedbackGenerator(style: .light)
                                 feedback.impactOccurred()
-                                styleConfig.colorTheme = theme
+                                updateQRPreview(color: theme)
                             }) {
                                 VStack(spacing: 6) {
                                     Circle()
@@ -552,9 +632,15 @@ public struct CustomizeQRView: View {
                         
                         TextField("Enter label (e.g. Scan Me)", text: $customLabelText)
                             .font(.system(size: 14))
+                            .onChange(of: customLabelText) { newText in
+                                updateQRPreview(text: newText)
+                            }
                         
                         if !customLabelText.isEmpty {
-                            Button(action: { customLabelText = "" }) {
+                            Button(action: {
+                                customLabelText = ""
+                                updateQRPreview(text: "")
+                            }) {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundColor(Color(hex: "9CA3AF"))
                             }
@@ -569,6 +655,7 @@ public struct CustomizeQRView: View {
                         let feedback = UIImpactFeedbackGenerator(style: .light)
                         feedback.impactOccurred()
                         customLabelText = ""
+                        updateQRPreview(text: "")
                     }) {
                         Text("None")
                             .font(.system(size: 13, weight: .semibold))
@@ -589,23 +676,33 @@ public struct CustomizeQRView: View {
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(Color(hex: "4B5563"))
                     
-                    Button(action: { showTextAbove = false }) {
+                    Button(action: {
+                        let feedback = UIImpactFeedbackGenerator(style: .light)
+                        feedback.impactOccurred()
+                        showTextAbove = false
+                        updateQRPreview(textPositionAbove: false)
+                    }) {
                         Text("Below QR")
-                            .font(.system(size: 12, weight: !showTextAbove ? .bold : .medium))
-                            .foregroundColor(!showTextAbove ? .white : Color(hex: "4B5563"))
+                            .font(.system(size: 12, weight: !styleConfig.textPositionAbove ? .bold : .medium))
+                            .foregroundColor(!styleConfig.textPositionAbove ? .white : Color(hex: "4B5563"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(!showTextAbove ? Color(hex: "6D28D9") : Color(hex: "F3F4F6")))
+                            .background(Capsule().fill(!styleConfig.textPositionAbove ? Color(hex: "6D28D9") : Color(hex: "F3F4F6")))
                     }
                     .buttonStyle(.plain)
                     
-                    Button(action: { showTextAbove = true }) {
+                    Button(action: {
+                        let feedback = UIImpactFeedbackGenerator(style: .light)
+                        feedback.impactOccurred()
+                        showTextAbove = true
+                        updateQRPreview(textPositionAbove: true)
+                    }) {
                         Text("Above QR")
-                            .font(.system(size: 12, weight: showTextAbove ? .bold : .medium))
-                            .foregroundColor(showTextAbove ? .white : Color(hex: "4B5563"))
+                            .font(.system(size: 12, weight: styleConfig.textPositionAbove ? .bold : .medium))
+                            .foregroundColor(styleConfig.textPositionAbove ? .white : Color(hex: "4B5563"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(showTextAbove ? Color(hex: "6D28D9") : Color(hex: "F3F4F6")))
+                            .background(Capsule().fill(styleConfig.textPositionAbove ? Color(hex: "6D28D9") : Color(hex: "F3F4F6")))
                     }
                     .buttonStyle(.plain)
                 }
@@ -620,16 +717,19 @@ public struct CustomizeQRView: View {
                     HStack(spacing: 8) {
                         ForEach(QRTextFontOption.allCases) { opt in
                             Button(action: {
+                                let feedback = UIImpactFeedbackGenerator(style: .light)
+                                feedback.impactOccurred()
                                 selectedFontOption = opt
+                                updateQRPreview(textFont: opt.rawValue)
                             }) {
                                 Text(opt.rawValue)
-                                    .font(.system(size: 12, weight: selectedFontOption == opt ? .bold : .medium, design: opt.fontDesign))
-                                    .foregroundColor(selectedFontOption == opt ? .white : Color(hex: "4B5563"))
+                                    .font(.system(size: 12, weight: styleConfig.textFont == opt.rawValue ? .bold : .medium, design: opt.fontDesign))
+                                    .foregroundColor(styleConfig.textFont == opt.rawValue ? .white : Color(hex: "4B5563"))
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                            .fill(selectedFontOption == opt ? Color(hex: "6D28D9") : Color(hex: "F3F4F6"))
+                                            .fill(styleConfig.textFont == opt.rawValue ? Color(hex: "6D28D9") : Color(hex: "F3F4F6"))
                                     )
                             }
                             .buttonStyle(.plain)
@@ -647,14 +747,17 @@ public struct CustomizeQRView: View {
                     HStack(spacing: 12) {
                         ForEach(["111827", "6D28D9", "2563EB", "059669", "DC2626", "D97706"], id: \.self) { hex in
                             Button(action: {
+                                let feedback = UIImpactFeedbackGenerator(style: .light)
+                                feedback.impactOccurred()
                                 selectedTextColorHex = hex
+                                updateQRPreview(textColorHex: hex)
                             }) {
                                 Circle()
                                     .fill(Color(hex: hex))
                                     .frame(width: 28, height: 28)
                                     .overlay(
                                         Circle()
-                                            .stroke(selectedTextColorHex == hex ? Color(hex: "6D28D9") : Color.clear, lineWidth: 2.5)
+                                            .stroke(styleConfig.textColorHex == hex ? Color(hex: "6D28D9") : Color.clear, lineWidth: 2.5)
                                             .scaleEffect(1.25)
                                     )
                             }
@@ -683,7 +786,7 @@ public struct CustomizeQRView: View {
                             Button(action: {
                                 let feedback = UIImpactFeedbackGenerator(style: .light)
                                 feedback.impactOccurred()
-                                styleConfig.dotStyle = style
+                                updateQRPreview(dotShape: style)
                             }) {
                                 VStack(spacing: 6) {
                                     ZStack {
@@ -720,7 +823,7 @@ public struct CustomizeQRView: View {
                             Button(action: {
                                 let feedback = UIImpactFeedbackGenerator(style: .light)
                                 feedback.impactOccurred()
-                                styleConfig.eyeStyle = eye
+                                updateQRPreview(eyeStyle: eye)
                             }) {
                                 VStack(spacing: 6) {
                                     ZStack {

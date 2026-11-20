@@ -19,7 +19,8 @@ public final class QRCodeGeneratorService {
         style: QRStyleConfig,
         size: CGSize = CGSize(width: 800, height: 800)
     ) -> UIImage? {
-        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.eyeStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(Int(size.width))x\(Int(size.height))" as NSString
+        let textKey = style.customText ?? ""
+        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.eyeStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(textKey)_\(style.textPositionAbove)_\(style.textFont)_\(style.textColorHex)_\(Int(size.width))x\(Int(size.height))" as NSString
         if let cached = imageCache.object(forKey: cacheKey) {
             return cached
         }
@@ -78,7 +79,7 @@ public final class QRCodeGeneratorService {
         return matrix
     }
     
-    /// Renders custom dot styles, gradients, and central logo onto a UIGraphicsImageRenderer canvas
+    /// Renders custom dot styles, gradients, finder patterns, and central logo onto a UIGraphicsImageRenderer canvas
     private func renderStyledQR(matrix: [[Bool]], style: QRStyleConfig, canvasSize: CGSize) -> UIImage {
         let renderer = UIGraphicsImageRenderer(size: canvasSize)
         
@@ -93,19 +94,50 @@ public final class QRCodeGeneratorService {
             let numRows = matrix.count
             let numCols = matrix.first?.count ?? 1
             
-            let padding: CGFloat = canvasSize.width * 0.06
-            let qrDrawWidth = canvasSize.width - (padding * 2)
-            let qrDrawHeight = canvasSize.height - (padding * 2)
+            let hasText = style.hasCustomText
+            let textHeight: CGFloat = hasText ? canvasSize.height * 0.08 : 0
+            let basePadding: CGFloat = canvasSize.width * 0.06
+            
+            let paddingLeft = basePadding
+            let paddingRight = basePadding
+            let paddingTop = basePadding + (hasText && style.textPositionAbove ? textHeight : 0)
+            let paddingBottom = basePadding + (hasText && !style.textPositionAbove ? textHeight : 0)
+            
+            let qrDrawWidth = canvasSize.width - (paddingLeft + paddingRight)
+            let qrDrawHeight = canvasSize.height - (paddingTop + paddingBottom)
             let moduleWidth = qrDrawWidth / CGFloat(numCols)
             let moduleHeight = qrDrawHeight / CGFloat(numRows)
             
+            // Draw Custom Text Label if present
+            if let text = style.customText, !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                let fontSize = canvasSize.width * 0.048
+                let font = uiFont(for: style.textFont, size: fontSize)
+                let textColor = UIColor(Color(hex: style.textColorHex))
+                let paragraphStyle = NSMutableParagraphStyle()
+                paragraphStyle.alignment = .center
+                let attributes: [NSAttributedString.Key: Any] = [
+                    .font: font,
+                    .foregroundColor: textColor,
+                    .paragraphStyle: paragraphStyle
+                ]
+                let textRect: CGRect
+                if style.textPositionAbove {
+                    textRect = CGRect(x: basePadding, y: basePadding * 0.4, width: canvasSize.width - (basePadding * 2), height: textHeight)
+                } else {
+                    textRect = CGRect(x: basePadding, y: canvasSize.height - (basePadding * 0.4) - textHeight, width: canvasSize.width - (basePadding * 2), height: textHeight)
+                }
+                (text as NSString).draw(in: textRect, withAttributes: attributes)
+            }
+            
             // Center clear zone if logo is present
             let centerRatio: CGFloat = style.logoType != .none ? 0.24 : 0.0
+            let qrCenterX = paddingLeft + qrDrawWidth * 0.5
+            let qrCenterY = paddingTop + qrDrawHeight * 0.5
             let centerRect = CGRect(
-                x: canvasSize.width * (0.5 - centerRatio / 2),
-                y: canvasSize.height * (0.5 - centerRatio / 2),
-                width: canvasSize.width * centerRatio,
-                height: canvasSize.height * centerRatio
+                x: qrCenterX - (qrDrawWidth * centerRatio) / 2,
+                y: qrCenterY - (qrDrawHeight * centerRatio) / 2,
+                width: qrDrawWidth * centerRatio,
+                height: qrDrawHeight * centerRatio
             )
             
             // Setup gradient colors
@@ -115,14 +147,22 @@ public final class QRCodeGeneratorService {
             
             // Create path for all active QR modules
             let dotsPath = UIBezierPath()
+            dotsPath.usesEvenOddFillRule = true
             
+            // Body dots (Skip the 3 7x7 corner finder patterns)
             for y in 0..<numRows {
                 for x in 0..<numCols {
                     guard matrix[y][x] else { continue }
                     
+                    // Skip 7x7 finder patterns (Top-Left, Top-Right, Bottom-Left)
+                    let isFinderPattern = (x < 7 && y < 7) ||
+                                          (x >= numCols - 7 && y < 7) ||
+                                          (x < 7 && y >= numRows - 7)
+                    if isFinderPattern { continue }
+                    
                     let rect = CGRect(
-                        x: padding + CGFloat(x) * moduleWidth,
-                        y: padding + CGFloat(y) * moduleHeight,
+                        x: paddingLeft + CGFloat(x) * moduleWidth,
+                        y: paddingTop + CGFloat(y) * moduleHeight,
                         width: moduleWidth,
                         height: moduleHeight
                     )
@@ -132,63 +172,102 @@ public final class QRCodeGeneratorService {
                         continue
                     }
                     
-                    // Check if module belongs to one of the 3 corner finder patterns (7x7 eyes)
-                    let isFinderPattern = (x < 7 && y < 7) ||
-                                          (x >= numCols - 7 && y < 7) ||
-                                          (x < 7 && y >= numRows - 7)
-                    
-                    if isFinderPattern {
-                        // Finder eye style
-                        switch style.eyeStyle {
-                        case .rounded:
-                            let eyeDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.2, dy: 0.2), cornerRadius: moduleWidth * 0.3)
-                            dotsPath.append(eyeDot)
-                        case .square:
-                            let eyeDot = UIBezierPath(rect: rect.insetBy(dx: 0.2, dy: 0.2))
-                            dotsPath.append(eyeDot)
-                        case .circular:
-                            let eyeDot = UIBezierPath(ovalIn: rect.insetBy(dx: 0.2, dy: 0.2))
-                            dotsPath.append(eyeDot)
-                        case .leaf:
-                            let leafDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.2, dy: 0.2), byRoundingCorners: [.topLeft, .bottomRight], cornerRadii: CGSize(width: moduleWidth * 0.45, height: moduleWidth * 0.45))
-                            dotsPath.append(leafDot)
-                        }
-                    } else {
-                        switch style.dotStyle {
-                        case .square:
-                            let squareDot = UIBezierPath(rect: rect.insetBy(dx: 0.2, dy: 0.2))
-                            dotsPath.append(squareDot)
-                            
-                        case .rounded:
-                            let roundedDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.4, dy: 0.4), cornerRadius: moduleWidth * 0.35)
-                            dotsPath.append(roundedDot)
-                            
-                        case .circular:
-                            let circleDot = UIBezierPath(ovalIn: rect.insetBy(dx: moduleWidth * 0.12, dy: moduleHeight * 0.12))
-                            dotsPath.append(circleDot)
-                            
-                        case .diamond:
-                            let diamondDot = UIBezierPath()
-                            let insetRect = rect.insetBy(dx: 0.4, dy: 0.4)
-                            diamondDot.move(to: CGPoint(x: insetRect.midX, y: insetRect.minY))
-                            diamondDot.addLine(to: CGPoint(x: insetRect.maxX, y: insetRect.midY))
-                            diamondDot.addLine(to: CGPoint(x: insetRect.midX, y: insetRect.maxY))
-                            diamondDot.addLine(to: CGPoint(x: insetRect.minX, y: insetRect.midY))
-                            diamondDot.close()
-                            dotsPath.append(diamondDot)
-                        }
+                    switch style.dotStyle {
+                    case .square:
+                        let squareDot = UIBezierPath(rect: rect.insetBy(dx: 0.2, dy: 0.2))
+                        dotsPath.append(squareDot)
+                        
+                    case .rounded:
+                        let roundedDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.4, dy: 0.4), cornerRadius: moduleWidth * 0.35)
+                        dotsPath.append(roundedDot)
+                        
+                    case .circular:
+                        let circleDot = UIBezierPath(ovalIn: rect.insetBy(dx: moduleWidth * 0.12, dy: moduleHeight * 0.12))
+                        dotsPath.append(circleDot)
+                        
+                    case .diamond:
+                        let diamondDot = UIBezierPath()
+                        let insetRect = rect.insetBy(dx: 0.4, dy: 0.4)
+                        diamondDot.move(to: CGPoint(x: insetRect.midX, y: insetRect.minY))
+                        diamondDot.addLine(to: CGPoint(x: insetRect.maxX, y: insetRect.midY))
+                        diamondDot.addLine(to: CGPoint(x: insetRect.midX, y: insetRect.maxY))
+                        diamondDot.addLine(to: CGPoint(x: insetRect.minX, y: insetRect.midY))
+                        diamondDot.close()
+                        dotsPath.append(diamondDot)
                     }
                 }
             }
             
-            // 2. Draw gradient through the dots path
+            // Draw Composite 7x7 Corner Finder Patterns (Outer Ring + Inner Dot)
+            enum FinderCorner {
+                case topLeft, topRight, bottomLeft
+            }
+            
+            func addFinderPattern(col: Int, row: Int, corner: FinderCorner) {
+                let originX = paddingLeft + CGFloat(col) * moduleWidth
+                let originY = paddingTop + CGFloat(row) * moduleHeight
+                
+                let outerRect = CGRect(x: originX, y: originY, width: 7 * moduleWidth, height: 7 * moduleHeight)
+                let innerCutoutRect = CGRect(x: originX + moduleWidth, y: originY + moduleHeight, width: 5 * moduleWidth, height: 5 * moduleHeight)
+                let centerDotRect = CGRect(x: originX + 2 * moduleWidth, y: originY + 2 * moduleHeight, width: 3 * moduleWidth, height: 3 * moduleHeight)
+                
+                let outerPath: UIBezierPath
+                let innerHolePath: UIBezierPath
+                let centerDotPath: UIBezierPath
+                
+                switch style.eyeStyle {
+                case .square:
+                    outerPath = UIBezierPath(rect: outerRect)
+                    innerHolePath = UIBezierPath(rect: innerCutoutRect)
+                    centerDotPath = UIBezierPath(rect: centerDotRect)
+                    
+                case .rounded:
+                    outerPath = UIBezierPath(roundedRect: outerRect, cornerRadius: moduleWidth * 1.8)
+                    innerHolePath = UIBezierPath(roundedRect: innerCutoutRect, cornerRadius: moduleWidth * 1.0)
+                    centerDotPath = UIBezierPath(roundedRect: centerDotRect, cornerRadius: moduleWidth * 0.9)
+                    
+                case .circular:
+                    outerPath = UIBezierPath(ovalIn: outerRect)
+                    innerHolePath = UIBezierPath(ovalIn: innerCutoutRect)
+                    centerDotPath = UIBezierPath(ovalIn: centerDotRect)
+                    
+                case .leaf:
+                    let corners: UIRectCorner
+                    switch corner {
+                    case .topLeft:
+                        corners = [.topLeft, .bottomRight]
+                    case .topRight:
+                        corners = [.topRight, .bottomLeft]
+                    case .bottomLeft:
+                        corners = [.bottomLeft, .topRight]
+                    }
+                    outerPath = UIBezierPath(roundedRect: outerRect, byRoundingCorners: corners, cornerRadii: CGSize(width: moduleWidth * 3.5, height: moduleWidth * 3.5))
+                    innerHolePath = UIBezierPath(roundedRect: innerCutoutRect, byRoundingCorners: corners, cornerRadii: CGSize(width: moduleWidth * 2.2, height: moduleWidth * 2.2))
+                    centerDotPath = UIBezierPath(roundedRect: centerDotRect, byRoundingCorners: corners, cornerRadii: CGSize(width: moduleWidth * 1.5, height: moduleWidth * 1.5))
+                }
+                
+                dotsPath.append(outerPath)
+                dotsPath.append(innerHolePath)
+                dotsPath.append(centerDotPath)
+            }
+            
+            // Top-Left Finder
+            addFinderPattern(col: 0, row: 0, corner: .topLeft)
+            // Top-Right Finder
+            addFinderPattern(col: numCols - 7, row: 0, corner: .topRight)
+            // Bottom-Left Finder
+            addFinderPattern(col: 0, row: numRows - 7, corner: .bottomLeft)
+            
+            // 2. Draw gradient through the complete dots path (using Even-Odd fill)
             cgContext.saveGState()
-            dotsPath.addClip()
+            cgContext.addPath(dotsPath.cgPath)
+            cgContext.clip(using: .evenOdd)
+            
             if let gradient = gradient {
                 cgContext.drawLinearGradient(
                     gradient,
-                    start: CGPoint(x: padding, y: padding),
-                    end: CGPoint(x: canvasSize.width - padding, y: canvasSize.height - padding),
+                    start: CGPoint(x: paddingLeft, y: paddingTop),
+                    end: CGPoint(x: canvasSize.width - paddingRight, y: canvasSize.height - paddingBottom),
                     options: []
                 )
             } else {
@@ -206,6 +285,32 @@ public final class QRCodeGeneratorService {
                     canvasSize: canvasSize
                 )
             }
+        }
+    }
+    
+    private func uiFont(for fontName: String, size: CGFloat) -> UIFont {
+        let weight: UIFont.Weight = .bold
+        switch fontName {
+        case "Rounded":
+            let baseFont = UIFont.systemFont(ofSize: size, weight: weight)
+            if let descriptor = baseFont.fontDescriptor.withDesign(.rounded) {
+                return UIFont(descriptor: descriptor, size: size)
+            }
+            return baseFont
+        case "Serif":
+            let baseFont = UIFont.systemFont(ofSize: size, weight: weight)
+            if let descriptor = baseFont.fontDescriptor.withDesign(.serif) {
+                return UIFont(descriptor: descriptor, size: size)
+            }
+            return baseFont
+        case "Mono":
+            let baseFont = UIFont.systemFont(ofSize: size, weight: weight)
+            if let descriptor = baseFont.fontDescriptor.withDesign(.monospaced) {
+                return UIFont(descriptor: descriptor, size: size)
+            }
+            return baseFont
+        default:
+            return UIFont.systemFont(ofSize: size, weight: weight)
         }
     }
     
