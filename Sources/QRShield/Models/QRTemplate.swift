@@ -1336,4 +1336,20 @@ public extension QRTemplate {
             defaultContent: "mailto:subscribe@qrshield.app?subject=Subscribe%20Newsletter"
         )
     ]
+    
+    // Curated high-engagement popular templates shown on Home screen
+    static var popularTemplates: [QRTemplate] {
+        let popularIds = [
+            "instagram_social",
+            "youtube_social",
+            "wifi_home_blue",
+            "whatsapp_direct",
+            "business_executive",
+            "tiktok_neon"
+        ]
+        let list = popularIds.compactMap { pid in
+            predefinedTemplates.first(where: { $0.id == pid })
+        }
+        return list.isEmpty ? Array(predefinedTemplates.prefix(6)) : list
+    }
 }

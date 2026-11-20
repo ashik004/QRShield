@@ -239,6 +239,9 @@ public struct ContentView: View {
                     onNavigateToTemplates: {
                         switchTab(to: .template)
                     },
+                    onSelectTemplate: { template in
+                        navigate(to: .create(template: template), direction: .forward)
+                    },
                     onNavigateToMyCodes: {
                         navigate(to: .myCodes(onlyFavorites: false), direction: .forward)
                     },

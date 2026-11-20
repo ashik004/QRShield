@@ -4,23 +4,26 @@ public struct HomeView: View {
     public var onNavigateToGenerate: () -> Void
     public var onNavigateToScan: () -> Void
     public var onNavigateToTemplates: () -> Void
-    public var onNavigateToMyCodes: () -> Void
-    public var onNavigateToHistory: () -> Void
-    public var onNavigateToFavorites: () -> Void
+    public var onSelectTemplate: ((QRTemplate) -> Void)?
+    public var onNavigateToMyCodes: (() -> Void)?
+    public var onNavigateToHistory: (() -> Void)?
+    public var onNavigateToFavorites: (() -> Void)?
     public var onOpenPro: () -> Void
     
     public init(
         onNavigateToGenerate: @escaping () -> Void,
         onNavigateToScan: @escaping () -> Void,
         onNavigateToTemplates: @escaping () -> Void,
-        onNavigateToMyCodes: @escaping () -> Void,
-        onNavigateToHistory: @escaping () -> Void,
-        onNavigateToFavorites: @escaping () -> Void,
+        onSelectTemplate: ((QRTemplate) -> Void)? = nil,
+        onNavigateToMyCodes: (() -> Void)? = nil,
+        onNavigateToHistory: (() -> Void)? = nil,
+        onNavigateToFavorites: (() -> Void)? = nil,
         onOpenPro: @escaping () -> Void
     ) {
         self.onNavigateToGenerate = onNavigateToGenerate
         self.onNavigateToScan = onNavigateToScan
         self.onNavigateToTemplates = onNavigateToTemplates
+        self.onSelectTemplate = onSelectTemplate
         self.onNavigateToMyCodes = onNavigateToMyCodes
         self.onNavigateToHistory = onNavigateToHistory
         self.onNavigateToFavorites = onNavigateToFavorites
@@ -78,97 +81,183 @@ public struct HomeView: View {
                 .padding(.horizontal, 20)
                 .padding(.top, 12)
                 
-                // Hero Banner Card
-                HeroBannerView()
-                    .padding(.horizontal, 20)
-                
-                // Primary Action Buttons
-                VStack(spacing: 12) {
-                    // 1. Generate QR Code Button
+                // Side-by-Side Square Card System: Generate QR & Scan QR Code
+                HStack(spacing: 14) {
+                    // Card 1: Generate QR
                     Button(action: {
                         let feedback = UIImpactFeedbackGenerator(style: .medium)
                         feedback.impactOccurred()
                         onNavigateToGenerate()
                     }) {
-                        HStack(spacing: 14) {
-                            Image(systemName: "qrcode")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(.white)
-                            
-                            Text("Generate QR Code")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white)
+                        VStack(alignment: .leading, spacing: 0) {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill(Color.white.opacity(0.22))
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "qrcode")
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                Spacer()
+                                
+                                Circle()
+                                    .fill(Color.white.opacity(0.2))
+                                    .frame(width: 28, height: 28)
+                                    .overlay(
+                                        Image(systemName: "arrow.up.right")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(.white)
+                                    )
+                            }
                             
                             Spacer()
                             
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(.white.opacity(0.8))
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("Generate QR")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.white)
+                                
+                                Text("Create styled codes")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(.white.opacity(0.85))
+                            }
                         }
-                        .padding(.horizontal, 20)
-                        .frame(height: 58)
+                        .padding(16)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 142)
                         .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
                                 .fill(
                                     LinearGradient(
                                         colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
                                 )
-                                .shadow(color: Color(hex: "6C5CE7").opacity(0.35), radius: 10, x: 0, y: 5)
+                                .shadow(color: Color(hex: "7952FC").opacity(0.35), radius: 10, x: 0, y: 6)
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(SpringCardButtonStyle())
                     
-                    // 2. Scan QR Code Button
+                    // Card 2: Scan QR Code
                     Button(action: {
                         let feedback = UIImpactFeedbackGenerator(style: .medium)
                         feedback.impactOccurred()
                         onNavigateToScan()
                     }) {
-                        HStack(spacing: 14) {
-                            Image(systemName: "viewfinder")
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color.shieldPurple)
-                            
-                            Text("Scan QR Code")
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color.shieldPurple)
+                        VStack(alignment: .leading, spacing: 0) {
+                            HStack {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .fill(Color(hex: "F3F0FF"))
+                                        .frame(width: 44, height: 44)
+                                    
+                                    Image(systemName: "viewfinder")
+                                        .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(Color.shieldPurple)
+                                }
+                                
+                                Spacer()
+                                
+                                Circle()
+                                    .fill(Color(hex: "F3F4F6"))
+                                    .frame(width: 28, height: 28)
+                                    .overlay(
+                                        Image(systemName: "arrow.up.right")
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(Color(hex: "6B7280"))
+                                    )
+                            }
                             
                             Spacer()
                             
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 14, weight: .bold))
-                                .foregroundColor(Color.shieldPurple.opacity(0.8))
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("Scan QR Code")
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(Color(hex: "111827"))
+                                
+                                Text("Instant safety check")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundColor(Color(hex: "6B7280"))
+                            }
                         }
-                        .padding(.horizontal, 20)
-                        .frame(height: 58)
+                        .padding(16)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 142)
                         .background(
-                            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                .fill(Color(hex: "F3F0FF"))
+                            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                .fill(Color.white)
                                 .overlay(
-                                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .stroke(Color(hex: "E5DEFF"), lineWidth: 1.5)
+                                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                        .stroke(Color(hex: "E5E7EB"), lineWidth: 1.2)
                                 )
+                                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4)
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(SpringCardButtonStyle())
                 }
                 .padding(.horizontal, 20)
                 
-                // Quick Access 2x2 Grid
-                QuickAccessGrid(
-                    onSelectTemplates: onNavigateToTemplates,
-                    onSelectMyCodes: onNavigateToMyCodes,
-                    onSelectHistory: onNavigateToHistory,
-                    onSelectFavorites: onNavigateToFavorites
-                )
-                .padding(.horizontal, 20)
+                // Popular Templates Section
+                VStack(spacing: 14) {
+                    HStack {
+                        HStack(spacing: 6) {
+                            Image(systemName: "flame.fill")
+                                .font(.system(size: 15, weight: .bold))
+                                .foregroundColor(Color(hex: "F59E0B"))
+                            
+                            Text("Popular Templates")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(Color(hex: "111827"))
+                        }
+                        
+                        Spacer()
+                        
+                        Button(action: {
+                            let feedback = UIImpactFeedbackGenerator(style: .light)
+                            feedback.impactOccurred()
+                            onNavigateToTemplates()
+                        }) {
+                            HStack(spacing: 4) {
+                                Text("See All")
+                                    .font(.system(size: 14, weight: .bold))
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 11, weight: .bold))
+                            }
+                            .foregroundColor(Color.shieldPurple)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 4)
+                    
+                    // 2-Column Grid of Popular Templates
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible(), spacing: 14),
+                            GridItem(.flexible(), spacing: 14)
+                        ],
+                        spacing: 16
+                    ) {
+                        ForEach(QRTemplate.popularTemplates) { template in
+                            TemplateCardView(template: template) {
+                                if let onSelectTemplate = onSelectTemplate {
+                                    onSelectTemplate(template)
+                                } else {
+                                    onNavigateToTemplates()
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                }
                 
                 Spacer(minLength: 40)
             }
-            .padding(.bottom, 24)
+            .padding(.bottom, 120) // Full clearance above custom tab bar
         }
         .background(Color.white.ignoresSafeArea())
     }
