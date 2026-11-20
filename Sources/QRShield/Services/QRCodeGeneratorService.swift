@@ -19,7 +19,7 @@ public final class QRCodeGeneratorService {
         style: QRStyleConfig,
         size: CGSize = CGSize(width: 800, height: 800)
     ) -> UIImage? {
-        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(Int(size.width))x\(Int(size.height))" as NSString
+        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.eyeStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(Int(size.width))x\(Int(size.height))" as NSString
         if let cached = imageCache.object(forKey: cacheKey) {
             return cached
         }
@@ -138,9 +138,21 @@ public final class QRCodeGeneratorService {
                                           (x < 7 && y >= numRows - 7)
                     
                     if isFinderPattern {
-                        // Keep finder eyes crisp and standard rounded rect
-                        let eyeDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.2, dy: 0.2), cornerRadius: moduleWidth * 0.25)
-                        dotsPath.append(eyeDot)
+                        // Finder eye style
+                        switch style.eyeStyle {
+                        case .rounded:
+                            let eyeDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.2, dy: 0.2), cornerRadius: moduleWidth * 0.3)
+                            dotsPath.append(eyeDot)
+                        case .square:
+                            let eyeDot = UIBezierPath(rect: rect.insetBy(dx: 0.2, dy: 0.2))
+                            dotsPath.append(eyeDot)
+                        case .circular:
+                            let eyeDot = UIBezierPath(ovalIn: rect.insetBy(dx: 0.2, dy: 0.2))
+                            dotsPath.append(eyeDot)
+                        case .leaf:
+                            let leafDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.2, dy: 0.2), byRoundingCorners: [.topLeft, .bottomRight], cornerRadii: CGSize(width: moduleWidth * 0.45, height: moduleWidth * 0.45))
+                            dotsPath.append(leafDot)
+                        }
                     } else {
                         switch style.dotStyle {
                         case .square:

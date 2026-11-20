@@ -123,6 +123,16 @@ public enum QRFrameStyle: String, CaseIterable, Identifiable, Codable {
     public var id: String { rawValue }
 }
 
+/// Corner Eye Style
+public enum QREyeStyle: String, CaseIterable, Identifiable, Codable {
+    case rounded = "Rounded"
+    case square = "Square"
+    case circular = "Circle"
+    case leaf = "Leaf"
+    
+    public var id: String { rawValue }
+}
+
 /// Full style configuration for rendering a QR code
 public struct QRStyleConfig: Codable, Equatable {
     public var dotStyle: QRDotStyle = .rounded
@@ -131,6 +141,7 @@ public struct QRStyleConfig: Codable, Equatable {
     public var logoType: QRLogoType = .none
     public var customLogoData: Data? = nil
     public var frameStyle: QRFrameStyle = .none
+    public var eyeStyle: QREyeStyle = .rounded
     
     public init(
         dotStyle: QRDotStyle = .rounded,
@@ -138,7 +149,8 @@ public struct QRStyleConfig: Codable, Equatable {
         backgroundColorHex: String = "FFFFFF",
         logoType: QRLogoType = .none,
         customLogoData: Data? = nil,
-        frameStyle: QRFrameStyle = .none
+        frameStyle: QRFrameStyle = .none,
+        eyeStyle: QREyeStyle = .rounded
     ) {
         self.dotStyle = dotStyle
         self.colorTheme = colorTheme
@@ -146,5 +158,21 @@ public struct QRStyleConfig: Codable, Equatable {
         self.logoType = logoType
         self.customLogoData = customLogoData
         self.frameStyle = frameStyle
+        self.eyeStyle = eyeStyle
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case dotStyle, colorTheme, backgroundColorHex, logoType, customLogoData, frameStyle, eyeStyle
+    }
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.dotStyle = try container.decodeIfPresent(QRDotStyle.self, forKey: .dotStyle) ?? .rounded
+        self.colorTheme = try container.decodeIfPresent(QRColorTheme.self, forKey: .colorTheme) ?? .royalPurple
+        self.backgroundColorHex = try container.decodeIfPresent(String.self, forKey: .backgroundColorHex) ?? "FFFFFF"
+        self.logoType = try container.decodeIfPresent(QRLogoType.self, forKey: .logoType) ?? .none
+        self.customLogoData = try container.decodeIfPresent(Data.self, forKey: .customLogoData)
+        self.frameStyle = try container.decodeIfPresent(QRFrameStyle.self, forKey: .frameStyle) ?? .none
+        self.eyeStyle = try container.decodeIfPresent(QREyeStyle.self, forKey: .eyeStyle) ?? .rounded
     }
 }
