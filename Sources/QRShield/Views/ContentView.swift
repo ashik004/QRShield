@@ -52,6 +52,8 @@ public struct ContentView: View {
     
     public var body: some View {
         ZStack(alignment: .bottom) {
+            Color(hex: "06141B").ignoresSafeArea()
+            
             // Main Content Area with butter-smooth animated screen transitions
             ZStack {
                 switch currentRoute {

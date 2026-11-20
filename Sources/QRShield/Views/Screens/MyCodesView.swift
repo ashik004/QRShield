@@ -41,9 +41,9 @@ public struct MyCodesView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .frame(width: 38, height: 38)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "253745"))
                         .clipShape(Circle())
                 }
                 
@@ -51,7 +51,7 @@ public struct MyCodesView: View {
                 
                 Text(onlyFavorites ? "Favorites" : "My Codes")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
@@ -63,9 +63,9 @@ public struct MyCodesView: View {
                 }) {
                     Image(systemName: onlyFavorites ? "heart.fill" : "heart")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(onlyFavorites ? .red : Color(hex: "6B7280"))
+                        .foregroundColor(onlyFavorites ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                         .frame(width: 38, height: 38)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(onlyFavorites ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                         .clipShape(Circle())
                 }
             }
@@ -75,23 +75,28 @@ public struct MyCodesView: View {
             // Search Bar
             HStack(spacing: 10) {
                 Image(systemName: "magnifyingglass")
-                    .foregroundColor(Color(hex: "9CA3AF"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
                     .font(.system(size: 16))
                 
                 TextField("Search your QR codes", text: $searchText)
                     .font(.system(size: 14))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 if !searchText.isEmpty {
                     Button(action: { searchText = "" }) {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(Color(hex: "9CA3AF"))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                     }
                 }
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 10)
-            .background(Color(hex: "F3F4F6"))
+            .background(Color(hex: "11212D"))
             .clipShape(RoundedRectangle(cornerRadius: 14))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14)
+                    .stroke(Color(hex: "253745"), lineWidth: 1)
+            )
             .padding(.horizontal, 20)
             .padding(.top, 4)
             
@@ -112,10 +117,10 @@ public struct MyCodesView: View {
                     Spacer()
                     Image(systemName: "qrcode")
                         .font(.system(size: 54))
-                        .foregroundColor(Color(hex: "D1D5DB"))
+                        .foregroundColor(Color(hex: "253745"))
                     Text("No QR codes found")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color(hex: "6B7280"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                     Spacer()
                 }
             } else {
@@ -131,7 +136,7 @@ public struct MyCodesView: View {
                 }
             }
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "06141B").ignoresSafeArea())
         .sheet(item: $selectedItemForDetail) { item in
             CodeDetailModalView(item: item)
         }
@@ -147,12 +152,12 @@ public struct MyCodesView: View {
         }) {
             Text(title)
                 .font(.system(size: 13, weight: selectedFilter == category ? .bold : .medium))
-                .foregroundColor(selectedFilter == category ? .white : Color(hex: "4B5563"))
+                .foregroundColor(selectedFilter == category ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                 .padding(.horizontal, 18)
                 .padding(.vertical, 8)
                 .background(
                     Capsule()
-                        .fill(selectedFilter == category ? Color.shieldPurple : Color(hex: "F3F4F6"))
+                        .fill(selectedFilter == category ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                 )
         }
         .buttonStyle(.plain)
@@ -160,13 +165,13 @@ public struct MyCodesView: View {
     
     private func codeRow(_ item: QRCodeItem) -> some View {
         HStack(spacing: 14) {
-            // Thumbnail Preview
+            // Thumbnail Preview - Pure White Card for QR visibility
             ZStack {
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color(hex: item.styleConfig.backgroundColorHex))
+                    .fill(Color.white)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(Color(hex: "E5E7EB"), lineWidth: 1)
+                            .stroke(Color(hex: "253745"), lineWidth: 1)
                     )
                 
                 // Small QR mini preview
@@ -178,17 +183,17 @@ public struct MyCodesView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.title)
                     .font(.system(size: 15, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .lineLimit(1)
                 
                 Text(item.contentPreview)
                     .font(.system(size: 12, weight: .regular))
-                    .foregroundColor(Color(hex: "6B7280"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
                     .lineLimit(1)
                 
                 Text(item.relativeTimeString)
                     .font(.system(size: 11, weight: .medium))
-                    .foregroundColor(Color(hex: "9CA3AF"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
             }
             
             Spacer()
@@ -201,7 +206,7 @@ public struct MyCodesView: View {
             }) {
                 Image(systemName: item.isFavorite ? "star.fill" : "star")
                     .font(.system(size: 17))
-                    .foregroundColor(item.isFavorite ? Color.shieldGold : Color(hex: "D1D5DB"))
+                    .foregroundColor(item.isFavorite ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                     .frame(width: 32, height: 32)
             }
             .buttonStyle(.plain)
@@ -227,17 +232,17 @@ public struct MyCodesView: View {
             } label: {
                 Image(systemName: "ellipsis")
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(Color(hex: "9CA3AF"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
                     .frame(width: 32, height: 32)
             }
         }
         .padding(12)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .fill(Color.white)
+                .fill(Color(hex: "11212D"))
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(Color(hex: "F3F4F6"), lineWidth: 1.2)
+                        .stroke(Color(hex: "253745"), lineWidth: 1.2)
                 )
         )
         .contentShape(Rectangle())
@@ -251,11 +256,11 @@ public struct MyCodesView: View {
             if let logoIcon = item.styleConfig.logoType.systemIcon {
                 Image(systemName: logoIcon)
                     .font(.system(size: 20))
-                    .foregroundColor(Color(hex: item.styleConfig.colorTheme.hexColors.first ?? "6C5CE7"))
+                    .foregroundColor(Color(hex: item.styleConfig.colorTheme.hexColors.first ?? "4A5C6A"))
             } else {
                 Image(systemName: "qrcode")
                     .font(.system(size: 26))
-                    .foregroundColor(Color(hex: item.styleConfig.colorTheme.hexColors.first ?? "6C5CE7"))
+                    .foregroundColor(Color(hex: item.styleConfig.colorTheme.hexColors.first ?? "4A5C6A"))
             }
         }
     }
@@ -272,83 +277,101 @@ public struct CodeDetailModalView: View {
     
     public var body: some View {
         NavigationView {
-            VStack(spacing: 20) {
-                Spacer()
+            ZStack {
+                Color(hex: "06141B").ignoresSafeArea()
                 
-                QRDisplayView(
-                    content: item.rawContent,
-                    styleConfig: item.styleConfig,
-                    size: 260
-                )
-                
-                VStack(spacing: 6) {
-                    Text(item.title)
-                        .font(.system(size: 22, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                VStack(spacing: 20) {
+                    Spacer()
                     
-                    Text(item.contentPreview)
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(Color(hex: "6B7280"))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 30)
-                }
-                
-                Spacer()
-                
-                // Copy & Save Photo buttons
-                HStack(spacing: 14) {
-                    Button(action: {
-                        UIPasteboard.general.string = item.rawContent
-                        let feedback = UINotificationFeedbackGenerator()
-                        feedback.notificationOccurred(.success)
-                    }) {
-                        HStack {
-                            Image(systemName: "doc.on.doc")
-                            Text("Copy Link")
-                        }
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(Color.shieldPurple)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color(hex: "F3F0FF"))
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
+                    // Pure white QR container card
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                            .fill(Color.white)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .stroke(Color(hex: "253745"), lineWidth: 1)
+                            )
+                        
+                        QRDisplayView(
+                            content: item.rawContent,
+                            styleConfig: item.styleConfig,
+                            size: 230
+                        )
+                        .padding(14)
+                    }
+                    .frame(width: 260, height: 260)
+                    
+                    VStack(spacing: 6) {
+                        Text(item.title)
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(Color(hex: "CCD0CF"))
+                        
+                        Text(item.contentPreview)
+                            .font(.system(size: 14, weight: .regular))
+                            .foregroundColor(Color(hex: "9BA8AB"))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 30)
                     }
                     
-                    Button(action: {
-                        let exportImg = QRCodeGeneratorService.shared.generateQRCode(
-                            from: item.rawContent,
-                            style: item.styleConfig,
-                            size: CGSize(width: 1024, height: 1024)
-                        )
-                        
-                        if let img = exportImg {
-                            UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+                    Spacer()
+                    
+                    // Copy & Save Photo buttons
+                    HStack(spacing: 14) {
+                        Button(action: {
+                            UIPasteboard.general.string = item.rawContent
                             let feedback = UINotificationFeedbackGenerator()
                             feedback.notificationOccurred(.success)
+                        }) {
+                            HStack {
+                                Image(systemName: "doc.on.doc")
+                                Text("Copy Link")
+                            }
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(Color(hex: "CCD0CF"))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(hex: "253745"))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
-                    }) {
-                        HStack {
-                            Image(systemName: "arrow.down.to.line")
-                            Text("Save Photo")
+                        
+                        Button(action: {
+                            let exportImg = QRCodeGeneratorService.shared.generateQRCode(
+                                from: item.rawContent,
+                                style: item.styleConfig,
+                                size: CGSize(width: 1024, height: 1024)
+                            )
+                            
+                            if let img = exportImg {
+                                UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+                                let feedback = UINotificationFeedbackGenerator()
+                                feedback.notificationOccurred(.success)
+                            }
+                        }) {
+                            HStack {
+                                Image(systemName: "arrow.down.to.line")
+                                Text("Save Photo")
+                            }
+                            .font(.system(size: 15, weight: .bold))
+                            .foregroundColor(Color(hex: "CCD0CF"))
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color(hex: "4A5C6A"))
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
-                        .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(Color.shieldPurple)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
                     }
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 20)
             }
             .navigationTitle("QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
             }
         }
+        .preferredColorScheme(.dark)
     }
 }

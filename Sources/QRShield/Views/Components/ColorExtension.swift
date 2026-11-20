@@ -25,15 +25,23 @@ public extension Color {
         )
     }
     
-    // QR Shield Brand Colors matching the design
-    static let shieldPurple = Color(hex: "6C5CE7")
-    static let shieldDarkPurple = Color(hex: "5A49E3")
-    static let shieldLightPurple = Color(hex: "F3F0FF")
-    static let shieldBorderPurple = Color(hex: "E5DEFF")
+    // The Exact 6-Color Dark Mode Palette
+    static let darkBg = Color(hex: "06141B")           // Primary App Background (#06141B)
+    static let darkSurface = Color(hex: "11212D")      // Elevated Surface / Card Background (#11212D)
+    static let darkControl = Color(hex: "253745")      // Interactive Controls, Borders & Secondary Buttons (#253745)
+    static let darkAccent = Color(hex: "4A5C6A")       // Primary Accent, Active Buttons & Highlights (#4A5C6A)
+    static let darkTextMuted = Color(hex: "9BA8AB")    // Secondary Text & Inactive Icons (#9BA8AB)
+    static let darkTextPrimary = Color(hex: "CCD0CF")  // Primary Text & Active Foreground (#CCD0CF)
+    
+    // QR Shield Brand Colors mapped to Dark Mode Palette
+    static let shieldPurple = Color(hex: "4A5C6A")
+    static let shieldDarkPurple = Color(hex: "253745")
+    static let shieldLightPurple = Color(hex: "11212D")
+    static let shieldBorderPurple = Color(hex: "253745")
     static let shieldGold = Color(hex: "F59E0B")
-    static let shieldBackground = Color(hex: "F8F9FD")
-    static let shieldTextDark = Color(hex: "1F2937")
-    static let shieldTextMuted = Color(hex: "6B7280")
+    static let shieldBackground = Color(hex: "06141B")
+    static let shieldTextDark = Color(hex: "CCD0CF")
+    static let shieldTextMuted = Color(hex: "9BA8AB")
     
     // Status colors
     static let shieldSafeGreen = Color(hex: "10B981")

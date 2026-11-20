@@ -21,73 +21,48 @@ public struct AnimatedScannerButton: View {
             action()
         }) {
             ZStack {
-                // Wave 1: Outer glowing pulsing radar ring
+                // Wave 1: Outer glowing pulsing radar ring in #4A5C6A
                 Circle()
-                    .stroke(
-                        LinearGradient(
-                            colors: [Color(hex: "7952FC"), Color(hex: "00F2FE")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ),
-                        lineWidth: 2
-                    )
+                    .stroke(Color(hex: "4A5C6A"), lineWidth: 2)
                     .frame(width: 58, height: 58)
                     .scaleEffect(waveScale1)
                     .opacity(waveOpacity1)
                 
                 // Wave 2: Staggered second radar pulse
                 Circle()
-                    .stroke(Color(hex: "A78BFA"), lineWidth: 1.5)
+                    .stroke(Color(hex: "4A5C6A").opacity(0.7), lineWidth: 1.5)
                     .frame(width: 58, height: 58)
                     .scaleEffect(waveScale2)
                     .opacity(waveOpacity2)
                 
-                // Rotating Cyber Halo Border Ring
+                // Outer ring (#253745)
                 Circle()
-                    .stroke(
-                        AngularGradient(
-                            gradient: Gradient(colors: [
-                                Color(hex: "7952FC"),
-                                Color(hex: "38BDF8"),
-                                Color(hex: "F43F5E"),
-                                Color(hex: "7952FC")
-                            ]),
-                            center: .center
-                        ),
-                        lineWidth: 2.5
-                    )
+                    .stroke(Color(hex: "253745"), lineWidth: 2.5)
                     .frame(width: 60, height: 60)
-                    .rotationEffect(.degrees(rotationAngle))
                 
-                // Core Button Orb
+                // Core Floating Button Orb (#4A5C6A)
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(Color(hex: "4A5C6A"))
                     .frame(width: 56, height: 56)
-                    .shadow(color: Color(hex: "6C5CE7").opacity(0.55), radius: 10, x: 0, y: 5)
+                    .shadow(color: Color.black.opacity(0.4), radius: 8, x: 0, y: 4)
                 
-                // Viewfinder Icon + Animated Laser Beam inside
+                // Viewfinder Icon (#CCD0CF) + Animated Laser Beam inside
                 ZStack {
                     Image(systemName: "viewfinder")
                         .font(.system(size: 26, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
-                    // Moving neon laser beam
+                    // Moving laser beam in #CCD0CF
                     Rectangle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.clear, Color(hex: "00F2FE"), Color.white, Color.clear],
+                                colors: [Color.clear, Color(hex: "CCD0CF"), Color.white, Color.clear],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
                         .frame(width: 20, height: 2)
-                        .shadow(color: Color(hex: "00F2FE"), radius: 3)
+                        .shadow(color: Color(hex: "CCD0CF"), radius: 2)
                         .offset(y: laserOffset)
                         .mask(
                             Image(systemName: "viewfinder")
@@ -172,7 +147,7 @@ public struct CustomTabBar: View {
             // Home
             tabButton(for: .home)
             
-            // Template (Replaced Generate)
+            // Template
             tabButton(for: .template)
             
             // Center Elevated Animated Scan Button
@@ -189,8 +164,14 @@ public struct CustomTabBar: View {
         .padding(.top, 6)
         .padding(.bottom, 2)
         .background(
-            Color.white
-                .shadow(color: Color.black.opacity(0.06), radius: 12, x: 0, y: -4)
+            Color(hex: "11212D")
+                .overlay(
+                    Rectangle()
+                        .fill(Color(hex: "253745"))
+                        .frame(height: 1),
+                    alignment: .top
+                )
+                .shadow(color: Color.black.opacity(0.35), radius: 12, x: 0, y: -4)
                 .ignoresSafeArea(edges: .bottom)
         )
     }
@@ -206,14 +187,14 @@ public struct CustomTabBar: View {
             VStack(spacing: 3) {
                 Image(systemName: tab.iconName)
                     .font(.system(size: 20, weight: selectedTab == tab ? .semibold : .regular))
-                    .foregroundColor(selectedTab == tab ? Color.shieldPurple : Color(hex: "9CA3AF"))
+                    .foregroundColor(selectedTab == tab ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                     .frame(height: 24)
                     .scaleEffect(selectedTab == tab ? 1.08 : 1.0)
                     .animation(.spring(response: 0.28, dampingFraction: 0.75), value: selectedTab)
                 
                 Text(tab.title)
                     .font(.system(size: 11, weight: selectedTab == tab ? .bold : .medium))
-                    .foregroundColor(selectedTab == tab ? Color.shieldPurple : Color(hex: "9CA3AF"))
+                    .foregroundColor(selectedTab == tab ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                     .animation(.easeInOut(duration: 0.2), value: selectedTab)
             }
             .frame(maxWidth: .infinity)

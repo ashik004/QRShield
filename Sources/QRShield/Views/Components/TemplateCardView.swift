@@ -55,10 +55,10 @@ public struct TemplateCardView: View {
                 .aspectRatio(1.0, contentMode: .fit)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
-                        .stroke(Color(hex: "E2E8F0"), lineWidth: 1)
+                        .stroke(Color(hex: "253745"), lineWidth: 1)
                 )
                 .shadow(
-                    color: Color.black.opacity(0.06),
+                    color: Color.black.opacity(0.2),
                     radius: 8,
                     x: 0,
                     y: 3
@@ -68,17 +68,17 @@ public struct TemplateCardView: View {
                 HStack(spacing: 4) {
                     Text(template.name)
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .lineLimit(1)
                     
                     Spacer()
                     
                     Text(template.category.rawValue)
                         .font(.system(size: 10, weight: .semibold))
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "9BA8AB"))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.shieldPurple.opacity(0.1))
+                        .background(Color(hex: "253745"))
                         .clipShape(Capsule())
                 }
                 .padding(.horizontal, 2)

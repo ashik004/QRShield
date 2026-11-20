@@ -23,9 +23,9 @@ public struct SettingsView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .frame(width: 38, height: 38)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "253745"))
                         .clipShape(Circle())
                 }
                 
@@ -33,7 +33,7 @@ public struct SettingsView: View {
                 
                 Text("Settings")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
@@ -54,8 +54,12 @@ public struct SettingsView: View {
                             // Crown icon badge
                             ZStack {
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.2))
+                                    .fill(Color(hex: "11212D"))
                                     .frame(width: 44, height: 44)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(Color(hex: "253745"), lineWidth: 1)
+                                    )
                                 
                                 Image(systemName: "crown.fill")
                                     .font(.system(size: 22, weight: .bold))
@@ -65,11 +69,11 @@ public struct SettingsView: View {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text("QR Shield Pro")
                                     .font(.system(size: 16, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color(hex: "CCD0CF"))
                                 
                                 Text("Unlock premium templates,\nremove ads, and more.")
                                     .font(.system(size: 12, weight: .medium))
-                                    .foregroundColor(.white.opacity(0.85))
+                                    .foregroundColor(Color(hex: "9BA8AB"))
                                     .lineLimit(2)
                             }
                             
@@ -77,19 +81,22 @@ public struct SettingsView: View {
                             
                             Image(systemName: "chevron.right")
                                 .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(Color(hex: "CCD0CF"))
                         }
                         .padding(18)
                         .background(
                             RoundedRectangle(cornerRadius: 20, style: .continuous)
                                 .fill(
                                     LinearGradient(
-                                        colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
-                                        startPoint: .leading,
-                                        endPoint: .trailing
+                                        colors: [Color(hex: "253745"), Color(hex: "4A5C6A")],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
                                     )
                                 )
-                                .shadow(color: Color.shieldPurple.opacity(0.3), radius: 10, x: 0, y: 5)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                        .stroke(Color(hex: "253745"), lineWidth: 1.5)
+                                )
                         )
                     }
                     .buttonStyle(.plain)
@@ -103,7 +110,7 @@ public struct SettingsView: View {
                             action: { showRestoreAlert = true }
                         )
                         
-                        Divider().padding(.horizontal, 16)
+                        Divider().background(Color(hex: "253745")).padding(.horizontal, 16)
                         
                         settingRow(
                             icon: "globe",
@@ -112,7 +119,7 @@ public struct SettingsView: View {
                             action: { showLanguagePicker = true }
                         )
                         
-                        Divider().padding(.horizontal, 16)
+                        Divider().background(Color(hex: "253745")).padding(.horizontal, 16)
                         
                         settingRow(
                             icon: "star",
@@ -121,7 +128,7 @@ public struct SettingsView: View {
                             action: triggerRateApp
                         )
                         
-                        Divider().padding(.horizontal, 16)
+                        Divider().background(Color(hex: "253745")).padding(.horizontal, 16)
                         
                         settingRow(
                             icon: "square.and.arrow.up",
@@ -130,7 +137,7 @@ public struct SettingsView: View {
                             action: triggerShareApp
                         )
                         
-                        Divider().padding(.horizontal, 16)
+                        Divider().background(Color(hex: "253745")).padding(.horizontal, 16)
                         
                         settingRow(
                             icon: "lock.shield",
@@ -139,7 +146,7 @@ public struct SettingsView: View {
                             action: { showPrivacyModal = true }
                         )
                         
-                        Divider().padding(.horizontal, 16)
+                        Divider().background(Color(hex: "253745")).padding(.horizontal, 16)
                         
                         settingRow(
                             icon: "doc.text",
@@ -150,16 +157,16 @@ public struct SettingsView: View {
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color.white)
+                            .fill(Color(hex: "11212D"))
                             .overlay(
                                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .stroke(Color(hex: "F3F4F6"), lineWidth: 1.5)
+                                    .stroke(Color(hex: "253745"), lineWidth: 1.5)
                             )
                     )
                     
                     Text("QR Shield v1.0 • Built with SwiftUI")
                         .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(Color(hex: "9CA3AF"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                         .padding(.top, 10)
                 }
                 .padding(.horizontal, 20)
@@ -167,7 +174,7 @@ public struct SettingsView: View {
                 .padding(.bottom, 30)
             }
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "06141B").ignoresSafeArea())
         .alert("Purchases Restored", isPresented: $showRestoreAlert) {
             Button("OK", role: .cancel) {}
         } message: {
@@ -198,24 +205,24 @@ public struct SettingsView: View {
             HStack(spacing: 14) {
                 Image(systemName: icon)
                     .font(.system(size: 18))
-                    .foregroundColor(Color(hex: "4B5563"))
+                    .foregroundColor(Color(hex: "4A5C6A"))
                     .frame(width: 28)
                 
                 Text(title)
                     .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
                 if let val = value {
                     Text(val)
                         .font(.system(size: 14, weight: .regular))
-                        .foregroundColor(Color(hex: "6B7280"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                 }
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color(hex: "D1D5DB"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
             }
             .padding(.horizontal, 16)
             .frame(height: 54)
@@ -251,20 +258,26 @@ public struct LegalDocModalView: View {
     
     public var body: some View {
         NavigationView {
-            ScrollView {
-                Text(content)
-                    .font(.system(size: 14, weight: .regular))
-                    .foregroundColor(Color(hex: "374151"))
-                    .padding(20)
+            ZStack {
+                Color(hex: "06141B").ignoresSafeArea()
+                
+                ScrollView {
+                    Text(content)
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundColor(Color(hex: "CCD0CF"))
+                        .padding(20)
+                }
             }
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
             }
         }
+        .preferredColorScheme(.dark)
     }
 }
 

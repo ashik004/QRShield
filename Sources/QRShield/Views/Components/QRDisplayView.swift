@@ -40,15 +40,15 @@ public struct QRDisplayView: View {
                         RoundedRectangle(cornerRadius: 22, style: .continuous)
                             .stroke(
                                 styleConfig.frameStyle == .neonGlow
-                                    ? Color.shieldPurple
-                                    : (styleConfig.frameStyle == .cardBorder ? Color(hex: "1F2937") : Color(hex: "E2E8F0")),
+                                    ? Color(hex: "4A5C6A")
+                                    : (styleConfig.frameStyle == .cardBorder ? Color(hex: "4A5C6A") : Color(hex: "253745")),
                                 lineWidth: styleConfig.frameStyle == .none ? 1 : 2.5
                             )
                     )
                     .shadow(
                         color: styleConfig.frameStyle == .neonGlow
-                            ? Color.shieldPurple.opacity(0.35)
-                            : Color.black.opacity(0.06),
+                            ? Color(hex: "4A5C6A").opacity(0.4)
+                            : Color.black.opacity(0.1),
                         radius: 10,
                         x: 0,
                         y: 4
@@ -104,18 +104,12 @@ public struct QRDisplayView: View {
                     Text("SCAN ME")
                         .font(.system(size: 12, weight: .black, design: .rounded))
                 }
-                .foregroundColor(.white)
+                .foregroundColor(Color(hex: "CCD0CF"))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 6)
                 .background(
                     Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                        .fill(Color(hex: "4A5C6A"))
                 )
                 .offset(y: -12)
                 .zIndex(2)

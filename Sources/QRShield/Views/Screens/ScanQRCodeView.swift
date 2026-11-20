@@ -49,9 +49,9 @@ public struct ScanQRCodeView: View {
                     }) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .frame(width: 40, height: 40)
-                            .background(Color.black.opacity(0.45))
+                            .background(Color(hex: "253745").opacity(0.85))
                             .clipShape(Circle())
                     }
                     
@@ -59,7 +59,7 @@ public struct ScanQRCodeView: View {
                     
                     Text("Scan QR Code")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     Spacer()
                     
@@ -69,9 +69,9 @@ public struct ScanQRCodeView: View {
                     }) {
                         Image(systemName: "sparkles")
                             .font(.system(size: 16, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .frame(width: 40, height: 40)
-                            .background(Color.black.opacity(0.45))
+                            .background(Color(hex: "253745").opacity(0.85))
                             .clipShape(Circle())
                     }
                 }
@@ -84,7 +84,7 @@ public struct ScanQRCodeView: View {
                 ZStack {
                     // Targeting Frame with rounded corners and glowing brackets
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
+                        .stroke(Color(hex: "253745"), lineWidth: 1.5)
                         .frame(width: 250, height: 250)
                     
                     // 4 Corner Brackets
@@ -94,25 +94,28 @@ public struct ScanQRCodeView: View {
                     Rectangle()
                         .fill(
                             LinearGradient(
-                                colors: [Color.clear, Color.shieldPurple, Color(hex: "A78BFA"), Color.clear],
+                                colors: [Color.clear, Color(hex: "4A5C6A"), Color(hex: "CCD0CF"), Color.clear],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
                         .frame(width: 230, height: 3)
-                        .shadow(color: Color.shieldPurple, radius: 6, x: 0, y: 0)
+                        .shadow(color: Color(hex: "4A5C6A"), radius: 6, x: 0, y: 0)
                         .offset(y: scanLineOffset)
                 }
                 
                 // Floating instruction badge
                 Text("Align the QR code within the frame")
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 18)
                     .padding(.vertical, 8)
                     .background(
                         Capsule()
-                            .fill(Color.black.opacity(0.6))
+                            .fill(Color(hex: "11212D").opacity(0.85))
+                            .overlay(
+                                Capsule().stroke(Color(hex: "253745"), lineWidth: 1)
+                            )
                     )
                     .padding(.top, 24)
                 
@@ -155,6 +158,7 @@ public struct ScanQRCodeView: View {
                 .padding(.bottom, 36)
             }
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             cameraService.startSession()
             withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) {
@@ -227,17 +231,20 @@ public struct ScanQRCodeView: View {
         VStack(spacing: 8) {
             ZStack {
                 Circle()
-                    .fill(isActive ? Color.shieldPurple : Color.black.opacity(0.55))
+                    .fill(isActive ? Color(hex: "4A5C6A") : Color(hex: "11212D").opacity(0.85))
                     .frame(width: 52, height: 52)
+                    .overlay(
+                        Circle().stroke(Color(hex: "253745"), lineWidth: 1)
+                    )
                 
                 Image(systemName: icon)
                     .font(.system(size: 22, weight: .medium))
-                    .foregroundColor(isActive ? .white : .white.opacity(0.9))
+                    .foregroundColor(Color(hex: "CCD0CF"))
             }
             
             Text(label)
                 .font(.system(size: 11, weight: .medium))
-                .foregroundColor(.white)
+                .foregroundColor(Color(hex: "CCD0CF"))
         }
     }
 }
@@ -283,39 +290,45 @@ public struct ScanTipsSheetView: View {
     
     public var body: some View {
         NavigationView {
-            VStack(alignment: .leading, spacing: 20) {
-                tipRow(icon: "lightbulb.fill", title: "Good Lighting", description: "Ensure the QR code is clearly lit and not shaded.")
-                tipRow(icon: "arrow.up.and.down.and.arrow.left.and.right", title: "Optimal Distance", description: "Keep your camera around 6 to 12 inches away from the QR code.")
-                tipRow(icon: "hand.raised.fill", title: "Hold Steady", description: "Hold your device steadily so the scanner can focus accurately.")
-                tipRow(icon: "shield.lefthalf.filled", title: "Safety Inspection", description: "Every scanned link is automatically verified by QR Shield before opening.")
+            ZStack {
+                Color(hex: "06141B").ignoresSafeArea()
                 
-                Spacer()
+                VStack(alignment: .leading, spacing: 20) {
+                    tipRow(icon: "lightbulb.fill", title: "Good Lighting", description: "Ensure the QR code is clearly lit and not shaded.")
+                    tipRow(icon: "arrow.up.and.down.and.arrow.left.and.right", title: "Optimal Distance", description: "Keep your camera around 6 to 12 inches away from the QR code.")
+                    tipRow(icon: "hand.raised.fill", title: "Hold Steady", description: "Hold your device steadily so the scanner can focus accurately.")
+                    tipRow(icon: "shield.lefthalf.filled", title: "Safety Inspection", description: "Every scanned link is automatically verified by QR Shield before opening.")
+                    
+                    Spacer()
+                }
+                .padding(24)
             }
-            .padding(24)
             .navigationTitle("Scanning Tips")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Done") { dismiss() }
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
             }
         }
+        .preferredColorScheme(.dark)
     }
     
     private func tipRow(icon: String, title: String, description: String) -> some View {
         HStack(alignment: .top, spacing: 14) {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .bold))
-                .foregroundColor(Color.shieldPurple)
+                .foregroundColor(Color(hex: "4A5C6A"))
                 .frame(width: 32)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 Text(description)
                     .font(.system(size: 13, weight: .regular))
-                    .foregroundColor(Color(hex: "6B7280"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
             }
         }
     }

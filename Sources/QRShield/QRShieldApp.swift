@@ -10,7 +10,7 @@ public struct QRShieldApp: App {
     public var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.light)
+                .preferredColorScheme(.dark)
         }
     }
 }

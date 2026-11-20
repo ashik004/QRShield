@@ -28,9 +28,9 @@ public struct ScanResultView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .frame(width: 38, height: 38)
-                        .background(Color.white.opacity(0.2))
+                        .background(Color(hex: "253745"))
                         .clipShape(Circle())
                 }
                 
@@ -38,7 +38,7 @@ public struct ScanResultView: View {
                 
                 Text("Scan Result")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
@@ -53,37 +53,40 @@ public struct ScanResultView: View {
                     VStack(spacing: 12) {
                         ZStack {
                             Circle()
-                                .fill(Color.white.opacity(0.18))
+                                .fill(Color(hex: "11212D"))
                                 .frame(width: 84, height: 84)
+                                .overlay(
+                                    Circle().stroke(Color(hex: "253745"), lineWidth: 1.5)
+                                )
                             
                             Image(systemName: result.status.iconName)
-                                .font(.system(size: 44, weight: .bold))
-                                .foregroundColor(.white)
+                                .font(.system(size: 40, weight: .bold))
+                                .foregroundColor(result.status.primaryColor)
                         }
                         
                         Text(result.status.title)
                             .font(.system(size: 26, weight: .heavy, design: .rounded))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                         
                         Text(result.status.subtitle)
                             .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(.white.opacity(0.85))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 30)
                     }
                     .padding(.top, 10)
                     
-                    // White Data Card
+                    // Elevated Surface Data Card
                     VStack(spacing: 0) {
                         // URL Box
                         HStack {
                             Image(systemName: "link")
-                                .foregroundColor(Color(hex: "9CA3AF"))
+                                .foregroundColor(Color(hex: "4A5C6A"))
                                 .font(.system(size: 14))
                             
                             Text(result.urlString)
                                 .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color(hex: "1F2937"))
+                                .foregroundColor(Color(hex: "CCD0CF"))
                                 .lineLimit(1)
                             
                             Spacer()
@@ -91,46 +94,50 @@ public struct ScanResultView: View {
                             Button(action: copyToClipboard) {
                                 Image(systemName: "doc.on.doc")
                                     .font(.system(size: 15))
-                                    .foregroundColor(Color(hex: "6B7280"))
+                                    .foregroundColor(Color(hex: "9BA8AB"))
                             }
                         }
                         .padding(14)
-                        .background(Color(hex: "F9FAFB"))
+                        .background(Color(hex: "06141B"))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color(hex: "E5E7EB"), lineWidth: 1)
+                                .stroke(Color(hex: "253745"), lineWidth: 1)
                         )
                         .padding(16)
                         
                         Divider()
+                            .background(Color(hex: "253745"))
                             .padding(.horizontal, 16)
                         
                         // Property Rows
                         VStack(spacing: 14) {
                             switch result.status {
                             case .safe:
-                                infoRow(title: "Site Type", value: result.siteType ?? "Social Media", valueColor: Color(hex: "1F2937"))
+                                infoRow(title: "Site Type", value: result.siteType ?? "Social Media", valueColor: Color(hex: "CCD0CF"))
                                 infoRow(title: "SSL Secure", value: result.sslSecure ?? "Yes", valueColor: Color(hex: "10B981"))
                                 infoRow(title: "Reputation", value: result.reputation ?? "Good", valueColor: Color(hex: "10B981"))
                                 
                             case .suspicious:
-                                infoRow(title: "Issues Found", value: result.issuesFound ?? "Unverified website", valueColor: Color(hex: "DC2626"))
-                                infoRow(title: "Risk Level", value: result.riskLevel ?? "Medium", valueColor: Color(hex: "D97706"))
-                                infoRow(title: "Recommendation", value: result.recommendation ?? "Avoid if not trusted", valueColor: Color(hex: "D97706"))
+                                infoRow(title: "Issues Found", value: result.issuesFound ?? "Unverified website", valueColor: Color(hex: "EF4444"))
+                                infoRow(title: "Risk Level", value: result.riskLevel ?? "Medium", valueColor: Color(hex: "F59E0B"))
+                                infoRow(title: "Recommendation", value: result.recommendation ?? "Avoid if not trusted", valueColor: Color(hex: "F59E0B"))
                                 
                             case .dangerous:
-                                infoRow(title: "Threat Type", value: result.threatType ?? "Phishing", valueColor: Color(hex: "DC2626"))
-                                infoRow(title: "Risk Level", value: result.riskLevel ?? "High", valueColor: Color(hex: "DC2626"))
-                                infoRow(title: "Recommendation", value: result.recommendation ?? "Do not open", valueColor: Color(hex: "DC2626"))
+                                infoRow(title: "Threat Type", value: result.threatType ?? "Phishing", valueColor: Color(hex: "EF4444"))
+                                infoRow(title: "Risk Level", value: result.riskLevel ?? "High", valueColor: Color(hex: "EF4444"))
+                                infoRow(title: "Recommendation", value: result.recommendation ?? "Do not open", valueColor: Color(hex: "EF4444"))
                             }
                         }
                         .padding(16)
                     }
                     .background(
                         RoundedRectangle(cornerRadius: 20, style: .continuous)
-                            .fill(Color.white)
-                            .shadow(color: Color.black.opacity(0.08), radius: 12, x: 0, y: 6)
+                            .fill(Color(hex: "11212D"))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                    .stroke(Color(hex: "253745"), lineWidth: 1.5)
+                            )
                     )
                     .padding(.horizontal, 20)
                     
@@ -145,13 +152,12 @@ public struct ScanResultView: View {
                                     Image(systemName: "arrow.up.right.square")
                                         .font(.system(size: 16, weight: .bold))
                                 }
-                                .foregroundColor(.white)
+                                .foregroundColor(Color(hex: "CCD0CF"))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 52)
                                 .background(
                                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                        .fill(Color.shieldPurple)
-                                        .shadow(color: Color.shieldPurple.opacity(0.35), radius: 8, x: 0, y: 4)
+                                        .fill(Color(hex: "4A5C6A"))
                                 )
                             }
                             .buttonStyle(.plain)
@@ -165,16 +171,12 @@ public struct ScanResultView: View {
                                 Text("Copy Link")
                                     .font(.system(size: 15, weight: .bold))
                             }
-                            .foregroundColor(Color.shieldPurple)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .frame(maxWidth: .infinity)
                             .frame(height: 52)
                             .background(
                                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .fill(Color(hex: "F3F0FF"))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                            .stroke(Color(hex: "E5DEFF"), lineWidth: 1.5)
-                                    )
+                                    .fill(Color(hex: "253745"))
                             )
                         }
                         .buttonStyle(.plain)
@@ -186,24 +188,23 @@ public struct ScanResultView: View {
                 }
             }
         }
-        .background(
-            LinearGradient(
-                colors: result.status.topGradientColors + [Color(hex: "F8F9FD"), Color.white],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-        )
+        .background(Color(hex: "06141B").ignoresSafeArea())
         .overlay(
             Group {
                 if showCopiedAlert {
                     VStack {
                         Text("Link copied to clipboard!")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .padding(.horizontal, 16)
                             .padding(.vertical, 10)
-                            .background(Capsule().fill(Color(hex: "1F2937")))
+                            .background(
+                                Capsule()
+                                    .fill(Color(hex: "11212D"))
+                                    .overlay(
+                                        Capsule().stroke(Color(hex: "253745"), lineWidth: 1)
+                                    )
+                            )
                             .shadow(radius: 8)
                             .padding(.top, 50)
                         Spacer()
@@ -229,7 +230,7 @@ public struct ScanResultView: View {
         HStack {
             Text(title)
                 .font(.system(size: 14, weight: .regular))
-                .foregroundColor(Color(hex: "6B7280"))
+                .foregroundColor(Color(hex: "9BA8AB"))
             
             Spacer()
             

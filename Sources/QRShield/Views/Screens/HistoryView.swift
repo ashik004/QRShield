@@ -39,9 +39,9 @@ public struct HistoryView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .frame(width: 38, height: 38)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "253745"))
                         .clipShape(Circle())
                 }
                 
@@ -49,16 +49,16 @@ public struct HistoryView: View {
                 
                 Text("Scan History")
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
                 Button(action: { showClearConfirm = true }) {
                     Image(systemName: "trash")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(storage.scanHistory.isEmpty ? Color(hex: "D1D5DB") : Color(hex: "EF4444"))
+                        .foregroundColor(storage.scanHistory.isEmpty ? Color(hex: "9BA8AB") : Color(hex: "EF4444"))
                         .frame(width: 38, height: 38)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "253745"))
                         .clipShape(Circle())
                 }
                 .disabled(storage.scanHistory.isEmpty)
@@ -77,12 +77,12 @@ public struct HistoryView: View {
                         }) {
                             Text(filter.rawValue)
                                 .font(.system(size: 13, weight: selectedStatusFilter == filter ? .bold : .medium))
-                                .foregroundColor(selectedStatusFilter == filter ? .white : Color(hex: "4B5563"))
+                                .foregroundColor(selectedStatusFilter == filter ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                 .padding(.horizontal, 18)
                                 .padding(.vertical, 8)
                                 .background(
                                     Capsule()
-                                        .fill(selectedStatusFilter == filter ? Color.shieldPurple : Color(hex: "F3F4F6"))
+                                        .fill(selectedStatusFilter == filter ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                                 )
                         }
                         .buttonStyle(.plain)
@@ -98,10 +98,10 @@ public struct HistoryView: View {
                     Spacer()
                     Image(systemName: "clock.arrow.circlepath")
                         .font(.system(size: 54))
-                        .foregroundColor(Color(hex: "D1D5DB"))
+                        .foregroundColor(Color(hex: "253745"))
                     Text("No scan history yet")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color(hex: "6B7280"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                     Spacer()
                 }
             } else {
@@ -117,7 +117,7 @@ public struct HistoryView: View {
                 }
             }
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "06141B").ignoresSafeArea())
         .confirmationDialog("Clear Scan History?", isPresented: $showClearConfirm, titleVisibility: .visible) {
             Button("Clear All History", role: .destructive) {
                 storage.clearScanHistory()
@@ -141,7 +141,7 @@ public struct HistoryView: View {
                 // Status icon badge
                 ZStack {
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(item.status.primaryColor.opacity(0.12))
+                        .fill(item.status.primaryColor.opacity(0.15))
                         .frame(width: 46, height: 46)
                     
                     Image(systemName: item.status.iconName)
@@ -152,7 +152,7 @@ public struct HistoryView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.urlString)
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .lineLimit(1)
                     
                     HStack(spacing: 6) {
@@ -162,11 +162,11 @@ public struct HistoryView: View {
                         
                         Text("•")
                             .font(.system(size: 10))
-                            .foregroundColor(Color(hex: "9CA3AF"))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                         
                         Text(relativeDate(for: item.scannedAt))
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(Color(hex: "9CA3AF"))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                     }
                 }
                 
@@ -174,15 +174,15 @@ public struct HistoryView: View {
                 
                 Image(systemName: "chevron.right")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(Color(hex: "D1D5DB"))
+                    .foregroundColor(Color(hex: "9BA8AB"))
             }
             .padding(14)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(Color.white)
+                    .fill(Color(hex: "11212D"))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .stroke(Color(hex: "F3F4F6"), lineWidth: 1.2)
+                            .stroke(Color(hex: "253745"), lineWidth: 1.2)
                     )
             )
         }

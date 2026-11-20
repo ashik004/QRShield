@@ -45,7 +45,7 @@ public struct TemplatesView: View {
                     Spacer()
                     Text("Templates")
                         .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     Spacer()
                 }
                 .padding(.horizontal, 20)
@@ -53,28 +53,33 @@ public struct TemplatesView: View {
                 .padding(.bottom, 8)
             }
             
-            // Optional Search Bar (Hidden when inside Generate screen)
+            // Optional Search Bar
             if showSearchBar {
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass")
                         .font(.system(size: 14))
-                        .foregroundColor(Color(hex: "9CA3AF"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                     
                     TextField("Search templates...", text: $searchText)
                         .font(.system(size: 14))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     if !searchText.isEmpty {
                         Button(action: { searchText = "" }) {
                             Image(systemName: "xmark.circle.fill")
                                 .font(.system(size: 14))
-                                .foregroundColor(Color(hex: "9CA3AF"))
+                                .foregroundColor(Color(hex: "9BA8AB"))
                         }
                     }
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "11212D"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color(hex: "253745"), lineWidth: 1)
+                )
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
             }
@@ -106,11 +111,12 @@ public struct TemplatesView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "06141B").ignoresSafeArea())
     }
     
     private func categoryChip(_ category: QRTemplateCategory) -> some View {
-        Button(action: {
+        let isSelected = selectedCategory == category
+        return Button(action: {
             let feedback = UIImpactFeedbackGenerator(style: .light)
             feedback.impactOccurred()
             withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
@@ -122,24 +128,28 @@ public struct TemplatesView: View {
                     .font(.system(size: 11, weight: .semibold))
                 
                 Text(category.rawValue)
-                    .font(.system(size: 13, weight: selectedCategory == category ? .bold : .medium))
+                    .font(.system(size: 13, weight: isSelected ? .bold : .medium))
                 
                 let count = category == .all ? QRTemplate.predefinedTemplates.count : QRTemplate.predefinedTemplates.filter { $0.category == category }.count
                 Text("\(count)")
                     .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(selectedCategory == category ? Color.shieldPurple : Color(hex: "9CA3AF"))
+                    .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                     .padding(.horizontal, 5)
                     .padding(.vertical, 1)
                     .background(
-                        Capsule().fill(selectedCategory == category ? Color.white : Color(hex: "E5E7EB"))
+                        Capsule().fill(Color(hex: "11212D"))
                     )
             }
-            .foregroundColor(selectedCategory == category ? .white : Color(hex: "4B5563"))
+            .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(
                 Capsule()
-                    .fill(selectedCategory == category ? Color.shieldPurple : Color(hex: "F3F4F6"))
+                    .fill(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"))
+            )
+            .overlay(
+                Capsule()
+                    .stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 1)
             )
         }
         .buttonStyle(.plain)

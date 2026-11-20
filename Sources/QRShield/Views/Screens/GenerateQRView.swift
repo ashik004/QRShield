@@ -33,10 +33,13 @@ public struct GenerateQRView: View {
                     }) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(Color(hex: "1F2937"))
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .frame(width: 38, height: 38)
-                            .background(Color(hex: "F3F4F6"))
+                            .background(Color(hex: "11212D"))
                             .clipShape(Circle())
+                            .overlay(
+                                Circle().stroke(Color(hex: "253745"), lineWidth: 1)
+                            )
                     }
                 } else {
                     Color.clear.frame(width: 38, height: 38)
@@ -46,7 +49,7 @@ public struct GenerateQRView: View {
                 
                 Text(title)
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
@@ -79,30 +82,30 @@ public struct GenerateQRView: View {
                         HStack(spacing: 6) {
                             Text(t.name)
                                 .font(.system(size: 15, weight: .bold))
-                                .foregroundColor(Color(hex: "111827"))
+                                .foregroundColor(Color(hex: "CCD0CF"))
                             
                             Text(t.category.rawValue)
                                 .font(.system(size: 10, weight: .bold))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(Color.shieldPurple.opacity(0.12))
-                                .foregroundColor(Color.shieldPurple)
+                                .background(Color(hex: "253745"))
+                                .foregroundColor(Color(hex: "9BA8AB"))
                                 .clipShape(Capsule())
                         }
                         
                         Text("Select content type to populate this template")
                             .font(.system(size: 12))
-                            .foregroundColor(Color(hex: "6B7280"))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                     }
                     
                     Spacer()
                 }
                 .padding(12)
-                .background(Color(hex: "F9FAFB"))
+                .background(Color(hex: "11212D"))
                 .clipShape(RoundedRectangle(cornerRadius: 14))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
-                        .stroke(Color(hex: "E5E7EB"), lineWidth: 1)
+                        .stroke(Color(hex: "253745"), lineWidth: 1)
                 )
                 .padding(.horizontal, 20)
                 .padding(.bottom, 10)
@@ -128,7 +131,7 @@ public struct GenerateQRView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "06141B").ignoresSafeArea())
         // Half Sheet for Entering QR Content Data
         .sheet(item: $activeInputType) { type in
             ContentInputHalfSheet(
@@ -163,30 +166,30 @@ public struct GenerateQRView: View {
                 HStack {
                     ZStack {
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(typeTheme(for: type).bgColor)
+                            .fill(Color(hex: "253745"))
                             .frame(width: 44, height: 44)
                         
                         Image(systemName: type.iconName)
                             .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(typeTheme(for: type).accentColor)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                     }
                     
                     Spacer()
                     
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 18))
-                        .foregroundColor(typeTheme(for: type).accentColor.opacity(0.7))
+                        .foregroundColor(Color(hex: "4A5C6A"))
                 }
                 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(type.rawValue)
                         .font(.system(size: 15, weight: .bold))
-                        .foregroundColor(Color(hex: "1F2937"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .lineLimit(1)
                     
                     Text(subtitle(for: type))
                         .font(.system(size: 11, weight: .regular))
-                        .foregroundColor(Color(hex: "6B7280"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                         .lineLimit(1)
                 }
             }
@@ -194,12 +197,11 @@ public struct GenerateQRView: View {
             .frame(maxWidth: .infinity, minHeight: 114, alignment: .topLeading)
             .background(
                 RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.white)
+                    .fill(Color(hex: "11212D"))
                     .overlay(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(Color(hex: "F3F4F6"), lineWidth: 1.5)
+                            .stroke(Color(hex: "253745"), lineWidth: 1.5)
                     )
-                    .shadow(color: Color.black.opacity(0.03), radius: 8, x: 0, y: 3)
             )
         }
         .buttonStyle(SpringCardButtonStyle())
@@ -215,27 +217,6 @@ public struct GenerateQRView: View {
         case .email: return "Pre-filled email"
         case .location: return "Map pin & location"
         case .social: return "Social profiles"
-        }
-    }
-    
-    private func typeTheme(for type: QRContentType) -> (accentColor: Color, bgColor: Color) {
-        switch type {
-        case .website:
-            return (Color(hex: "2563EB"), Color(hex: "EFF6FF"))
-        case .wifi:
-            return (Color(hex: "7C3AED"), Color(hex: "F5F3FF"))
-        case .contact:
-            return (Color(hex: "059669"), Color(hex: "ECFDF5"))
-        case .phone:
-            return (Color(hex: "EA580C"), Color(hex: "FFF7ED"))
-        case .text:
-            return (Color(hex: "4F46E5"), Color(hex: "EEF2FF"))
-        case .email:
-            return (Color(hex: "E11D48"), Color(hex: "FFF1F2"))
-        case .location:
-            return (Color(hex: "0D9488"), Color(hex: "F0FDFA"))
-        case .social:
-            return (Color(hex: "DB2777"), Color(hex: "FDF2F8"))
         }
     }
 }
@@ -265,23 +246,23 @@ public struct ContentInputHalfSheet: View {
             HStack(spacing: 10) {
                 ZStack {
                     Circle()
-                        .fill(Color(hex: "F3F0FF"))
+                        .fill(Color(hex: "253745"))
                         .frame(width: 36, height: 36)
                     Image(systemName: type.iconName)
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
                 
                 Text(type.rawValue)
                     .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                 
                 Spacer()
                 
                 Button(action: { dismiss() }) {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(Color(hex: "D1D5DB"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                 }
                 .buttonStyle(.plain)
             }
@@ -290,6 +271,7 @@ public struct ContentInputHalfSheet: View {
             .padding(.bottom, 12)
             
             Divider()
+                .background(Color(hex: "253745"))
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
             
@@ -316,19 +298,12 @@ public struct ContentInputHalfSheet: View {
                         Text("Create")
                             .font(.system(size: 16, weight: .bold))
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)
                     .background(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .shadow(color: Color.shieldPurple.opacity(0.35), radius: 10, x: 0, y: 5)
+                            .fill(Color(hex: "4A5C6A"))
                     )
                 }
                 .buttonStyle(.plain)
@@ -336,9 +311,15 @@ public struct ContentInputHalfSheet: View {
                 .padding(.top, 10)
                 .padding(.bottom, 16)
             }
-            .background(Color.white.shadow(color: Color.black.opacity(0.04), radius: 6, x: 0, y: -2))
+            .background(Color(hex: "11212D"))
+            .overlay(
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(Color(hex: "253745")),
+                alignment: .top
+            )
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "11212D").ignoresSafeArea())
     }
     
     // MARK: - Input Fields Per Content Type
@@ -349,12 +330,13 @@ public struct ContentInputHalfSheet: View {
             fieldBlock(label: "WEBSITE URL") {
                 HStack(spacing: 10) {
                     Image(systemName: "link")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 15))
                     TextField("https://example.com", text: $contentData.url)
                         .keyboardType(.URL)
                         .autocapitalization(.none)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     if !contentData.url.isEmpty {
                         clearButton { contentData.url = "" }
@@ -362,18 +344,20 @@ public struct ContentInputHalfSheet: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
         case .wifi:
             fieldBlock(label: "NETWORK NAME (SSID)") {
                 HStack(spacing: 10) {
                     Image(systemName: "wifi")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 15))
                     TextField("Enter Wi-Fi name", text: $contentData.wifiSSID)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     if !contentData.wifiSSID.isEmpty {
                         clearButton { contentData.wifiSSID = "" }
@@ -381,34 +365,38 @@ public struct ContentInputHalfSheet: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             fieldBlock(label: "PASSWORD") {
                 HStack(spacing: 10) {
                     Image(systemName: "lock.fill")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 15))
                     
                     if showPassword {
                         TextField("Enter password", text: $contentData.wifiPassword)
                             .font(.system(size: 15))
+                            .foregroundColor(Color(hex: "CCD0CF"))
                     } else {
                         SecureField("Enter password", text: $contentData.wifiPassword)
                             .font(.system(size: 15))
+                            .foregroundColor(Color(hex: "CCD0CF"))
                     }
                     
                     Button(action: { showPassword.toggle() }) {
                         Image(systemName: showPassword ? "eye.slash.fill" : "eye.fill")
-                            .foregroundColor(Color(hex: "9CA3AF"))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                             .font(.system(size: 14))
                     }
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             fieldBlock(label: "SECURITY TYPE") {
@@ -417,11 +405,11 @@ public struct ContentInputHalfSheet: View {
                         Button(action: { contentData.wifiEncryption = enc }) {
                             Text(enc == "None" ? "Open" : enc)
                                 .font(.system(size: 13, weight: contentData.wifiEncryption == enc ? .bold : .medium))
-                                .foregroundColor(contentData.wifiEncryption == enc ? .white : Color(hex: "4B5563"))
+                                .foregroundColor(contentData.wifiEncryption == enc ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 38)
                                 .background(
-                                    Capsule().fill(contentData.wifiEncryption == enc ? Color.shieldPurple : Color(hex: "F3F4F6"))
+                                    Capsule().fill(contentData.wifiEncryption == enc ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                                 )
                         }
                         .buttonStyle(.plain)
@@ -433,68 +421,82 @@ public struct ContentInputHalfSheet: View {
             HStack(spacing: 10) {
                 fieldBlock(label: "FIRST NAME") {
                     TextField("John", text: $contentData.firstName)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "06141B"))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
                 }
                 fieldBlock(label: "LAST NAME") {
                     TextField("Doe", text: $contentData.lastName)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "06141B"))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
                 }
             }
             
             fieldBlock(label: "PHONE NUMBER") {
                 HStack(spacing: 10) {
                     Image(systemName: "phone.fill")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 14))
                     TextField("+1 (555) 123-4567", text: $contentData.contactPhone)
                         .keyboardType(.phonePad)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             fieldBlock(label: "EMAIL ADDRESS") {
                 HStack(spacing: 10) {
                     Image(systemName: "envelope.fill")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 14))
                     TextField("john@example.com", text: $contentData.contactEmail)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             fieldBlock(label: "ORGANIZATION / COMPANY") {
                 TextField("Company or Business", text: $contentData.company)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "F3F4F6"))
+                    .background(Color(hex: "06141B"))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
         case .phone:
             fieldBlock(label: "PHONE NUMBER") {
                 HStack(spacing: 10) {
                     Image(systemName: "phone.fill")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 15))
                     TextField("+1 (555) 123-4567", text: $contentData.phoneNumber)
                         .keyboardType(.phonePad)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     if !contentData.phoneNumber.isEmpty {
                         clearButton { contentData.phoneNumber = "" }
@@ -502,8 +504,9 @@ public struct ContentInputHalfSheet: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
         case .text:
@@ -511,11 +514,13 @@ public struct ContentInputHalfSheet: View {
                 TextEditor(text: $contentData.plainText)
                     .frame(height: 110)
                     .padding(8)
-                    .background(Color(hex: "F3F4F6"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
+                    .scrollContentBackground(.hidden)
+                    .background(Color(hex: "06141B"))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color(hex: "E5E7EB"), lineWidth: 1)
+                            .stroke(Color(hex: "253745"), lineWidth: 1)
                     )
             }
             
@@ -523,66 +528,82 @@ public struct ContentInputHalfSheet: View {
             fieldBlock(label: "RECIPIENT EMAIL") {
                 HStack(spacing: 10) {
                     Image(systemName: "envelope.fill")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 14))
                     TextField("recipient@example.com", text: $contentData.emailAddress)
                         .keyboardType(.emailAddress)
                         .autocapitalization(.none)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             fieldBlock(label: "SUBJECT") {
                 TextField("Email Subject", text: $contentData.emailSubject)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "F3F4F6"))
+                    .background(Color(hex: "06141B"))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             fieldBlock(label: "MESSAGE") {
                 TextField("Message body text...", text: $contentData.emailBody)
+                    .font(.system(size: 15))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 12)
-                    .background(Color(hex: "F3F4F6"))
+                    .background(Color(hex: "06141B"))
                     .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
         case .location:
             fieldBlock(label: "LOCATION NAME OR ADDRESS") {
                 HStack(spacing: 10) {
                     Image(systemName: "mappin.and.ellipse")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 15))
                     TextField("Location Name (e.g. San Francisco)", text: $contentData.locationName)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
             
             HStack(spacing: 10) {
                 fieldBlock(label: "LATITUDE") {
                     TextField("Latitude", value: $contentData.latitude, format: .number)
                         .keyboardType(.decimalPad)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "06141B"))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
                 }
                 fieldBlock(label: "LONGITUDE") {
                     TextField("Longitude", value: $contentData.longitude, format: .number)
                         .keyboardType(.decimalPad)
+                        .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .padding(.horizontal, 12)
                         .padding(.vertical, 10)
-                        .background(Color(hex: "F3F4F6"))
+                        .background(Color(hex: "06141B"))
                         .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
                 }
             }
             
@@ -602,11 +623,11 @@ public struct ContentInputHalfSheet: View {
                                     Text(p.rawValue)
                                         .font(.system(size: 12, weight: contentData.socialPlatform == p ? .bold : .medium))
                                 }
-                                .foregroundColor(contentData.socialPlatform == p ? .white : Color(hex: "4B5563"))
+                                .foregroundColor(contentData.socialPlatform == p ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 8)
                                 .background(
-                                    Capsule().fill(contentData.socialPlatform == p ? Color.shieldPurple : Color(hex: "F3F4F6"))
+                                    Capsule().fill(contentData.socialPlatform == p ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                                 )
                             }
                             .buttonStyle(.plain)
@@ -618,11 +639,12 @@ public struct ContentInputHalfSheet: View {
             fieldBlock(label: "USERNAME / HANDLE") {
                 HStack(spacing: 8) {
                     Text("@")
-                        .foregroundColor(Color.shieldPurple)
+                        .foregroundColor(Color(hex: "4A5C6A"))
                         .font(.system(size: 16, weight: .bold))
                     TextField("username", text: $contentData.socialUsername)
                         .autocapitalization(.none)
                         .font(.system(size: 15))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     if !contentData.socialUsername.isEmpty {
                         clearButton { contentData.socialUsername = "" }
@@ -630,8 +652,9 @@ public struct ContentInputHalfSheet: View {
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
-                .background(Color(hex: "F3F4F6"))
+                .background(Color(hex: "06141B"))
                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color(hex: "253745"), lineWidth: 1))
             }
         }
     }
@@ -641,7 +664,7 @@ public struct ContentInputHalfSheet: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(label)
                 .font(.system(size: 11, weight: .bold))
-                .foregroundColor(Color(hex: "6B7280"))
+                .foregroundColor(Color(hex: "9BA8AB"))
                 .tracking(1.0)
             
             content()
@@ -651,7 +674,7 @@ public struct ContentInputHalfSheet: View {
     private func clearButton(action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: "xmark.circle.fill")
-                .foregroundColor(Color(hex: "9CA3AF"))
+                .foregroundColor(Color(hex: "9BA8AB"))
                 .font(.system(size: 14))
         }
     }

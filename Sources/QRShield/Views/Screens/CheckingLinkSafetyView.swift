@@ -21,8 +21,8 @@ public struct CheckingLinkSafetyView: View {
     
     public var body: some View {
         ZStack {
-            // Dark Background
-            Color(hex: "0D1117").ignoresSafeArea()
+            // Deepest Midnight Navy Background
+            Color(hex: "06141B").ignoresSafeArea()
             
             VStack {
                 // Top Header
@@ -30,9 +30,9 @@ public struct CheckingLinkSafetyView: View {
                     Button(action: onBack) {
                         Image(systemName: "chevron.left")
                             .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .frame(width: 40, height: 40)
-                            .background(Color.white.opacity(0.12))
+                            .background(Color(hex: "253745"))
                             .clipShape(Circle())
                     }
                     Spacer()
@@ -46,17 +46,17 @@ public struct CheckingLinkSafetyView: View {
                 ZStack {
                     // Outer Ring 3
                     Circle()
-                        .stroke(Color.shieldPurple.opacity(0.15), lineWidth: 1.5)
+                        .stroke(Color(hex: "253745"), lineWidth: 1.5)
                         .frame(width: 240, height: 240)
                     
                     // Ring 2
                     Circle()
-                        .stroke(Color.shieldPurple.opacity(0.3), lineWidth: 1.5)
+                        .stroke(Color(hex: "253745"), lineWidth: 1.5)
                         .frame(width: 180, height: 180)
                     
                     // Ring 1
                     Circle()
-                        .stroke(Color.shieldPurple.opacity(0.5), lineWidth: 1.5)
+                        .stroke(Color(hex: "4A5C6A"), lineWidth: 1.5)
                         .frame(width: 120, height: 120)
                         .scaleEffect(pulseScale)
                     
@@ -66,8 +66,8 @@ public struct CheckingLinkSafetyView: View {
                             AngularGradient(
                                 gradient: Gradient(colors: [
                                     Color.clear,
-                                    Color.shieldPurple.opacity(0.0),
-                                    Color.shieldPurple.opacity(0.35)
+                                    Color(hex: "4A5C6A").opacity(0.0),
+                                    Color(hex: "4A5C6A").opacity(0.35)
                                 ]),
                                 center: .center
                             )
@@ -78,19 +78,13 @@ public struct CheckingLinkSafetyView: View {
                     // Central Glowing Shield
                     ZStack {
                         Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color(hex: "7952FC"), Color(hex: "5A32E8")],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
+                            .fill(Color(hex: "4A5C6A"))
                             .frame(width: 68, height: 68)
-                            .shadow(color: Color.shieldPurple.opacity(0.8), radius: 18, x: 0, y: 0)
+                            .shadow(color: Color(hex: "4A5C6A").opacity(0.6), radius: 18, x: 0, y: 0)
                         
                         Image(systemName: "checkmark.shield.fill")
                             .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "CCD0CF"))
                     }
                 }
                 .frame(height: 260)
@@ -98,7 +92,7 @@ public struct CheckingLinkSafetyView: View {
                 // Title
                 Text("Checking link safety...")
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.top, 24)
                 
                 // Progress Checklist
@@ -114,6 +108,7 @@ public struct CheckingLinkSafetyView: View {
                 Spacer()
             }
         }
+        .preferredColorScheme(.dark)
         .onAppear {
             startAnimationAndAnalysis()
         }
@@ -130,12 +125,12 @@ public struct CheckingLinkSafetyView: View {
                 } else if completedStepIndex == step {
                     // In-progress spinner
                     ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: Color.shieldPurple))
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color(hex: "4A5C6A")))
                         .scaleEffect(0.85)
                 } else {
                     // Pending hollow circle
                     Circle()
-                        .stroke(Color.white.opacity(0.25), lineWidth: 1.5)
+                        .stroke(Color(hex: "253745"), lineWidth: 1.5)
                         .frame(width: 16, height: 16)
                 }
             }
@@ -143,7 +138,7 @@ public struct CheckingLinkSafetyView: View {
             
             Text(text)
                 .font(.system(size: 14, weight: completedStepIndex >= step ? .medium : .regular))
-                .foregroundColor(completedStepIndex >= step ? .white : Color.white.opacity(0.4))
+                .foregroundColor(completedStepIndex >= step ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
             
             Spacer()
         }

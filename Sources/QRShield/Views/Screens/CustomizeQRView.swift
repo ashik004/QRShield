@@ -64,7 +64,7 @@ public struct CustomizeQRView: View {
     @State private var customLabelText: String = ""
     @State private var showTextAbove: Bool = false
     @State private var selectedFontOption: QRTextFontOption = .standard
-    @State private var selectedTextColorHex: String = "111827"
+    @State private var selectedTextColorHex: String = "CCD0CF"
     
     // Live Preview State (Zero-lag synchronous + cancellable task)
     @State private var livePreviewImage: UIImage? = nil
@@ -116,7 +116,7 @@ public struct CustomizeQRView: View {
     
     public var body: some View {
         VStack(spacing: 0) {
-            // 1. Top Navigation Bar
+            // 1. Top Navigation Bar (#06141B background)
             topNavigationBar
             
             // 2. Centered Live QR Code Preview Card
@@ -142,7 +142,7 @@ public struct CustomizeQRView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(Color(hex: "06141B").ignoresSafeArea())
         .onAppear {
             updateQRPreview(with: styleConfig)
         }
@@ -159,40 +159,41 @@ public struct CustomizeQRView: View {
     // MARK: - 1. Top Navigation Bar
     private var topNavigationBar: some View {
         HStack {
-            // Clean purple back chevron icon (<, #6D28D9) without circular background
+            // Clean back chevron icon (<, #CCD0CF)
             Button(action: onBack) {
                 Image(systemName: "chevron.left")
                     .font(.system(size: 18, weight: .semibold))
-                    .foregroundColor(Color(hex: "6D28D9"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .frame(width: 36, height: 36, alignment: .leading)
             }
             .buttonStyle(.plain)
             
             Spacer()
             
-            // Fixed title "Customize" (18px, SemiBold, #111827)
+            // Fixed title "Customize" (18px, SemiBold, #CCD0CF)
             Text("Customize")
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color(hex: "111827"))
+                .foregroundColor(Color(hex: "CCD0CF"))
             
             Spacer()
             
-            // Compact rounded rectangular purple button (border-radius: 8px, #6D28D9 fill) with white "Save" text (14px, SemiBold)
+            // Compact rounded rectangular button (border-radius: 8px, #4A5C6A fill) with white #CCD0CF "Save" text
             Button(action: saveQRCode) {
                 Text("Save")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 14)
                     .padding(.vertical, 7)
                     .background(
                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                            .fill(Color(hex: "6D28D9"))
+                            .fill(Color(hex: "4A5C6A"))
                     )
             }
             .buttonStyle(.plain)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 10)
+        .background(Color(hex: "06141B"))
     }
     
     // MARK: - 2. Centered Live QR Code Preview Card
@@ -211,7 +212,7 @@ public struct CustomizeQRView: View {
     private var fiveTabIconToolbar: some View {
         VStack(spacing: 0) {
             Rectangle()
-                .fill(Color(hex: "E5E7EB"))
+                .fill(Color(hex: "253745"))
                 .frame(height: 1)
             
             HStack(spacing: 0) {
@@ -220,9 +221,10 @@ public struct CustomizeQRView: View {
                 }
             }
             .padding(.vertical, 8)
+            .background(Color(hex: "11212D"))
             
             Rectangle()
-                .fill(Color(hex: "E5E7EB"))
+                .fill(Color(hex: "253745"))
                 .frame(height: 1)
         }
     }
@@ -239,23 +241,23 @@ public struct CustomizeQRView: View {
             VStack(spacing: 4) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(isSelected ? Color(hex: "6D28D9") : Color(hex: "F3F4F6"))
+                        .fill(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                         .frame(width: 36, height: 36)
                     
                     if tab == .text {
                         Text("T")
                             .font(.system(size: 17, weight: .heavy, design: .rounded))
-                            .foregroundColor(isSelected ? .white : Color(hex: "6B7280"))
+                            .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                     } else {
                         Image(systemName: tab.iconName)
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(isSelected ? .white : Color(hex: "6B7280"))
+                            .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                     }
                 }
                 
                 Text(tab.rawValue)
                     .font(.system(size: 11, weight: isSelected ? .bold : .medium))
-                    .foregroundColor(isSelected ? Color(hex: "6D28D9") : Color(hex: "6B7280"))
+                    .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
             }
             .frame(maxWidth: .infinity)
         }
@@ -354,29 +356,29 @@ public struct CustomizeQRView: View {
     // MARK: - Tab 1: Template Panel View
     private var templatePanelView: some View {
         VStack(spacing: 0) {
-            // Horizontal Sub-Category Filter Bar
+            // Horizontal Sub-Category Filter Bar (#11212D background)
             HStack(spacing: 10) {
-                // Circular purple reset icon on left (resets customizations)
+                // Circular reset icon on left (resets customizations)
                 Button(action: {
                     let feedback = UIImpactFeedbackGenerator(style: .light)
                     feedback.impactOccurred()
                     customLabelText = ""
                     showTextAbove = false
                     selectedFontOption = .standard
-                    selectedTextColorHex = "111827"
+                    selectedTextColorHex = "CCD0CF"
                     var resetConfig = initialStyleConfig
                     resetConfig.customText = nil
                     resetConfig.textPositionAbove = false
                     resetConfig.textFont = "Default"
-                    resetConfig.textColorHex = "111827"
+                    resetConfig.textColorHex = "CCD0CF"
                     selectedTemplate = initialTemplate
                     updateQRPreview(with: resetConfig)
                 }) {
                     Image(systemName: "arrow.counterclockwise")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(Color(hex: "6D28D9"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                         .frame(width: 32, height: 32)
-                        .background(Color(hex: "6D28D9").opacity(0.12))
+                        .background(Color(hex: "253745"))
                         .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
@@ -394,12 +396,16 @@ public struct CustomizeQRView: View {
                             }) {
                                 Text(cat.rawValue)
                                     .font(.system(size: 12, weight: selectedSubCategory == cat ? .bold : .medium))
-                                    .foregroundColor(selectedSubCategory == cat ? .white : Color(hex: "4B5563"))
+                                    .foregroundColor(selectedSubCategory == cat ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 7)
                                     .background(
                                         Capsule()
-                                            .fill(selectedSubCategory == cat ? Color(hex: "6D28D9") : Color(hex: "F3F4F6"))
+                                            .fill(selectedSubCategory == cat ? Color(hex: "4A5C6A") : Color(hex: "253745"))
+                                    )
+                                    .overlay(
+                                        Capsule()
+                                            .stroke(selectedSubCategory == cat ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 1)
                                     )
                             }
                             .buttonStyle(.plain)
@@ -409,9 +415,10 @@ public struct CustomizeQRView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
+            .background(Color(hex: "11212D"))
             
             Rectangle()
-                .fill(Color(hex: "E5E7EB"))
+                .fill(Color(hex: "253745"))
                 .frame(height: 1)
             
             // Scrollable Grid of clean white-background template cards
@@ -477,13 +484,13 @@ public struct CustomizeQRView: View {
                 .aspectRatio(1.0, contentMode: .fit)
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(isSelected ? Color(hex: "6D28D9") : Color(hex: "E5E7EB"), lineWidth: isSelected ? 2.5 : 1)
+                        .stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: isSelected ? 2.5 : 1)
                 )
-                .shadow(color: isSelected ? Color(hex: "6D28D9").opacity(0.2) : Color.black.opacity(0.04), radius: 6, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(0.2), radius: 6, x: 0, y: 2)
                 
                 Text(template.name)
                     .font(.system(size: 11, weight: isSelected ? .bold : .medium))
-                    .foregroundColor(isSelected ? Color(hex: "6D28D9") : Color(hex: "374151"))
+                    .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                     .lineLimit(1)
             }
         }
@@ -496,7 +503,7 @@ public struct CustomizeQRView: View {
             VStack(alignment: .leading, spacing: 14) {
                 Text("Center Icon / Logo")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(Color(hex: "4B5563"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 16)
                     .padding(.top, 14)
                 
@@ -543,28 +550,28 @@ public struct CustomizeQRView: View {
         return VStack(spacing: 5) {
             ZStack {
                 Circle()
-                    .fill(logo == .none ? Color(hex: "F3F4F6") : logo.badgeBackgroundColor)
+                    .fill(logo == .none ? Color(hex: "11212D") : logo.badgeBackgroundColor)
                     .frame(width: 44, height: 44)
                 
                 if let icon = logo.systemIcon {
                     Image(systemName: icon)
                         .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(logo == .none ? Color(hex: "9CA3AF") : .white)
+                        .foregroundColor(logo == .none ? Color(hex: "9BA8AB") : .white)
                 } else {
                     Image(systemName: "slash.circle")
                         .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "9CA3AF"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                 }
             }
             .overlay(
                 Circle()
-                    .stroke(isSelected ? Color(hex: "6D28D9") : Color.clear, lineWidth: 2.5)
+                    .stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: isSelected ? 2.5 : 1)
                     .scaleEffect(1.15)
             )
             
             Text(logo.rawValue)
                 .font(.system(size: 10, weight: isSelected ? .bold : .medium))
-                .foregroundColor(isSelected ? Color(hex: "6D28D9") : Color(hex: "6B7280"))
+                .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
         }
     }
     
@@ -574,7 +581,7 @@ public struct CustomizeQRView: View {
             VStack(alignment: .leading, spacing: 14) {
                 Text("Color & Gradient Palette")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(Color(hex: "4B5563"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .padding(.horizontal, 16)
                     .padding(.top, 14)
                 
@@ -598,13 +605,13 @@ public struct CustomizeQRView: View {
                                         .frame(width: 42, height: 42)
                                         .overlay(
                                             Circle()
-                                                .stroke(styleConfig.colorTheme == theme ? Color(hex: "6D28D9") : Color.clear, lineWidth: 3)
+                                                .stroke(styleConfig.colorTheme == theme ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 3)
                                                 .scaleEffect(1.2)
                                         )
                                     
                                     Text(theme.rawValue)
                                         .font(.system(size: 10, weight: styleConfig.colorTheme == theme ? .bold : .medium))
-                                        .foregroundColor(styleConfig.colorTheme == theme ? Color(hex: "6D28D9") : Color(hex: "6B7280"))
+                                        .foregroundColor(styleConfig.colorTheme == theme ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                         .lineLimit(1)
                                 }
                                 .frame(width: 68)
@@ -628,10 +635,11 @@ public struct CustomizeQRView: View {
                 HStack(spacing: 8) {
                     HStack {
                         Image(systemName: "textformat")
-                            .foregroundColor(Color(hex: "9CA3AF"))
+                            .foregroundColor(Color(hex: "9BA8AB"))
                         
                         TextField("Enter label (e.g. Scan Me)", text: $customLabelText)
                             .font(.system(size: 14))
+                            .foregroundColor(Color(hex: "CCD0CF"))
                             .onChange(of: customLabelText) { newText in
                                 updateQRPreview(text: newText)
                             }
@@ -642,14 +650,18 @@ public struct CustomizeQRView: View {
                                 updateQRPreview(text: "")
                             }) {
                                 Image(systemName: "xmark.circle.fill")
-                                    .foregroundColor(Color(hex: "9CA3AF"))
+                                    .foregroundColor(Color(hex: "9BA8AB"))
                             }
                         }
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
-                    .background(Color(hex: "F3F4F6"))
+                    .background(Color(hex: "11212D"))
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color(hex: "253745"), lineWidth: 1)
+                    )
                     
                     Button(action: {
                         let feedback = UIImpactFeedbackGenerator(style: .light)
@@ -659,11 +671,15 @@ public struct CustomizeQRView: View {
                     }) {
                         Text("None")
                             .font(.system(size: 13, weight: .semibold))
-                            .foregroundColor(customLabelText.isEmpty ? Color(hex: "6D28D9") : Color(hex: "6B7280"))
+                            .foregroundColor(customLabelText.isEmpty ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 10)
-                            .background(customLabelText.isEmpty ? Color(hex: "6D28D9").opacity(0.12) : Color(hex: "F3F4F6"))
+                            .background(customLabelText.isEmpty ? Color(hex: "4A5C6A") : Color(hex: "253745"))
                             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .stroke(Color(hex: "253745"), lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -674,7 +690,7 @@ public struct CustomizeQRView: View {
                 HStack(spacing: 12) {
                     Text("Position:")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(hex: "4B5563"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     Button(action: {
                         let feedback = UIImpactFeedbackGenerator(style: .light)
@@ -684,10 +700,14 @@ public struct CustomizeQRView: View {
                     }) {
                         Text("Below QR")
                             .font(.system(size: 12, weight: !styleConfig.textPositionAbove ? .bold : .medium))
-                            .foregroundColor(!styleConfig.textPositionAbove ? .white : Color(hex: "4B5563"))
+                            .foregroundColor(!styleConfig.textPositionAbove ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(!styleConfig.textPositionAbove ? Color(hex: "6D28D9") : Color(hex: "F3F4F6")))
+                            .background(Capsule().fill(!styleConfig.textPositionAbove ? Color(hex: "4A5C6A") : Color(hex: "253745")))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color(hex: "253745"), lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                     
@@ -699,10 +719,14 @@ public struct CustomizeQRView: View {
                     }) {
                         Text("Above QR")
                             .font(.system(size: 12, weight: styleConfig.textPositionAbove ? .bold : .medium))
-                            .foregroundColor(styleConfig.textPositionAbove ? .white : Color(hex: "4B5563"))
+                            .foregroundColor(styleConfig.textPositionAbove ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Capsule().fill(styleConfig.textPositionAbove ? Color(hex: "6D28D9") : Color(hex: "F3F4F6")))
+                            .background(Capsule().fill(styleConfig.textPositionAbove ? Color(hex: "4A5C6A") : Color(hex: "253745")))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color(hex: "253745"), lineWidth: 1)
+                            )
                     }
                     .buttonStyle(.plain)
                 }
@@ -712,7 +736,7 @@ public struct CustomizeQRView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Font Style:")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(hex: "4B5563"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     HStack(spacing: 8) {
                         ForEach(QRTextFontOption.allCases) { opt in
@@ -724,12 +748,16 @@ public struct CustomizeQRView: View {
                             }) {
                                 Text(opt.rawValue)
                                     .font(.system(size: 12, weight: styleConfig.textFont == opt.rawValue ? .bold : .medium, design: opt.fontDesign))
-                                    .foregroundColor(styleConfig.textFont == opt.rawValue ? .white : Color(hex: "4B5563"))
+                                    .foregroundColor(styleConfig.textFont == opt.rawValue ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 6)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                            .fill(styleConfig.textFont == opt.rawValue ? Color(hex: "6D28D9") : Color(hex: "F3F4F6"))
+                                            .fill(styleConfig.textFont == opt.rawValue ? Color(hex: "4A5C6A") : Color(hex: "253745"))
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                            .stroke(Color(hex: "253745"), lineWidth: 1)
                                     )
                             }
                             .buttonStyle(.plain)
@@ -742,10 +770,10 @@ public struct CustomizeQRView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Text Color:")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(hex: "4B5563"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     HStack(spacing: 12) {
-                        ForEach(["111827", "6D28D9", "2563EB", "059669", "DC2626", "D97706"], id: \.self) { hex in
+                        ForEach(["CCD0CF", "4A5C6A", "253745", "9BA8AB", "10B981", "EF4444"], id: \.self) { hex in
                             Button(action: {
                                 let feedback = UIImpactFeedbackGenerator(style: .light)
                                 feedback.impactOccurred()
@@ -757,7 +785,7 @@ public struct CustomizeQRView: View {
                                     .frame(width: 28, height: 28)
                                     .overlay(
                                         Circle()
-                                            .stroke(styleConfig.textColorHex == hex ? Color(hex: "6D28D9") : Color.clear, lineWidth: 2.5)
+                                            .stroke(styleConfig.textColorHex == hex ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 2.5)
                                             .scaleEffect(1.25)
                                     )
                             }
@@ -779,7 +807,7 @@ public struct CustomizeQRView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Dot Shape")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(hex: "4B5563"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     HStack(spacing: 14) {
                         ForEach(QRDotStyle.allCases) { style in
@@ -791,11 +819,11 @@ public struct CustomizeQRView: View {
                                 VStack(spacing: 6) {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                            .fill(styleConfig.dotStyle == style ? Color(hex: "6D28D9").opacity(0.12) : Color(hex: "F3F4F6"))
+                                            .fill(Color(hex: "11212D"))
                                             .frame(width: 52, height: 52)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                    .stroke(styleConfig.dotStyle == style ? Color(hex: "6D28D9") : Color.clear, lineWidth: 2)
+                                                    .stroke(styleConfig.dotStyle == style ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 2)
                                             )
                                         
                                         styleDotPreview(style)
@@ -803,7 +831,7 @@ public struct CustomizeQRView: View {
                                     
                                     Text(style.rawValue)
                                         .font(.system(size: 11, weight: styleConfig.dotStyle == style ? .bold : .medium))
-                                        .foregroundColor(styleConfig.dotStyle == style ? Color(hex: "6D28D9") : Color(hex: "4B5563"))
+                                        .foregroundColor(styleConfig.dotStyle == style ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                 }
                             }
                             .buttonStyle(.plain)
@@ -816,7 +844,7 @@ public struct CustomizeQRView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Corner Eye Style")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(Color(hex: "4B5563"))
+                        .foregroundColor(Color(hex: "CCD0CF"))
                     
                     HStack(spacing: 14) {
                         ForEach(QREyeStyle.allCases) { eye in
@@ -828,11 +856,11 @@ public struct CustomizeQRView: View {
                                 VStack(spacing: 6) {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                            .fill(styleConfig.eyeStyle == eye ? Color(hex: "6D28D9").opacity(0.12) : Color(hex: "F3F4F6"))
+                                            .fill(Color(hex: "11212D"))
                                             .frame(width: 52, height: 52)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                                                    .stroke(styleConfig.eyeStyle == eye ? Color(hex: "6D28D9") : Color.clear, lineWidth: 2)
+                                                    .stroke(styleConfig.eyeStyle == eye ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 2)
                                             )
                                         
                                         eyePreview(eye)
@@ -840,7 +868,7 @@ public struct CustomizeQRView: View {
                                     
                                     Text(eye.rawValue)
                                         .font(.system(size: 11, weight: styleConfig.eyeStyle == eye ? .bold : .medium))
-                                        .foregroundColor(styleConfig.eyeStyle == eye ? Color(hex: "6D28D9") : Color(hex: "4B5563"))
+                                        .foregroundColor(styleConfig.eyeStyle == eye ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
                                 }
                             }
                             .buttonStyle(.plain)
@@ -856,7 +884,7 @@ public struct CustomizeQRView: View {
     
     @ViewBuilder
     private func styleDotPreview(_ style: QRDotStyle) -> some View {
-        let col = Color(hex: "1F2937")
+        let col = Color(hex: "CCD0CF")
         switch style {
         case .square:
             Rectangle().fill(col).frame(width: 14, height: 14)
@@ -871,7 +899,7 @@ public struct CustomizeQRView: View {
     
     @ViewBuilder
     private func eyePreview(_ eye: QREyeStyle) -> some View {
-        let col = Color(hex: "1F2937")
+        let col = Color(hex: "CCD0CF")
         switch eye {
         case .rounded:
             RoundedRectangle(cornerRadius: 5).stroke(col, lineWidth: 2.5).frame(width: 16, height: 16)
@@ -937,7 +965,7 @@ public struct CustomizeQRView: View {
     private var exportSuccessSheet: some View {
         VStack(spacing: 20) {
             Capsule()
-                .fill(Color(hex: "D1D5DB"))
+                .fill(Color(hex: "253745"))
                 .frame(width: 40, height: 5)
                 .padding(.top, 12)
             
@@ -947,7 +975,7 @@ public struct CustomizeQRView: View {
                     .font(.system(size: 22))
                 Text("Saved to Camera Roll & Library!")
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundColor(Color(hex: "1F2937"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
             }
             .padding(.top, 4)
             
@@ -958,7 +986,7 @@ public struct CustomizeQRView: View {
                     .scaledToFit()
                     .frame(maxHeight: 280)
                     .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
-                    .shadow(color: Color.black.opacity(0.18), radius: 14, x: 0, y: 8)
+                    .shadow(color: Color.black.opacity(0.4), radius: 14, x: 0, y: 8)
                     .padding(.horizontal, 30)
             }
             
@@ -978,10 +1006,10 @@ public struct CustomizeQRView: View {
                         Text("Share QR Code")
                             .font(.system(size: 16, weight: .bold))
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color(hex: "6D28D9"))
+                    .background(Color(hex: "4A5C6A"))
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 
@@ -998,10 +1026,10 @@ public struct CustomizeQRView: View {
                         Text("View in My Codes")
                             .font(.system(size: 15, weight: .semibold))
                     }
-                    .foregroundColor(Color(hex: "6D28D9"))
+                    .foregroundColor(Color(hex: "CCD0CF"))
                     .frame(maxWidth: .infinity)
                     .frame(height: 50)
-                    .background(Color(hex: "6D28D9").opacity(0.1))
+                    .background(Color(hex: "253745"))
                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 }
                 
@@ -1012,7 +1040,7 @@ public struct CustomizeQRView: View {
                 }) {
                     Text("Done")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(Color(hex: "6B7280"))
+                        .foregroundColor(Color(hex: "9BA8AB"))
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                 }
@@ -1020,6 +1048,7 @@ public struct CustomizeQRView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 20)
         }
+        .background(Color(hex: "11212D").ignoresSafeArea())
         .presentationDetents([.fraction(0.72), .large])
     }
 }
