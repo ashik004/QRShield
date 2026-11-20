@@ -7,8 +7,11 @@ public final class QRCodeGeneratorService {
     public static let shared = QRCodeGeneratorService()
     
     private let context = CIContext()
+    private let imageCache = NSCache<NSString, UIImage>()
     
-    private init() {}
+    private init() {
+        imageCache.countLimit = 150
+    }
     
     /// Generates a high-resolution styled UIImage for the given content and configuration
     public func generateQRCode(
@@ -16,6 +19,11 @@ public final class QRCodeGeneratorService {
         style: QRStyleConfig,
         size: CGSize = CGSize(width: 800, height: 800)
     ) -> UIImage? {
+        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(Int(size.width))x\(Int(size.height))" as NSString
+        if let cached = imageCache.object(forKey: cacheKey) {
+            return cached
+        }
+        
         guard let data = content.data(using: .utf8) else { return nil }
         
         let filter = CIFilter.qrCodeGenerator()
@@ -32,13 +40,17 @@ public final class QRCodeGeneratorService {
                                               y: size.height / outputCIImage.extent.height)
             let scaledCI = outputCIImage.transformed(by: transform)
             if let cgImage = context.createCGImage(scaledCI, from: scaledCI.extent) {
-                return UIImage(cgImage: cgImage)
+                let img = UIImage(cgImage: cgImage)
+                imageCache.setObject(img, forKey: cacheKey)
+                return img
             }
             return nil
         }
         
         // Render custom styled image
-        return renderStyledQR(matrix: matrix, style: style, canvasSize: size)
+        let rendered = renderStyledQR(matrix: matrix, style: style, canvasSize: size)
+        imageCache.setObject(rendered, forKey: cacheKey)
+        return rendered
     }
     
     /// Extracts module grid (true = dark, false = light)
