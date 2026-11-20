@@ -103,173 +103,60 @@ public struct QRTemplateCardView: View {
     }
     
     public var body: some View {
-        let s = cardWidth / 360.0
-        let totalHeight = 420.0 * s
+        let size = cardWidth
         
-        ZStack(alignment: .topLeading) {
-            // 1. Rounded Card Background Container: x=8, y=8, w=344, h=404, rx=30
-            RoundedRectangle(cornerRadius: 30 * s, style: .continuous)
-                .fill(effectiveGradient)
-                .frame(width: 344 * s, height: 404 * s)
-                .offset(x: 8 * s, y: 8 * s)
-            
-            // 2. Translucent Background Circles (opacity 0.08)
-            // Top-right circle: cx=325, cy=55, r=86
-            Circle()
-                .fill(Color.white.opacity(0.08))
-                .frame(width: 172 * s, height: 172 * s)
-                .position(x: 325 * s, y: 55 * s)
-            
-            // Bottom-left circle: cx=28, cy=365, r=105
-            Circle()
-                .fill(Color.white.opacity(0.08))
-                .frame(width: 210 * s, height: 210 * s)
-                .position(x: 28 * s, y: 365 * s)
-            
-            // 3. Bottom Shine Wave Overlay
-            SVGShineWaveShape()
-                .fill(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.30), Color.white.opacity(0.0)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .frame(width: 360 * s, height: 420 * s)
-            
-            // 4. Top-Left Pill Badge: x=26, y=26, h=28, rx=14
-            HStack(spacing: 5 * s) {
-                Image(systemName: template.categoryIcon)
-                    .font(.system(size: 11 * s, weight: .bold))
-                    .foregroundColor(.white)
-                
-                Text(template.categoryLabel.uppercased())
-                    .font(.system(size: 11 * s, weight: .bold))
-                    .tracking(1.5 * s)
-                    .foregroundColor(.white)
-            }
-            .padding(.horizontal, 14 * s)
-            .frame(height: 28 * s)
-            .background(
-                Capsule().fill(Color.white.opacity(0.20))
-            )
-            .offset(x: 26 * s, y: 26 * s)
-            
-            // 5. Header Title & Subtitle Texts
-            VStack(alignment: .leading, spacing: 3 * s) {
-                Text(template.title)
-                    .font(.system(size: 26 * s, weight: .heavy))
-                    .foregroundColor(.white)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                
-                Text(template.subtitle.uppercased())
-                    .font(.system(size: 11 * s, weight: .semibold))
-                    .tracking(1.2 * s)
-                    .foregroundColor(Color.white.opacity(0.88))
-                    .lineLimit(1)
-            }
-            .offset(x: 26 * s, y: 66 * s)
-            
-            // 6. Central White Rounded Container: x=55, y=139, w=250, h=224, rx=24
+        VStack(spacing: 0) {
             ZStack {
-                RoundedRectangle(cornerRadius: 24 * s, style: .continuous)
-                    .fill(Color.white)
+                // Clean Solid Pure White Rounded Square Card (1/1 aspect ratio, 22px radius)
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
+                    .fill(Color(hex: effectiveStyle.backgroundColorHex))
                     .overlay(
-                        frameBorderOverlay(s: s)
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(
+                                effectiveStyle.frameStyle == .neonGlow
+                                    ? Color.shieldPurple
+                                    : (effectiveStyle.frameStyle == .cardBorder ? Color(hex: "1F2937") : Color(hex: "E2E8F0")),
+                                lineWidth: effectiveStyle.frameStyle == .none ? 1 : 2.5
+                            )
                     )
                     .shadow(
-                        color: frameShadowColor,
-                        radius: frameShadowRadius(s: s),
+                        color: effectiveStyle.frameStyle == .neonGlow
+                            ? Color.shieldPurple.opacity(0.35)
+                            : Color.black.opacity(0.06),
+                        radius: 10,
                         x: 0,
-                        y: 8 * s
+                        y: 4
                     )
                 
-                // Dynamic QR Code Graphic Layer (Inner area 196x196)
                 if let image = activeQRImage {
                     Image(uiImage: image)
                         .resizable()
                         .interpolation(.none)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 196 * s, height: 196 * s)
-                }
-                
-                // 7. Center Circular Gradient Badge: cx=180, cy=251
-                if effectiveStyle.logoType != .none {
-                    ZStack {
-                        // Outer white circle with accent stroke
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 54 * s, height: 54 * s)
-                            .overlay(
-                                Circle()
-                                    .stroke(effectiveAccentColor, lineWidth: 4 * s)
-                            )
-                            .shadow(color: Color.black.opacity(0.15), radius: 4 * s, x: 0, y: 2 * s)
-                        
-                        // Inner gradient circle
-                        Circle()
-                            .fill(effectiveGradient)
-                            .frame(width: 40 * s, height: 40 * s)
-                        
-                        // Logo Icon or Custom User Image
-                        if effectiveStyle.logoType == .custom,
-                           let customData = effectiveStyle.customLogoData,
-                           let customImg = UIImage(data: customData) {
-                            Image(uiImage: customImg)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 30 * s, height: 30 * s)
-                                .clipShape(Circle())
-                        } else if let iconName = effectiveStyle.logoType.systemIcon {
-                            Image(systemName: iconName)
-                                .font(.system(size: 17 * s, weight: .bold))
-                                .foregroundColor(.white)
-                        } else {
-                            Image(systemName: template.categoryIcon)
-                                .font(.system(size: 17 * s, weight: .bold))
-                                .foregroundColor(.white)
-                        }
-                    }
-                }
-                
-                // Optional Bottom Scan Me Frame Banner
-                if effectiveStyle.frameStyle == .scanMeBottom {
-                    HStack(spacing: 4 * s) {
-                        Image(systemName: "camera.viewfinder")
-                            .font(.system(size: 10 * s, weight: .bold))
-                        Text("SCAN ME")
-                            .font(.system(size: 9 * s, weight: .black, design: .rounded))
-                    }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 12 * s)
-                    .padding(.vertical, 4 * s)
-                    .background(
-                        Capsule().fill(effectiveGradient)
-                    )
-                    .offset(y: 110 * s)
-                    .zIndex(2)
+                        .scaledToFit()
+                        .padding(size * 0.075) // Fills 80%–85% with balanced padding around it
                 }
             }
-            .frame(width: 250 * s, height: 224 * s)
-            .offset(x: 55 * s, y: 139 * s)
+            .frame(width: size, height: size)
             
-            // 8. Bottom Pill Bar: x=91, y=369, w=178, h=27, rx=13.5
-            HStack {
-                Text((customFooterText ?? template.footerText).uppercased())
-                    .font(.system(size: 10 * s, weight: .bold))
-                    .tracking(1.4 * s)
-                    .foregroundColor(.white)
-                    .lineLimit(1)
+            // Frame Bottom Banner if selected
+            if effectiveStyle.frameStyle == .scanMeBottom {
+                HStack(spacing: 6) {
+                    Image(systemName: "camera.viewfinder")
+                        .font(.system(size: 13, weight: .bold))
+                    Text("SCAN ME")
+                        .font(.system(size: 12, weight: .black, design: .rounded))
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 6)
+                .background(
+                    Capsule()
+                        .fill(effectiveGradient)
+                )
+                .offset(y: -12)
+                .zIndex(2)
             }
-            .frame(width: 178 * s, height: 27 * s)
-            .background(
-                Capsule().fill(Color.white.opacity(0.20))
-            )
-            .offset(x: 91 * s, y: 369 * s)
         }
-        .frame(width: 360 * s, height: totalHeight)
-        .clipShape(RoundedRectangle(cornerRadius: 30 * s, style: .continuous))
         .onAppear {
             generateDynamicQR()
         }
@@ -393,7 +280,7 @@ public extension QRTemplateCardView {
         )
         let renderer = ImageRenderer(content: renderView)
         renderer.scale = scale
-        renderer.proposedSize = ProposedViewSize(width: 360, height: 420)
+        renderer.proposedSize = ProposedViewSize(width: 360, height: 360)
         renderer.isOpaque = false
         return renderer.uiImage
     }
@@ -432,7 +319,7 @@ public struct QRTemplateExporter {
         
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale
-        renderer.proposedSize = ProposedViewSize(width: 360, height: 420)
+        renderer.proposedSize = ProposedViewSize(width: 360, height: 360)
         renderer.isOpaque = false
         return renderer.uiImage
     }

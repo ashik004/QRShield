@@ -28,25 +28,25 @@ public struct QRDisplayView: View {
     public var body: some View {
         VStack(spacing: 0) {
             ZStack {
-                // Card container
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                // Card container: clean solid white rounded square card
+                RoundedRectangle(cornerRadius: 22, style: .continuous)
                     .fill(Color(hex: styleConfig.backgroundColorHex))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
                             .stroke(
                                 styleConfig.frameStyle == .neonGlow
                                     ? Color.shieldPurple
-                                    : (styleConfig.frameStyle == .cardBorder ? Color(hex: "1F2937") : Color.white),
-                                lineWidth: styleConfig.frameStyle == .none ? 0 : 3
+                                    : (styleConfig.frameStyle == .cardBorder ? Color(hex: "1F2937") : Color(hex: "E2E8F0")),
+                                lineWidth: styleConfig.frameStyle == .none ? 1 : 2.5
                             )
                     )
                     .shadow(
                         color: styleConfig.frameStyle == .neonGlow
                             ? Color.shieldPurple.opacity(0.35)
-                            : Color.black.opacity(0.08),
-                        radius: 16,
+                            : Color.black.opacity(0.06),
+                        radius: 10,
                         x: 0,
-                        y: 8
+                        y: 4
                     )
                 
                 if let image = activeImage {
@@ -54,7 +54,7 @@ public struct QRDisplayView: View {
                         .resizable()
                         .interpolation(.none)
                         .scaledToFit()
-                        .padding(18)
+                        .padding(16) // Balanced 14px-16px padding so styled QR fills 80%–85% of card
                 } else {
                     ProgressView()
                         .tint(Color.shieldPurple)

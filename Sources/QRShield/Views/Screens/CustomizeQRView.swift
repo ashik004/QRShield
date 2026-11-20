@@ -25,7 +25,6 @@ public struct CustomizeQRView: View {
     @State private var showShareSheet: Bool = false
     @State private var showExportSuccessModal: Bool = false
     @State private var renderedUIImage: UIImage? = nil
-    @State private var customFooterText: String = ""
     
     public enum CustomizerTab: String, CaseIterable, Identifiable {
         case style = "Style"
@@ -48,7 +47,6 @@ public struct CustomizeQRView: View {
         self.contentType = contentType
         self._styleConfig = State(initialValue: selectedTemplate?.styleConfig ?? styleConfig)
         self.selectedTemplate = selectedTemplate
-        self._customFooterText = State(initialValue: selectedTemplate?.footerText ?? "Scan Me")
         self.onBack = onBack
         self.onSaved = onSaved
     }
@@ -92,75 +90,13 @@ public struct CustomizeQRView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
-                    // Central QR Preview Card
-                    if let template = selectedTemplate {
-                        QRTemplateCardView(
-                            template: template,
-                            styleConfig: styleConfig,
-                            content: content,
-                            customFooterText: customFooterText.isEmpty ? template.footerText : customFooterText,
-                            cardWidth: 260
-                        )
-                        .shadow(
-                            color: Color(hex: styleConfig.colorTheme.hexColors.first ?? template.gradientHexColors.first ?? "7C3AED").opacity(0.28),
-                            radius: 14,
-                            x: 0,
-                            y: 8
-                        )
-                        .padding(.top, 6)
-                        
-                        // Dynamic Footer Text Editor (Slot 3)
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("FOOTER TEXT BADGE")
-                                .font(.system(size: 11, weight: .bold))
-                                .foregroundColor(Color(hex: "6B7280"))
-                                .tracking(1.0)
-                            
-                            HStack {
-                                TextField("Footer text (e.g. Scan Me)", text: $customFooterText)
-                                    .font(.system(size: 14, weight: .semibold))
-                                
-                                if !customFooterText.isEmpty {
-                                    Button(action: { customFooterText = "" }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(Color(hex: "9CA3AF"))
-                                    }
-                                }
-                            }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .background(Color(hex: "F3F4F6"))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            
-                            // Quick footer presets
-                            HStack(spacing: 6) {
-                                ForEach(["Scan Me", "Follow Us", "Connect Now", "Watch More"], id: \.self) { preset in
-                                    Button(action: {
-                                        let fb = UIImpactFeedbackGenerator(style: .light)
-                                        fb.impactOccurred()
-                                        customFooterText = preset
-                                    }) {
-                                        Text(preset)
-                                            .font(.system(size: 11, weight: .medium))
-                                            .foregroundColor(customFooterText == preset ? .white : Color(hex: "4B5563"))
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 5)
-                                            .background(
-                                                Capsule().fill(customFooterText == preset ? Color.shieldPurple : Color(hex: "E5E7EB"))
-                                            )
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    } else {
-                        QRDisplayView(
-                            content: content,
-                            styleConfig: styleConfig,
-                            size: 240
-                        )
-                        .padding(.top, 10)
-                    }
+                    // Central QR Preview Card: Clean Solid White Card matching Template Previews
+                    QRDisplayView(
+                        content: content,
+                        styleConfig: styleConfig,
+                        size: 260
+                    )
+                    .padding(.top, 10)
                     
                     // Segmented Tabs: [ Style | Color | Logo | Frame ]
                     HStack(spacing: 8) {
@@ -530,17 +466,11 @@ public struct CustomizeQRView: View {
     }
     
     private func exportAndShare() {
-        if let template = selectedTemplate {
-            renderedUIImage = QRTemplateExporter.renderCard(
-                template: template,
-                styleConfig: styleConfig,
-                content: content,
-                customFooterText: customFooterText.isEmpty ? template.footerText : customFooterText,
-                scale: 3.0
-            )
-        } else {
-            renderedUIImage = QRCodeGeneratorService.shared.generateQRCode(from: content, style: styleConfig, size: CGSize(width: 800, height: 800))
-        }
+        renderedUIImage = QRCodeGeneratorService.shared.generateQRCode(
+            from: content,
+            style: styleConfig,
+            size: CGSize(width: 1024, height: 1024)
+        )
         
         if renderedUIImage != nil {
             showShareSheet = true
@@ -573,25 +503,17 @@ public struct CustomizeQRView: View {
             createdAt: Date(),
             isFavorite: false,
             styleConfig: styleConfig,
-            templateId: selectedTemplate?.id,
-            customFooterText: customFooterText.isEmpty ? selectedTemplate?.footerText : customFooterText
+            templateId: selectedTemplate?.id
         )
         
         QRStorageService.shared.save(item: item)
         
-        // Export High-Resolution UIImage using ImageRenderer for templates or QRCodeGeneratorService
-        let exportedImage: UIImage?
-        if let template = selectedTemplate {
-            exportedImage = QRTemplateExporter.renderCard(
-                template: template,
-                styleConfig: styleConfig,
-                content: content,
-                customFooterText: customFooterText.isEmpty ? template.footerText : customFooterText,
-                scale: 3.0
-            )
-        } else {
-            exportedImage = QRCodeGeneratorService.shared.generateQRCode(from: content, style: styleConfig, size: CGSize(width: 800, height: 800))
-        }
+        // Export High-Resolution UIImage using QRCodeGeneratorService
+        let exportedImage = QRCodeGeneratorService.shared.generateQRCode(
+            from: content,
+            style: styleConfig,
+            size: CGSize(width: 1024, height: 1024)
+        )
         
         if let cardImage = exportedImage {
             UIImageWriteToSavedPhotosAlbum(cardImage, nil, nil, nil)

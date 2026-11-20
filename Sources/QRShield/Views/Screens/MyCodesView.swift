@@ -275,23 +275,11 @@ public struct CodeDetailModalView: View {
             VStack(spacing: 20) {
                 Spacer()
                 
-                if let templateId = item.templateId,
-                   let template = QRTemplate.predefinedTemplates.first(where: { $0.id == templateId }) {
-                    QRTemplateCardView(
-                        template: template,
-                        styleConfig: item.styleConfig,
-                        content: item.rawContent,
-                        customFooterText: item.customFooterText,
-                        cardWidth: 260
-                    )
-                    .shadow(color: Color.black.opacity(0.12), radius: 12, x: 0, y: 6)
-                } else {
-                    QRDisplayView(
-                        content: item.rawContent,
-                        styleConfig: item.styleConfig,
-                        size: 260
-                    )
-                }
+                QRDisplayView(
+                    content: item.rawContent,
+                    styleConfig: item.styleConfig,
+                    size: 260
+                )
                 
                 VStack(spacing: 6) {
                     Text(item.title)
@@ -327,19 +315,11 @@ public struct CodeDetailModalView: View {
                     }
                     
                     Button(action: {
-                        let exportImg: UIImage?
-                        if let templateId = item.templateId,
-                           let template = QRTemplate.predefinedTemplates.first(where: { $0.id == templateId }) {
-                            exportImg = QRTemplateExporter.renderCard(
-                                template: template,
-                                styleConfig: item.styleConfig,
-                                content: item.rawContent,
-                                customFooterText: item.customFooterText,
-                                scale: 3.0
-                            )
-                        } else {
-                            exportImg = QRCodeGeneratorService.shared.generateQRCode(from: item.rawContent, style: item.styleConfig)
-                        }
+                        let exportImg = QRCodeGeneratorService.shared.generateQRCode(
+                            from: item.rawContent,
+                            style: item.styleConfig,
+                            size: CGSize(width: 1024, height: 1024)
+                        )
                         
                         if let img = exportImg {
                             UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
