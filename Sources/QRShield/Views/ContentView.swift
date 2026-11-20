@@ -63,9 +63,10 @@ public struct ContentView: View {
                     
                 case .generate:
                     GenerateQRView(
-                        title: "Generate QR Code",
+                        title: "Generator",
                         selectedTemplate: nil,
                         onBack: { goBack(to: .main) },
+                        onOpenPro: { showProPaywall = true },
                         onProceedToCustomize: { payload, type, _ in
                             customizeReturnTarget = .generate
                             navigate(to: .customize(
@@ -86,6 +87,7 @@ public struct ContentView: View {
                             selectedTab = .template
                             goBack(to: .main)
                         },
+                        onOpenPro: { showProPaywall = true },
                         onProceedToCustomize: { payload, type, t in
                             let chosenTemplate = t ?? template
                             customizeReturnTarget = .create(template: chosenTemplate)
