@@ -25,6 +25,7 @@ public enum NavigationRoute: Equatable {
     case main
     case generate
     case create(template: QRTemplate)
+    case contentInput(item: GeneratorItem, template: QRTemplate? = nil)
     case customize(content: String, type: QRContentType, style: QRStyleConfig, template: QRTemplate? = nil)
     case myCodes(onlyFavorites: Bool)
     case checkingSafety(content: String)
@@ -37,6 +38,7 @@ public enum CustomizeReturnTarget: Equatable {
     case main
     case generate
     case create(template: QRTemplate)
+    case contentInput(item: GeneratorItem, template: QRTemplate? = nil)
     case templateTab
 }
 
@@ -67,6 +69,9 @@ public struct ContentView: View {
                         selectedTemplate: nil,
                         onBack: { goBack(to: .main) },
                         onOpenPro: { showProPaywall = true },
+                        onSelectItem: { item, template in
+                            navigate(to: .contentInput(item: item, template: template), direction: .forward)
+                        },
                         onProceedToCustomize: { payload, type, _ in
                             customizeReturnTarget = .generate
                             navigate(to: .customize(
@@ -88,6 +93,9 @@ public struct ContentView: View {
                             goBack(to: .main)
                         },
                         onOpenPro: { showProPaywall = true },
+                        onSelectItem: { item, tmpl in
+                            navigate(to: .contentInput(item: item, template: tmpl ?? template), direction: .forward)
+                        },
                         onProceedToCustomize: { payload, type, t in
                             let chosenTemplate = t ?? template
                             customizeReturnTarget = .create(template: chosenTemplate)
@@ -101,6 +109,30 @@ public struct ContentView: View {
                     )
                     .transition(.screenTransition(direction: navigationDirection))
                     
+                case .contentInput(let item, let template):
+                    ContentInputView(
+                        item: item,
+                        selectedTemplate: template,
+                        onBack: {
+                            if let tmpl = template {
+                                goBack(to: .create(template: tmpl))
+                            } else {
+                                goBack(to: .generate)
+                            }
+                        },
+                        onCreate: { payload, contentType in
+                            customizeReturnTarget = .contentInput(item: item, template: template)
+                            let style = template?.styleConfig ?? QRStyleConfig()
+                            navigate(to: .customize(
+                                content: payload,
+                                type: contentType,
+                                style: style,
+                                template: template
+                            ), direction: .forward)
+                        }
+                    )
+                    .transition(.screenTransition(direction: navigationDirection))
+                    
                 case .customize(let content, let type, let style, let template):
                     CustomizeQRView(
                         content: content,
@@ -109,6 +141,8 @@ public struct ContentView: View {
                         selectedTemplate: template,
                         onBack: {
                             switch customizeReturnTarget {
+                            case .contentInput(let item, let tmpl):
+                                goBack(to: .contentInput(item: item, template: tmpl))
                             case .create(let tmpl):
                                 goBack(to: .create(template: tmpl))
                             case .generate:

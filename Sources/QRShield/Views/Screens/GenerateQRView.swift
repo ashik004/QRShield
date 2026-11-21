@@ -2,7 +2,7 @@ import SwiftUI
 
 // MARK: - Generator Category & Item Models
 
-public enum GeneratorCategory: String, CaseIterable, Identifiable {
+public enum GeneratorCategory: String, CaseIterable, Identifiable, Hashable {
     case qrCode = "QR Code"
     case business = "Business"
     case barcode = "Barcode"
@@ -11,7 +11,7 @@ public enum GeneratorCategory: String, CaseIterable, Identifiable {
     public var id: String { rawValue }
 }
 
-public struct GeneratorItem: Identifiable, Equatable {
+public struct GeneratorItem: Identifiable, Equatable, Hashable {
     public let id: String
     public let title: String
     public let iconName: String
@@ -120,6 +120,7 @@ public struct GenerateQRView: View {
     public var selectedTemplate: QRTemplate?
     public var onBack: (() -> Void)?
     public var onOpenPro: (() -> Void)?
+    public var onSelectItem: ((GeneratorItem, QRTemplate?) -> Void)?
     public var onProceedToCustomize: (String, QRContentType, QRTemplate?) -> Void
     
     // Accordion State: QR Code is expanded by default, others collapsed
@@ -132,12 +133,14 @@ public struct GenerateQRView: View {
         selectedTemplate: QRTemplate? = nil,
         onBack: (() -> Void)? = nil,
         onOpenPro: (() -> Void)? = nil,
-        onProceedToCustomize: @escaping (String, QRContentType, QRTemplate?) -> Void
+        onSelectItem: ((GeneratorItem, QRTemplate?) -> Void)? = nil,
+        onProceedToCustomize: @escaping (String, QRContentType, QRTemplate?) -> Void = { _, _, _ in }
     ) {
         self.title = title
         self.selectedTemplate = selectedTemplate
         self.onBack = onBack
         self.onOpenPro = onOpenPro
+        self.onSelectItem = onSelectItem
         self.onProceedToCustomize = onProceedToCustomize
     }
     
@@ -380,7 +383,11 @@ public struct GenerateQRView: View {
         Button(action: {
             let feedback = UIImpactFeedbackGenerator(style: .light)
             feedback.impactOccurred()
-            selectedItem = item
+            if let onSelectItem = onSelectItem {
+                onSelectItem(item, selectedTemplate)
+            } else {
+                selectedItem = item
+            }
         }) {
             ZStack(alignment: .topTrailing) {
                 VStack(spacing: 10) {

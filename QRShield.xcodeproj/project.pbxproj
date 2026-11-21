@@ -18,6 +18,7 @@
 		45C4DBC9BCB3CC375E038F58 /* SafetyCheckerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAD18835E8DB244ED18C28B /* SafetyCheckerService.swift */; };
 		47AF099B605ED99C11C7446A /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F4EE09959752D9D331DA6D /* ColorExtension.swift */; };
 		4B467BF31593EC312483E860 /* GenerateQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4377C4AD19040DEF3DA6675D /* GenerateQRView.swift */; };
+		4B467BF31593EC312483E861 /* ContentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4377C4AD19040DEF3DA6675E /* ContentInputView.swift */; };
 		5860810668EDBC39A42794BF /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD1581E196123197BB195BF /* CustomTabBar.swift */; };
 		6F843E4E852C3E96B78CFBDA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A895B51778AC3AADDE02D976 /* ContentView.swift */; };
 		7E636E189A6CDB82515AD269 /* ProPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 936CB23D4B28EC4788ACBAB5 /* ProPaywallView.swift */; };
@@ -47,6 +48,7 @@
 		42AA0A735CA6371AF8788739 /* TemplateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateCardView.swift; sourceTree = "<group>"; };
 		42AA0A735CA6371AF8788799 /* QRTemplateCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRTemplateCardView.swift; sourceTree = "<group>"; };
 		4377C4AD19040DEF3DA6675D /* GenerateQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenerateQRView.swift; sourceTree = "<group>"; };
+		4377C4AD19040DEF3DA6675E /* ContentInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentInputView.swift; sourceTree = "<group>"; };
 		49937BFEEAA44887EC1883A3 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		4AAD18835E8DB244ED18C28B /* SafetyCheckerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyCheckerService.swift; sourceTree = "<group>"; };
 		51F4EE09959752D9D331DA6D /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				F868307678A3BBEA8ED84B2F /* CheckingLinkSafetyView.swift */,
+				4377C4AD19040DEF3DA6675E /* ContentInputView.swift */,
 				91499F38BDB962685E1DDD8F /* CustomizeQRView.swift */,
 				4377C4AD19040DEF3DA6675D /* GenerateQRView.swift */,
 				74B388E413E68412CAE207DC /* HistoryView.swift */,
@@ -269,6 +272,7 @@
 				02CEE6A1D1F860D1C15175EF /* CheckingLinkSafetyView.swift in Sources */,
 				DDF92004241AC7B0215846B8 /* CustomizeQRView.swift in Sources */,
 				4B467BF31593EC312483E860 /* GenerateQRView.swift in Sources */,
+				4B467BF31593EC312483E861 /* ContentInputView.swift in Sources */,
 				D007D9550E3457D8425CECCE /* HistoryView.swift in Sources */,
 				E759F9C58A39B817A963C581 /* HomeView.swift in Sources */,
 				BAAB1ECA0B515804A46D2F3B /* MyCodesView.swift in Sources */,
