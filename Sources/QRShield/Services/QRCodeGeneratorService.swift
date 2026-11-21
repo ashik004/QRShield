@@ -346,7 +346,13 @@ public final class QRCodeGeneratorService {
             return
         }
         
-        // System badge icon
+        // Check if logo corresponds to an authentic brand logo
+        if let brand = BrandType.match(from: style.logoType.rawValue) {
+            BrandLogoRenderer.draw(brand: brand, in: innerRect, in: cgContext)
+            return
+        }
+        
+        // System badge icon fallback for non-brand icons (Wi-Fi, Link, Shield, etc.)
         if let iconName = style.logoType.systemIcon {
             let badgeBg = UIBezierPath(roundedRect: innerRect, cornerRadius: cornerRadius * 0.75)
             let badgeColor = UIColor(style.logoType.badgeBackgroundColor)

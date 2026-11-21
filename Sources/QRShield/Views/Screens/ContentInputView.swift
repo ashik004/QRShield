@@ -116,15 +116,12 @@ public struct ContentInputView: View {
     // MARK: - Hero Banner Card
     private var itemHeroCard: some View {
         HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color(hex: "253745"))
-                    .frame(width: 50, height: 50)
-                
-                Image(systemName: item.iconName)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundColor(Color(hex: "CCD0CF"))
-            }
+            BrandLogoView(
+                itemId: item.id,
+                fallbackIcon: item.iconName,
+                size: 50,
+                cornerRadius: 14
+            )
             
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {

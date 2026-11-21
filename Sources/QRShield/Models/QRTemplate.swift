@@ -209,7 +209,7 @@ public extension QRTemplate {
                 dotStyle: .circular,
                 colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .tiktok
             ),
             defaultContent: "https://tiktok.com/@qrshield"
         ),
@@ -247,7 +247,7 @@ public extension QRTemplate {
                 dotStyle: .square,
                 colorTheme: .classicBlack,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .x
             ),
             defaultContent: "https://x.com/qrshield"
         ),
@@ -266,7 +266,7 @@ public extension QRTemplate {
                 dotStyle: .rounded,
                 colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .linkedin
             ),
             defaultContent: "https://linkedin.com/in/qrshield"
         ),
@@ -285,7 +285,7 @@ public extension QRTemplate {
                 dotStyle: .circular,
                 colorTheme: .classicBlack,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .spotify
             ),
             defaultContent: "https://open.spotify.com/artist/qrshield"
         ),
@@ -304,7 +304,7 @@ public extension QRTemplate {
                 dotStyle: .rounded,
                 colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .telegram
             ),
             defaultContent: "https://t.me/qrshield"
         ),
@@ -323,7 +323,7 @@ public extension QRTemplate {
                 dotStyle: .rounded,
                 colorTheme: .youtubeRed,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .pinterest
             ),
             defaultContent: "https://pinterest.com/qrshield"
         ),
@@ -342,7 +342,7 @@ public extension QRTemplate {
                 dotStyle: .square,
                 colorTheme: .royalPurple,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .discord
             ),
             defaultContent: "https://discord.gg/qrshield"
         ),
@@ -361,7 +361,7 @@ public extension QRTemplate {
                 dotStyle: .rounded,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .snapchat
             ),
             defaultContent: "https://snapchat.com/add/qrshield"
         ),

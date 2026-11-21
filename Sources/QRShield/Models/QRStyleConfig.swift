@@ -73,6 +73,21 @@ public enum QRLogoType: String, CaseIterable, Identifiable, Codable {
     case instagram = "Instagram"
     case youtube = "YouTube"
     case whatsapp = "WhatsApp"
+    case facebook = "Facebook"
+    case tiktok = "TikTok"
+    case x = "X"
+    case telegram = "Telegram"
+    case snapchat = "Snapchat"
+    case spotify = "Spotify"
+    case pinterest = "Pinterest"
+    case linkedin = "LinkedIn"
+    case reddit = "Reddit"
+    case discord = "Discord"
+    case threads = "Threads"
+    case line = "LINE"
+    case viber = "Viber"
+    case kakaotalk = "KakaoTalk"
+    case github = "GitHub"
     case wifi = "Wi-Fi"
     case link = "Link"
     case shield = "Shield"
@@ -82,12 +97,54 @@ public enum QRLogoType: String, CaseIterable, Identifiable, Codable {
     
     public var id: String { rawValue }
     
+    public static func from(itemId: String) -> QRLogoType? {
+        let clean = itemId.lowercased().replacingOccurrences(of: "-", with: "").replacingOccurrences(of: "_", with: "")
+        switch clean {
+        case "instagram": return .instagram
+        case "youtube": return .youtube
+        case "whatsapp": return .whatsapp
+        case "facebook": return .facebook
+        case "tiktok": return .tiktok
+        case "x", "twitter": return .x
+        case "telegram": return .telegram
+        case "snapchat": return .snapchat
+        case "spotify": return .spotify
+        case "pinterest": return .pinterest
+        case "linkedin": return .linkedin
+        case "reddit": return .reddit
+        case "discord": return .discord
+        case "threads": return .threads
+        case "line": return .line
+        case "viber": return .viber
+        case "kakaotalk": return .kakaotalk
+        case "github": return .github
+        case "wifi": return .wifi
+        case "weburl", "url": return .link
+        default: return nil
+        }
+    }
+    
     public var systemIcon: String? {
         switch self {
         case .none: return nil
         case .instagram: return "camera.fill"
         case .youtube: return "play.rectangle.fill"
         case .whatsapp: return "message.fill"
+        case .facebook: return "hand.thumbsup.fill"
+        case .tiktok: return "music.note"
+        case .x: return "number"
+        case .telegram: return "paperplane.fill"
+        case .snapchat: return "sparkles.rectangle.stack"
+        case .spotify: return "headphones"
+        case .pinterest: return "pin.fill"
+        case .linkedin: return "briefcase.fill"
+        case .reddit: return "bubble.middle.bottom.fill"
+        case .discord: return "gamecontroller.fill"
+        case .threads: return "at"
+        case .line: return "message.fill"
+        case .viber: return "phone.fill"
+        case .kakaotalk: return "bubble.left.circle.fill"
+        case .github: return "chevron.left.forwardslash.chevron.right"
         case .wifi: return "wifi"
         case .link: return "link"
         case .shield: return "checkmark.shield.fill"
@@ -102,6 +159,21 @@ public enum QRLogoType: String, CaseIterable, Identifiable, Codable {
         case .instagram: return Color(hex: "E1306C")
         case .youtube: return Color(hex: "FF0000")
         case .whatsapp: return Color(hex: "25D366")
+        case .facebook: return Color(hex: "1877F2")
+        case .tiktok: return Color(hex: "010101")
+        case .x: return Color(hex: "000000")
+        case .telegram: return Color(hex: "24A1DE")
+        case .snapchat: return Color(hex: "FFFC00")
+        case .spotify: return Color(hex: "1DB954")
+        case .pinterest: return Color(hex: "BD081C")
+        case .linkedin: return Color(hex: "0A66C2")
+        case .reddit: return Color(hex: "FF4500")
+        case .discord: return Color(hex: "5865F2")
+        case .threads: return Color(hex: "101010")
+        case .line: return Color(hex: "06C755")
+        case .viber: return Color(hex: "7360F2")
+        case .kakaotalk: return Color(hex: "FEE500")
+        case .github: return Color(hex: "24292F")
         case .wifi: return Color(hex: "0284C7")
         case .link: return Color(hex: "6366F1")
         case .shield: return Color(hex: "10B981")

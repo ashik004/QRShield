@@ -122,7 +122,10 @@ public struct ContentView: View {
                         },
                         onCreate: { payload, contentType in
                             customizeReturnTarget = .contentInput(item: item, template: template)
-                            let style = template?.styleConfig ?? QRStyleConfig()
+                            var style = template?.styleConfig ?? QRStyleConfig()
+                            if style.logoType == .none, let logo = QRLogoType.from(itemId: item.id) {
+                                style.logoType = logo
+                            }
                             navigate(to: .customize(
                                 content: payload,
                                 type: contentType,

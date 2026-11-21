@@ -548,19 +548,38 @@ public struct CustomizeQRView: View {
     private func logoItemBadge(for logo: QRLogoType) -> some View {
         let isSelected = styleConfig.logoType == logo
         return VStack(spacing: 5) {
-            ZStack {
-                Circle()
-                    .fill(logo == .none ? Color(hex: "11212D") : logo.badgeBackgroundColor)
-                    .frame(width: 44, height: 44)
-                
-                if let icon = logo.systemIcon {
-                    Image(systemName: icon)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(logo == .none ? Color(hex: "9BA8AB") : .white)
+            Group {
+                if logo == .none {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "11212D"))
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "slash.circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(Color(hex: "9BA8AB"))
+                    }
+                } else if logo == .custom {
+                    ZStack {
+                        Circle()
+                            .fill(Color(hex: "253745"))
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "photo.badge.plus")
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(Color(hex: "CCD0CF"))
+                    }
+                } else if let brand = BrandType.match(from: logo.rawValue) {
+                    BrandLogoView(brand: brand, size: 44, cornerRadius: 22)
                 } else {
-                    Image(systemName: "slash.circle")
-                        .font(.system(size: 20))
-                        .foregroundColor(Color(hex: "9BA8AB"))
+                    ZStack {
+                        Circle()
+                            .fill(logo.badgeBackgroundColor)
+                            .frame(width: 44, height: 44)
+                        if let icon = logo.systemIcon {
+                            Image(systemName: icon)
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
                 }
             }
             .overlay(

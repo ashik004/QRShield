@@ -391,16 +391,13 @@ public struct GenerateQRView: View {
         }) {
             ZStack(alignment: .topTrailing) {
                 VStack(spacing: 10) {
-                    // Center icon container: 42x42 badge, cornerRadius 12, #253745 fill
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(Color(hex: "253745"))
-                            .frame(width: 42, height: 42)
-                        
-                        Image(systemName: item.iconName)
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(Color(hex: "CCD0CF"))
-                    }
+                    // Center icon container: Original brand logo or generic SF symbol badge
+                    BrandLogoView(
+                        itemId: item.id,
+                        fallbackIcon: item.iconName,
+                        size: 42,
+                        cornerRadius: 12
+                    )
                     
                     // Centered, clean 1-2 line title in #CCD0CF (13px, Medium)
                     Text(item.title)
@@ -474,15 +471,12 @@ public struct GeneratorItemInputSheet: View {
         VStack(spacing: 0) {
             // Header
             HStack(spacing: 12) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color(hex: "253745"))
-                        .frame(width: 40, height: 40)
-                    
-                    Image(systemName: item.iconName)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(Color(hex: "CCD0CF"))
-                }
+                BrandLogoView(
+                    itemId: item.id,
+                    fallbackIcon: item.iconName,
+                    size: 40,
+                    cornerRadius: 12
+                )
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 6) {
