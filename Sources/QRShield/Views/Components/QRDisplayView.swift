@@ -73,7 +73,7 @@ public struct QRDisplayView: View {
                             .resizable()
                             .interpolation(.none)
                             .scaledToFit()
-                            .padding(styleConfig.decorativeFrame != .none ? 2 : (styleConfig.hasCustomText ? 6 : 14))
+                            .padding(styleConfig.decorativeFrame != .none ? 0 : (styleConfig.hasCustomText ? 6 : 14))
                     } else {
                         ProgressView()
                             .tint(Color.shieldPurple)
@@ -92,8 +92,9 @@ public struct QRDisplayView: View {
                             .transition(.opacity)
                     }
                 }
-                .padding(styleConfig.decorativeFrame != .none ? 4 : 8)
+                .padding(styleConfig.decorativeFrame != .none ? 0 : 8)
             }
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             .frame(width: size, height: size)
             
             // Frame Bottom Banner

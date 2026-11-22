@@ -199,7 +199,9 @@ public final class QRCodeGeneratorService {
                     
                     switch style.dotStyle {
                     case .square:
-                        let squareDot = UIBezierPath(rect: rect.insetBy(dx: 0.2, dy: 0.2))
+                        // Smooth micro-radius eliminates sharp spiky spurs at module intersections
+                        let cornerR = max(1.0, moduleWidth * 0.15)
+                        let squareDot = UIBezierPath(roundedRect: rect.insetBy(dx: 0.2, dy: 0.2), cornerRadius: cornerR)
                         dotsPath.append(squareDot)
                         
                     case .rounded:
@@ -242,9 +244,13 @@ public final class QRCodeGeneratorService {
                 
                 switch style.eyeStyle {
                 case .square:
-                    outerPath = UIBezierPath(rect: outerRect)
-                    innerHolePath = UIBezierPath(rect: innerCutoutRect)
-                    centerDotPath = UIBezierPath(rect: centerDotRect)
+                    // Subtle smooth rounding for square eyes so corners don't spike or poke out
+                    let outerR = moduleWidth * 0.5
+                    let innerR = moduleWidth * 0.3
+                    let centerR = moduleWidth * 0.25
+                    outerPath = UIBezierPath(roundedRect: outerRect, cornerRadius: outerR)
+                    innerHolePath = UIBezierPath(roundedRect: innerCutoutRect, cornerRadius: innerR)
+                    centerDotPath = UIBezierPath(roundedRect: centerDotRect, cornerRadius: centerR)
                     
                 case .rounded:
                     outerPath = UIBezierPath(roundedRect: outerRect, cornerRadius: moduleWidth * 1.8)

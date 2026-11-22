@@ -50,10 +50,11 @@ public struct TemplateCardView: View {
                             .resizable()
                             .interpolation(.none)
                             .aspectRatio(contentMode: .fit)
-                            .padding(template.styleConfig.decorativeFrame != .none ? 4 : 13)
+                            .padding(template.styleConfig.decorativeFrame != .none ? 0 : 13)
                     }
                 }
                 .aspectRatio(1.0, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .stroke(Color(hex: "253745"), lineWidth: 1)

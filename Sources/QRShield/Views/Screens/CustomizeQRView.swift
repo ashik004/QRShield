@@ -203,10 +203,11 @@ public struct CustomizeQRView: View {
             content: content,
             styleConfig: styleConfig,
             previewImage: livePreviewImage,
-            size: 210
+            size: 260
         )
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
+        .padding(.top, 10)
+        .padding(.bottom, 24) // Plenty of comfortable spacing before the editing toolbar begins
     }
     
     // MARK: - 3. 5-Tab Icon Toolbar
@@ -485,10 +486,11 @@ public struct CustomizeQRView: View {
                             .resizable()
                             .interpolation(.none)
                             .scaledToFit()
-                            .padding(template.styleConfig.decorativeFrame != .none ? 2 : 8)
+                            .padding(template.styleConfig.decorativeFrame != .none ? 0 : 8)
                     }
                 }
                 .aspectRatio(1.0, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: isSelected ? 2.5 : 1)
