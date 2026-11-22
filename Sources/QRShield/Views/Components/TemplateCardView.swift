@@ -50,13 +50,41 @@ public struct TemplateCardView: View {
                             .resizable()
                             .interpolation(.none)
                             .aspectRatio(contentMode: .fit)
-                            .padding(13) // 12px–14px clean balanced padding: QR fills 80%–85% of the card
+                            .padding(template.styleConfig.decorativeFrame != .none ? 4 : 13)
                     }
                 }
                 .aspectRatio(1.0, contentMode: .fit)
                 .overlay(
                     RoundedRectangle(cornerRadius: 20, style: .continuous)
                         .stroke(Color(hex: "253745"), lineWidth: 1)
+                )
+                .overlay(
+                    Group {
+                        if template.isPro {
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Text("PRO")
+                                        .font(.system(size: 9, weight: .black))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2.5)
+                                        .background(
+                                            Capsule().fill(
+                                                LinearGradient(
+                                                    colors: [Color(hex: "F59E0B"), Color(hex: "D97706")],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                        )
+                                        .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 1)
+                                        .padding(8)
+                                }
+                                Spacer()
+                            }
+                        }
+                    }
                 )
                 .shadow(
                     color: Color.black.opacity(0.2),

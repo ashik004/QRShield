@@ -6,6 +6,7 @@ public struct TemplatesView: View {
     public var onSelectTemplate: (QRTemplate) -> Void
     
     @State private var selectedCategory: QRTemplateCategory = .all
+    @State private var selectedSubCategory: String? = nil
     @State private var searchText: String = ""
     
     public init(
@@ -18,12 +19,36 @@ public struct TemplatesView: View {
         self.onSelectTemplate = onSelectTemplate
     }
     
+    private var availableSubCategories: [String] {
+        let baseList: [QRTemplate]
+        if selectedCategory == .all {
+            baseList = QRTemplate.predefinedTemplates
+        } else if selectedCategory == .popular {
+            baseList = QRTemplate.popularTemplates
+        } else {
+            baseList = QRTemplate.predefinedTemplates.filter { $0.category == selectedCategory }
+        }
+        let list = baseList.compactMap { $0.subCategory }
+        // Preserve a clean order:
+        var unique: [String] = []
+        for item in list where !unique.contains(item) {
+            unique.append(item)
+        }
+        return unique
+    }
+    
     private var filteredTemplates: [QRTemplate] {
-        let list: [QRTemplate]
+        var list: [QRTemplate]
         if selectedCategory == .all {
             list = QRTemplate.predefinedTemplates
+        } else if selectedCategory == .popular {
+            list = QRTemplate.popularTemplates
         } else {
             list = QRTemplate.predefinedTemplates.filter { $0.category == selectedCategory }
+        }
+        
+        if let sub = selectedSubCategory {
+            list = list.filter { $0.subCategory == sub }
         }
         
         if searchText.isEmpty {
@@ -32,6 +57,7 @@ public struct TemplatesView: View {
             return list.filter {
                 $0.name.localizedCaseInsensitiveContains(searchText) ||
                 $0.category.rawValue.localizedCaseInsensitiveContains(searchText) ||
+                ($0.subCategory?.localizedCaseInsensitiveContains(searchText) ?? false) ||
                 ($0.badgeText?.localizedCaseInsensitiveContains(searchText) ?? false)
             }
         }
@@ -84,7 +110,7 @@ public struct TemplatesView: View {
                 .padding(.bottom, 8)
             }
             
-            // Filter Chips Bar: [ All | Social | Wi-Fi | Business | Event ]
+            // Filter Chips Bar: [ All | Popular | Business | Colorful | Social | Wi-Fi | Event ]
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(QRTemplateCategory.allCases) { category in
@@ -93,6 +119,60 @@ public struct TemplatesView: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 6)
+            }
+            
+            // Sub-category Horizontal Filter Bar (e.g., Menu, Store, Blockchain, Coupon, Pay)
+            if availableSubCategories.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        Button(action: {
+                            let feedback = UIImpactFeedbackGenerator(style: .light)
+                            feedback.impactOccurred()
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+                                selectedSubCategory = nil
+                            }
+                        }) {
+                            Text("All")
+                                .font(.system(size: 12, weight: selectedSubCategory == nil ? .bold : .medium))
+                                .foregroundColor(selectedSubCategory == nil ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 5)
+                                .background(
+                                    Capsule().fill(selectedSubCategory == nil ? Color(hex: "4A5C6A") : Color(hex: "11212D"))
+                                )
+                                .overlay(
+                                    Capsule().stroke(Color(hex: "253745"), lineWidth: 1)
+                                )
+                        }
+                        .buttonStyle(.plain)
+                        
+                        ForEach(availableSubCategories, id: \.self) { subCat in
+                            let isSelected = selectedSubCategory == subCat
+                            Button(action: {
+                                let feedback = UIImpactFeedbackGenerator(style: .light)
+                                feedback.impactOccurred()
+                                withAnimation(.spring(response: 0.25, dampingFraction: 0.8)) {
+                                    selectedSubCategory = isSelected ? nil : subCat
+                                }
+                            }) {
+                                Text(subCat)
+                                    .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+                                    .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 5)
+                                    .background(
+                                        Capsule().fill(isSelected ? Color(hex: "4A5C6A") : Color(hex: "11212D"))
+                                    )
+                                    .overlay(
+                                        Capsule().stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 1)
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 4)
+                }
             }
             
             // 2-Column Templates Grid with full, unrestricted vertical scrolling
@@ -121,6 +201,7 @@ public struct TemplatesView: View {
             feedback.impactOccurred()
             withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
                 selectedCategory = category
+                selectedSubCategory = nil
             }
         }) {
             HStack(spacing: 5) {
@@ -130,7 +211,15 @@ public struct TemplatesView: View {
                 Text(category.rawValue)
                     .font(.system(size: 13, weight: isSelected ? .bold : .medium))
                 
-                let count = category == .all ? QRTemplate.predefinedTemplates.count : QRTemplate.predefinedTemplates.filter { $0.category == category }.count
+                let count: Int = {
+                    if category == .all {
+                        return QRTemplate.predefinedTemplates.count
+                    } else if category == .popular {
+                        return QRTemplate.popularTemplates.count
+                    } else {
+                        return QRTemplate.predefinedTemplates.filter { $0.category == category }.count
+                    }
+                }()
                 Text("\(count)")
                     .font(.system(size: 10, weight: .bold))
                     .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))

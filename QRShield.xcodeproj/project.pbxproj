@@ -18,6 +18,7 @@
 		45C4DBC9BCB3CC375E038F58 /* SafetyCheckerService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AAD18835E8DB244ED18C28B /* SafetyCheckerService.swift */; };
 		47AF099B605ED99C11C7446A /* ColorExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F4EE09959752D9D331DA6D /* ColorExtension.swift */; };
 		4B467BF31593EC312483E862 /* BrandLogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4377C4AD19040DEF3DA6675F /* BrandLogoView.swift */; };
+		4B467BF31593EC312483E863 /* TemplateFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4377C4AD19040DEF3DA66760 /* TemplateFrameRenderer.swift */; };
 		4B467BF31593EC312483E860 /* GenerateQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4377C4AD19040DEF3DA6675D /* GenerateQRView.swift */; };
 		4B467BF31593EC312483E861 /* ContentInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4377C4AD19040DEF3DA6675E /* ContentInputView.swift */; };
 		5860810668EDBC39A42794BF /* CustomTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD1581E196123197BB195BF /* CustomTabBar.swift */; };
@@ -54,6 +55,7 @@
 		4AAD18835E8DB244ED18C28B /* SafetyCheckerService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafetyCheckerService.swift; sourceTree = "<group>"; };
 		51F4EE09959752D9D331DA6D /* ColorExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorExtension.swift; sourceTree = "<group>"; };
 		4377C4AD19040DEF3DA6675F /* BrandLogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrandLogoView.swift; sourceTree = "<group>"; };
+		4377C4AD19040DEF3DA66760 /* TemplateFrameRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateFrameRenderer.swift; sourceTree = "<group>"; };
 		56790051E6D6588A2899A99C /* QRShieldApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRShieldApp.swift; sourceTree = "<group>"; };
 		5D97A648C588C299FC5FDEF7 /* QRDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRDisplayView.swift; sourceTree = "<group>"; };
 		6365ACDD48540CDCFE64F6B9 /* QRCodeGeneratorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGeneratorService.swift; sourceTree = "<group>"; };
@@ -136,6 +138,7 @@
 			children = (
 				3B31831B08EBB9E9672F4993 /* CameraScannerService.swift */,
 				6365ACDD48540CDCFE64F6B9 /* QRCodeGeneratorService.swift */,
+				4377C4AD19040DEF3DA66760 /* TemplateFrameRenderer.swift */,
 				87C8B8582E543EC32FA7F9CE /* QRStorageService.swift */,
 				4AAD18835E8DB244ED18C28B /* SafetyCheckerService.swift */,
 			);
@@ -263,6 +266,7 @@
 				40DC0E5E3CB0A8F8D16AE541 /* SafetyAnalysis.swift in Sources */,
 				0B8BCCF0F7AD351860993552 /* CameraScannerService.swift in Sources */,
 				F0558304E1872EA50773DA26 /* QRCodeGeneratorService.swift in Sources */,
+				4B467BF31593EC312483E863 /* TemplateFrameRenderer.swift in Sources */,
 				E6115B90E3D4ECA29566C89D /* QRStorageService.swift in Sources */,
 				45C4DBC9BCB3CC375E038F58 /* SafetyCheckerService.swift in Sources */,
 				47AF099B605ED99C11C7446A /* ColorExtension.swift in Sources */,

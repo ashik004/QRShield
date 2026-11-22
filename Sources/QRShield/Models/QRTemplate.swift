@@ -2,8 +2,10 @@ import SwiftUI
 
 public enum QRTemplateCategory: String, CaseIterable, Identifiable, Codable {
     case all = "All"
-    case socialMedia = "Social"
+    case popular = "Popular"
     case business = "Business"
+    case colorful = "Colorful"
+    case socialMedia = "Social"
     case wifi = "Wi-Fi"
     case event = "Event"
     case location = "Location"
@@ -14,8 +16,10 @@ public enum QRTemplateCategory: String, CaseIterable, Identifiable, Codable {
     public var sfSymbol: String {
         switch self {
         case .all: return "square.grid.2x2.fill"
-        case .socialMedia: return "person.2.fill"
+        case .popular: return "flame.fill"
         case .business: return "briefcase.fill"
+        case .colorful: return "paintbrush.fill"
+        case .socialMedia: return "person.2.fill"
         case .wifi: return "wifi"
         case .event: return "calendar"
         case .location: return "mappin.and.ellipse"
@@ -26,8 +30,10 @@ public enum QRTemplateCategory: String, CaseIterable, Identifiable, Codable {
     public var defaultBadgeLabel: String {
         switch self {
         case .all: return "ALL"
-        case .socialMedia: return "SOCIAL"
+        case .popular: return "POPULAR"
         case .business: return "BUSINESS"
+        case .colorful: return "COLORFUL"
+        case .socialMedia: return "SOCIAL"
         case .wifi: return "WI-FI"
         case .event: return "EVENT"
         case .location: return "LOCATION"
@@ -37,8 +43,9 @@ public enum QRTemplateCategory: String, CaseIterable, Identifiable, Codable {
 }
 
 public extension QRTemplateCategory {
-    // Backward compatibility alias for existing code
+    // Backward compatibility aliases
     static let social = QRTemplateCategory.socialMedia
+    static let creative = QRTemplateCategory.colorful
 }
 
 public enum TemplateBadgePosition: String, Codable {
@@ -61,6 +68,8 @@ public struct QRTemplate: Identifiable, Codable, Equatable {
     public let gradientHexColors: [String]  // Background linear gradient stops
     public let gradientStops: [Double]?     // Optional stop offsets (e.g. [0.0, 0.58, 1.0])
     public let accentColorHex: String       // Stroke / accent color for center badge
+    public let isPro: Bool                  // Show PRO indicator
+    public let subCategory: String?         // Subcategory filter (e.g. "Menu", "Store", etc.)
     public let styleConfig: QRStyleConfig
     public let defaultContent: String
     
@@ -82,6 +91,8 @@ public struct QRTemplate: Identifiable, Codable, Equatable {
         gradientHexColors: [String],
         gradientStops: [Double]? = nil,
         accentColorHex: String? = nil,
+        isPro: Bool = false,
+        subCategory: String? = nil,
         styleConfig: QRStyleConfig,
         defaultContent: String
     ) {
@@ -96,6 +107,8 @@ public struct QRTemplate: Identifiable, Codable, Equatable {
         self.gradientHexColors = gradientHexColors
         self.gradientStops = gradientStops
         self.accentColorHex = accentColorHex ?? gradientHexColors.first ?? "7C3AED"
+        self.isPro = isPro
+        self.subCategory = subCategory
         self.styleConfig = styleConfig
         self.defaultContent = defaultContent
     }
@@ -110,7 +123,9 @@ public struct QRTemplate: Identifiable, Codable, Equatable {
         defaultTitle: String,
         defaultContent: String,
         previewGradientHex: [String],
-        accentColorHex: String = "FFFFFF"
+        accentColorHex: String = "FFFFFF",
+        isPro: Bool = false,
+        subCategory: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -123,6 +138,8 @@ public struct QRTemplate: Identifiable, Codable, Equatable {
         self.gradientHexColors = previewGradientHex
         self.gradientStops = nil
         self.accentColorHex = accentColorHex
+        self.isPro = isPro
+        self.subCategory = subCategory
         self.styleConfig = styleConfig
         self.defaultContent = defaultContent
     }
@@ -149,13 +166,11 @@ public extension QRTemplate {
     }
 }
 
+
 public extension QRTemplate {
     static let predefinedTemplates: [QRTemplate] = [
-        // ==========================================
-        // 1. SOCIAL MEDIA CATEGORY (11 TEMPLATES)
-        // ==========================================
         QRTemplate(
-            id: "instagram_social",
+            id: "ig_sunset_glow",
             name: "Instagram Sunset",
             category: .socialMedia,
             title: "Instagram",
@@ -166,1187 +181,1585 @@ public extension QRTemplate {
             gradientHexColors: ["7C3AED", "EC4899", "F97316"],
             gradientStops: [0.0, 0.58, 1.0],
             accentColorHex: "EC4899",
+            isPro: false,
+            subCategory: "Instagram",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .instagramSunset,
                 backgroundColorHex: "FFFFFF",
-                logoType: .instagram
+                logoType: .instagram,
+                eyeStyle: .rounded,
+                decorativeFrame: .socialGradientFrame,
+                bannerText: "FOLLOW US",
+                frameBrandColors: ["F58529", "DD2A7B", "8134AF", "515BD4"]
             ),
             defaultContent: "https://instagram.com/qrshield"
         ),
         QRTemplate(
-            id: "youtube_social",
-            name: "YouTube Red",
+            id: "ig_story_card",
+            name: "Insta Story Frame",
+            category: .socialMedia,
+            title: "Instagram Story",
+            subtitle: "SWIPE & FOLLOW",
+            categoryIcon: "camera.fill",
+            categoryLabel: "SOCIAL",
+            footerText: "FOLLOW",
+            gradientHexColors: ["DD2A7B", "8134AF"],
+            gradientStops: nil,
+            accentColorHex: "DD2A7B",
+            isPro: true,
+            subCategory: "Instagram",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .instagramSunset,
+                backgroundColorHex: "FFFFFF",
+                logoType: .instagram,
+                eyeStyle: .leaf,
+                decorativeFrame: .socialHeaderFrame,
+                bannerText: "INSTAGRAM",
+                frameBrandColors: ["DD2A7B", "8134AF"]
+            ),
+            defaultContent: "https://instagram.com/qrshield"
+        ),
+        QRTemplate(
+            id: "yt_red_banner",
+            name: "YouTube Subscribe",
             category: .socialMedia,
             title: "YouTube",
             subtitle: "WATCH MORE",
             categoryIcon: "play.rectangle.fill",
             categoryLabel: "SOCIAL",
-            footerText: "WATCH MORE",
-            gradientHexColors: ["EF4444", "F97316", "DC2626"],
-            gradientStops: [0.0, 0.58, 1.0],
-            accentColorHex: "F97316",
+            footerText: "SUBSCRIBE",
+            gradientHexColors: ["EF4444", "B91C1C"],
+            gradientStops: nil,
+            accentColorHex: "EF4444",
+            isPro: false,
+            subCategory: "YouTube",
             styleConfig: QRStyleConfig(
                 dotStyle: .square,
                 colorTheme: .youtubeRed,
                 backgroundColorHex: "FFFFFF",
-                logoType: .youtube
+                logoType: .youtube,
+                eyeStyle: .square,
+                decorativeFrame: .fullBanner,
+                bannerText: "SUBSCRIBE",
+                frameBrandColors: ["EF4444", "B91C1C"]
             ),
             defaultContent: "https://youtube.com/@qrshield"
         ),
         QRTemplate(
-            id: "tiktok_neon",
-            name: "TikTok Creator",
+            id: "yt_watch_scanme",
+            name: "YouTube Red Scan",
             category: .socialMedia,
-            title: "TikTok",
-            subtitle: "WATCH VIDEOS",
-            categoryIcon: "music.note",
+            title: "YouTube Video",
+            subtitle: "LATEST UPLOAD",
+            categoryIcon: "play.rectangle.fill",
             categoryLabel: "SOCIAL",
             footerText: "WATCH NOW",
-            gradientHexColors: ["00F2FE", "4FACFE", "000000"],
-            accentColorHex: "00F2FE",
-            styleConfig: QRStyleConfig(
-                dotStyle: .circular,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .tiktok
-            ),
-            defaultContent: "https://tiktok.com/@qrshield"
-        ),
-        QRTemplate(
-            id: "whatsapp_direct",
-            name: "WhatsApp Chat",
-            category: .socialMedia,
-            title: "WhatsApp",
-            subtitle: "CHAT WITH US",
-            categoryIcon: "message.fill",
-            categoryLabel: "SOCIAL",
-            footerText: "CHAT NOW",
-            gradientHexColors: ["10B981", "059669", "047857"],
-            accentColorHex: "10B981",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .whatsapp
-            ),
-            defaultContent: "https://wa.me/15551234567"
-        ),
-        QRTemplate(
-            id: "twitter_x_card",
-            name: "X (Twitter)",
-            category: .socialMedia,
-            title: "X Profile",
-            subtitle: "LATEST UPDATES",
-            categoryIcon: "bubble.left.and.bubble.right.fill",
-            categoryLabel: "SOCIAL",
-            footerText: "FOLLOW @US",
-            gradientHexColors: ["18181B", "27272A", "09090B"],
-            accentColorHex: "38BDF8",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .x
-            ),
-            defaultContent: "https://x.com/qrshield"
-        ),
-        QRTemplate(
-            id: "linkedin_pro",
-            name: "LinkedIn Connect",
-            category: .socialMedia,
-            title: "LinkedIn",
-            subtitle: "LET'S CONNECT",
-            categoryIcon: "person.crop.circle.fill.badge.plus",
-            categoryLabel: "SOCIAL",
-            footerText: "CONNECT",
-            gradientHexColors: ["0077B5", "0A66C2", "004182"],
-            accentColorHex: "0A66C2",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .linkedin
-            ),
-            defaultContent: "https://linkedin.com/in/qrshield"
-        ),
-        QRTemplate(
-            id: "spotify_music",
-            name: "Spotify Stream",
-            category: .socialMedia,
-            title: "Spotify",
-            subtitle: "LISTEN NOW",
-            categoryIcon: "headphones",
-            categoryLabel: "SOCIAL",
-            footerText: "STREAM NOW",
-            gradientHexColors: ["1DB954", "191414", "121212"],
-            accentColorHex: "1DB954",
-            styleConfig: QRStyleConfig(
-                dotStyle: .circular,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .spotify
-            ),
-            defaultContent: "https://open.spotify.com/artist/qrshield"
-        ),
-        QRTemplate(
-            id: "telegram_channel",
-            name: "Telegram Channel",
-            category: .socialMedia,
-            title: "Telegram",
-            subtitle: "JOIN COMMUNITY",
-            categoryIcon: "paperplane.fill",
-            categoryLabel: "SOCIAL",
-            footerText: "JOIN US",
-            gradientHexColors: ["229ED9", "1E88E5", "1565C0"],
-            accentColorHex: "229ED9",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .telegram
-            ),
-            defaultContent: "https://t.me/qrshield"
-        ),
-        QRTemplate(
-            id: "pinterest_board",
-            name: "Pinterest Board",
-            category: .socialMedia,
-            title: "Pinterest",
-            subtitle: "PIN INSPIRATION",
-            categoryIcon: "pin.fill",
-            categoryLabel: "SOCIAL",
-            footerText: "PIN NOW",
-            gradientHexColors: ["E60023", "BD081C", "9B0014"],
-            accentColorHex: "E60023",
+            gradientHexColors: ["DC2626", "991B1B"],
+            gradientStops: nil,
+            accentColorHex: "DC2626",
+            isPro: false,
+            subCategory: "YouTube",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .youtubeRed,
                 backgroundColorHex: "FFFFFF",
-                logoType: .pinterest
+                logoType: .youtube,
+                eyeStyle: .rounded,
+                decorativeFrame: .scanMeBanner,
+                bannerText: "WATCH NOW",
+                frameBrandColors: ["DC2626"]
             ),
-            defaultContent: "https://pinterest.com/qrshield"
+            defaultContent: "https://youtube.com/@qrshield"
         ),
         QRTemplate(
-            id: "discord_server",
-            name: "Discord Server",
+            id: "fb_connect_header",
+            name: "Facebook Connect",
             category: .socialMedia,
-            title: "Discord",
-            subtitle: "JOIN OUR SERVER",
-            categoryIcon: "bubble.left.fill",
+            title: "Facebook Page",
+            subtitle: "LIKE & CONNECT",
+            categoryIcon: "hand.thumbsup.fill",
             categoryLabel: "SOCIAL",
-            footerText: "JOIN SERVER",
-            gradientHexColors: ["5865F2", "4752C4", "3C45A5"],
-            accentColorHex: "5865F2",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .royalPurple,
-                backgroundColorHex: "FFFFFF",
-                logoType: .discord
-            ),
-            defaultContent: "https://discord.gg/qrshield"
-        ),
-        QRTemplate(
-            id: "snapchat_spotlight",
-            name: "Snapchat Spotlight",
-            category: .socialMedia,
-            title: "Snapchat",
-            subtitle: "ADD ON SNAP",
-            categoryIcon: "bell.fill",
-            categoryLabel: "SOCIAL",
-            footerText: "ADD FRIEND",
-            gradientHexColors: ["F59E0B", "FBBF24", "D97706"],
-            accentColorHex: "FBBF24",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .sunsetOrange,
-                backgroundColorHex: "FFFFFF",
-                logoType: .snapchat
-            ),
-            defaultContent: "https://snapchat.com/add/qrshield"
-        ),
-
-        // ==========================================
-        // 2. BUSINESS CATEGORY (10 TEMPLATES)
-        // ==========================================
-        QRTemplate(
-            id: "business_executive",
-            name: "Corporate Executive",
-            category: .business,
-            title: "Business Card",
-            subtitle: "CONNECT PROFESSIONALLY",
-            categoryIcon: "briefcase.fill",
-            categoryLabel: "BUSINESS",
-            footerText: "SAVE CONTACT",
-            gradientHexColors: ["1E293B", "334155", "0F172A"],
-            accentColorHex: "38BDF8",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "BEGIN:VCARD\nVERSION:3.0\nFN:Alex Vance\nORG:Apex Tech\nTITLE:CEO\nTEL:+15550192831\nEMAIL:alex@apextech.com\nEND:VCARD"
-        ),
-        QRTemplate(
-            id: "business_startup",
-            name: "Tech Startup",
-            category: .business,
-            title: "Startup Pitch",
-            subtitle: "INNOVATIVE SOLUTIONS",
-            categoryIcon: "bolt.fill",
-            categoryLabel: "BUSINESS",
-            footerText: "EXPLORE",
-            gradientHexColors: ["4F46E5", "7C3AED", "9333EA"],
-            accentColorHex: "A855F7",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .royalPurple,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://startup.tech/pitch"
-        ),
-        QRTemplate(
-            id: "business_luxury",
-            name: "Luxury Boutique",
-            category: .business,
-            title: "Luxury Brand",
-            subtitle: "EXCLUSIVE COLLECTION",
-            categoryIcon: "crown.fill",
-            categoryLabel: "BUSINESS",
-            footerText: "SHOP NOW",
-            gradientHexColors: ["1C1917", "44403C", "78716C"],
-            accentColorHex: "FBBF24",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maisonluxe.co/collection"
-        ),
-        QRTemplate(
-            id: "business_creative",
-            name: "Creative Studio",
-            category: .business,
-            title: "Design Studio",
-            subtitle: "WE CRAFT EXPERIENCES",
-            categoryIcon: "sparkles",
-            categoryLabel: "BUSINESS",
-            footerText: "VIEW WORK",
-            gradientHexColors: ["06B6D4", "3B82F6", "1D4ED8"],
-            accentColorHex: "06B6D4",
+            footerText: "FOLLOW US",
+            gradientHexColors: ["1877F2", "0D65D9"],
+            gradientStops: nil,
+            accentColorHex: "1877F2",
+            isPro: false,
+            subCategory: "Facebook",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .facebook,
+                eyeStyle: .rounded,
+                decorativeFrame: .socialHeaderFrame,
+                bannerText: "FOLLOW US ON",
+                frameBrandColors: ["1877F2", "0D65D9"]
             ),
-            defaultContent: "https://studioaura.design"
+            defaultContent: "https://facebook.com/qrshield"
         ),
         QRTemplate(
-            id: "business_consulting",
-            name: "Strategic Advisory",
-            category: .business,
-            title: "Advisory Group",
-            subtitle: "STRATEGIC INSIGHTS",
-            categoryIcon: "chart.line.uptrend.xyaxis",
-            categoryLabel: "BUSINESS",
-            footerText: "LEARN MORE",
-            gradientHexColors: ["047857", "065F46", "064E3B"],
-            accentColorHex: "34D399",
+            id: "fb_solid_blue",
+            name: "Facebook Blue",
+            category: .socialMedia,
+            title: "Facebook Official",
+            subtitle: "COMMUNITY HUB",
+            categoryIcon: "hand.thumbsup.fill",
+            categoryLabel: "SOCIAL",
+            footerText: "LIKE US",
+            gradientHexColors: ["1877F2"],
+            gradientStops: nil,
+            accentColorHex: "1877F2",
+            isPro: true,
+            subCategory: "Facebook",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .facebook,
+                eyeStyle: .square,
+                decorativeFrame: .solidBorder,
+                bannerText: "LIKE US",
+                frameBrandColors: ["1877F2"]
+            ),
+            defaultContent: "https://facebook.com/qrshield"
+        ),
+        QRTemplate(
+            id: "wa_direct_chat",
+            name: "WhatsApp Chat",
+            category: .socialMedia,
+            title: "WhatsApp Direct",
+            subtitle: "INSTANT MESSAGING",
+            categoryIcon: "message.fill",
+            categoryLabel: "SOCIAL",
+            footerText: "CHAT NOW",
+            gradientHexColors: ["25D366", "128C7E"],
+            gradientStops: nil,
+            accentColorHex: "25D366",
+            isPro: false,
+            subCategory: "WhatsApp",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .emeraldGreen,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .whatsapp,
+                eyeStyle: .rounded,
+                decorativeFrame: .colorCard,
+                bannerText: "CHAT WITH US",
+                frameBrandColors: ["25D366", "128C7E"]
             ),
-            defaultContent: "https://vanguardstrategy.com/insights"
+            defaultContent: "https://wa.me/15551234567"
         ),
         QRTemplate(
-            id: "business_portfolio",
-            name: "Design Portfolio",
-            category: .business,
-            title: "Creative Folio",
-            subtitle: "FEATURED PROJECTS",
-            categoryIcon: "star.fill",
-            categoryLabel: "BUSINESS",
-            footerText: "SEE PORTFOLIO",
-            gradientHexColors: ["8B5CF6", "EC4899", "F43F5E"],
-            accentColorHex: "F43F5E",
+            id: "wa_scan_chat",
+            name: "WhatsApp Green",
+            category: .socialMedia,
+            title: "WhatsApp Support",
+            subtitle: "24/7 HELPLINE",
+            categoryIcon: "message.fill",
+            categoryLabel: "SOCIAL",
+            footerText: "MESSAGE US",
+            gradientHexColors: ["10B981", "059669"],
+            gradientStops: nil,
+            accentColorHex: "10B981",
+            isPro: false,
+            subCategory: "WhatsApp",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .emeraldGreen,
+                backgroundColorHex: "FFFFFF",
+                logoType: .whatsapp,
+                eyeStyle: .circular,
+                decorativeFrame: .scanMeBanner,
+                bannerText: "MESSAGE US",
+                frameBrandColors: ["10B981"]
+            ),
+            defaultContent: "https://wa.me/15551234567"
+        ),
+        QRTemplate(
+            id: "tt_neon_vibe",
+            name: "TikTok Neon",
+            category: .socialMedia,
+            title: "TikTok",
+            subtitle: "VIRAL VIDEOS",
+            categoryIcon: "music.note",
+            categoryLabel: "SOCIAL",
+            footerText: "WATCH",
+            gradientHexColors: ["00F2FE", "FE2C55"],
+            gradientStops: nil,
+            accentColorHex: "00F2FE",
+            isPro: true,
+            subCategory: "TikTok",
             styleConfig: QRStyleConfig(
                 dotStyle: .circular,
-                colorTheme: .instagramSunset,
+                colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .tiktok,
+                eyeStyle: .leaf,
+                decorativeFrame: .neonGlowRing,
+                bannerText: "WATCH VIDEOS",
+                frameBrandColors: ["00F2FE", "FE2C55"]
             ),
-            defaultContent: "https://dribbble.com/qrshield"
+            defaultContent: "https://tiktok.com/@qrshield"
         ),
         QRTemplate(
-            id: "business_restaurant",
-            name: "Gourmet Restaurant",
-            category: .business,
-            title: "Gourmet Menu",
-            subtitle: "DIGITAL DINING MENU",
-            categoryIcon: "fork.knife",
-            categoryLabel: "BUSINESS",
-            footerText: "VIEW MENU",
-            gradientHexColors: ["DC2626", "EA580C", "C2410C"],
-            accentColorHex: "F97316",
+            id: "x_modern_bracket",
+            name: "X Minimal",
+            category: .socialMedia,
+            title: "X Profile",
+            subtitle: "LATEST UPDATES",
+            categoryIcon: "number",
+            categoryLabel: "SOCIAL",
+            footerText: "FOLLOW",
+            gradientHexColors: ["18181B", "09090B"],
+            gradientStops: nil,
+            accentColorHex: "18181B",
+            isPro: false,
+            subCategory: "X",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .x,
+                eyeStyle: .square,
+                decorativeFrame: .cornerBrackets,
+                bannerText: "FOLLOW @US",
+                frameBrandColors: ["18181B"]
+            ),
+            defaultContent: "https://x.com/qrshield"
+        ),
+        QRTemplate(
+            id: "li_pro_connect",
+            name: "LinkedIn Connect",
+            category: .socialMedia,
+            title: "LinkedIn",
+            subtitle: "PROFESSIONAL NETWORK",
+            categoryIcon: "briefcase.fill",
+            categoryLabel: "SOCIAL",
+            footerText: "CONNECT",
+            gradientHexColors: ["0A66C2", "004182"],
+            gradientStops: nil,
+            accentColorHex: "0A66C2",
+            isPro: false,
+            subCategory: "LinkedIn",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .linkedin,
+                eyeStyle: .rounded,
+                decorativeFrame: .topBanner,
+                bannerText: "CONNECT ON LINKEDIN",
+                frameBrandColors: ["0A66C2", "004182"]
+            ),
+            defaultContent: "https://linkedin.com/in/qrshield"
+        ),
+        QRTemplate(
+            id: "sp_stream_card",
+            name: "Spotify Stream",
+            category: .socialMedia,
+            title: "Spotify",
+            subtitle: "STREAM PLAYLIST",
+            categoryIcon: "headphones",
+            categoryLabel: "SOCIAL",
+            footerText: "LISTEN",
+            gradientHexColors: ["1DB954", "191414"],
+            gradientStops: nil,
+            accentColorHex: "1DB954",
+            isPro: true,
+            subCategory: "Spotify",
+            styleConfig: QRStyleConfig(
+                dotStyle: .circular,
+                colorTheme: .emeraldGreen,
+                backgroundColorHex: "FFFFFF",
+                logoType: .spotify,
+                eyeStyle: .circular,
+                decorativeFrame: .gradientCard,
+                bannerText: "LISTEN ON SPOTIFY",
+                frameBrandColors: ["1DB954", "191414"]
+            ),
+            defaultContent: "https://open.spotify.com/artist/qrshield"
+        ),
+        QRTemplate(
+            id: "tg_channel_wave",
+            name: "Telegram Channel",
+            category: .socialMedia,
+            title: "Telegram",
+            subtitle: "COMMUNITY CHAT",
+            categoryIcon: "paperplane.fill",
+            categoryLabel: "SOCIAL",
+            footerText: "JOIN US",
+            gradientHexColors: ["24A1DE", "1565C0"],
+            gradientStops: nil,
+            accentColorHex: "24A1DE",
+            isPro: false,
+            subCategory: "Telegram",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .telegram,
+                eyeStyle: .rounded,
+                decorativeFrame: .wavesBorder,
+                bannerText: "JOIN CHANNEL",
+                frameBrandColors: ["24A1DE"]
+            ),
+            defaultContent: "https://t.me/qrshield"
+        ),
+        QRTemplate(
+            id: "snap_yellow_stamp",
+            name: "Snapchat Spotlight",
+            category: .socialMedia,
+            title: "Snapchat",
+            subtitle: "ADD NEW FRIEND",
+            categoryIcon: "sparkles.rectangle.stack",
+            categoryLabel: "SOCIAL",
+            footerText: "ADD FRIEND",
+            gradientHexColors: ["FBBF24", "D97706"],
+            gradientStops: nil,
+            accentColorHex: "FBBF24",
+            isPro: true,
+            subCategory: "Snapchat",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .snapchat,
+                eyeStyle: .rounded,
+                decorativeFrame: .stampBorder,
+                bannerText: "ADD ON SNAP",
+                frameBrandColors: ["FBBF24", "D97706"]
+            ),
+            defaultContent: "https://snapchat.com/add/qrshield"
+        ),
+        QRTemplate(
+            id: "biz_menu_cafe",
+            name: "Artisan Café Menu",
+            category: .business,
+            title: "Café Menu",
+            subtitle: "DIGITAL DRINKS & BITES",
+            categoryIcon: "cup.and.saucer.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "VIEW MENU",
+            gradientHexColors: ["78350F", "92400E"],
+            gradientStops: nil,
+            accentColorHex: "92400E",
+            isPro: false,
+            subCategory: "Menu",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .fullBanner,
+                bannerText: "CAFE MENU",
+                frameBrandColors: ["78350F", "92400E"]
+            ),
+            defaultContent: "https://artisancafe.com/menu"
+        ),
+        QRTemplate(
+            id: "biz_menu_bistro",
+            name: "Bistro Dining Menu",
+            category: .business,
+            title: "Bistro Dining",
+            subtitle: "TABLE SERVICE QR",
+            categoryIcon: "fork.knife",
+            categoryLabel: "BUSINESS",
+            footerText: "BROWSE MENU",
+            gradientHexColors: ["DC2626", "991B1B"],
+            gradientStops: nil,
+            accentColorHex: "DC2626",
+            isPro: false,
+            subCategory: "Menu",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .youtubeRed,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .scanMeBanner,
+                bannerText: "DIGITAL MENU",
+                frameBrandColors: ["DC2626"]
             ),
             defaultContent: "https://bistromoderne.com/menu"
         ),
         QRTemplate(
-            id: "business_realestate",
-            name: "Real Estate Listing",
+            id: "biz_menu_gourmet",
+            name: "Chef's Specials",
             category: .business,
-            title: "Property Tour",
-            subtitle: "VIRTUAL WALKTHROUGH",
-            categoryIcon: "house.fill",
+            title: "Gourmet Selection",
+            subtitle: "DAILY SIGNATURE DISHES",
+            categoryIcon: "fork.knife",
             categoryLabel: "BUSINESS",
-            footerText: "VIEW PROPERTY",
-            gradientHexColors: ["0284C7", "0369A1", "075985"],
-            accentColorHex: "38BDF8",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://skylinehomes.re/villa-402"
-        ),
-        QRTemplate(
-            id: "business_wealth",
-            name: "Wealth Management",
-            category: .business,
-            title: "Wealth Advisory",
-            subtitle: "SECURE YOUR FUTURE",
-            categoryIcon: "dollarsign.circle.fill",
-            categoryLabel: "BUSINESS",
-            footerText: "SCHEDULE CALL",
-            gradientHexColors: ["059669", "0D9488", "115E59"],
-            accentColorHex: "2DD4BF",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://crestwealth.com/consult"
-        ),
-        QRTemplate(
-            id: "business_fitness",
-            name: "Fitness Club",
-            category: .business,
-            title: "Fitness Center",
-            subtitle: "FREE TRIAL PASS",
-            categoryIcon: "figure.run",
-            categoryLabel: "BUSINESS",
-            footerText: "START TRIAL",
-            gradientHexColors: ["F43F5E", "FB7185", "E11D48"],
-            accentColorHex: "FB7185",
+            footerText: "SPECIALS",
+            gradientHexColors: ["D97706", "B45309"],
+            gradientStops: nil,
+            accentColorHex: "D97706",
+            isPro: true,
+            subCategory: "Menu",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .leaf,
+                decorativeFrame: .topBanner,
+                bannerText: "CHEF SPECIALS",
+                frameBrandColors: ["D97706", "B45309"]
             ),
-            defaultContent: "https://peakgym.club/pass"
+            defaultContent: "https://gourmetexperience.com/specials"
         ),
-
-        // ==========================================
-        // 3. WI-FI CATEGORY (10 TEMPLATES)
-        // ==========================================
         QRTemplate(
-            id: "wifi_home_blue",
-            name: "Home Gigabit Wi-Fi",
-            category: .wifi,
-            title: "Home Network",
-            subtitle: "ULTRA FAST WI-FI",
-            categoryIcon: "wifi",
-            categoryLabel: "WI-FI",
-            footerText: "CONNECT NOW",
-            gradientHexColors: ["2563EB", "3B82F6", "1D4ED8"],
-            accentColorHex: "60A5FA",
+            id: "biz_store_boutique",
+            name: "Boutique Catalog",
+            category: .business,
+            title: "Fashion Boutique",
+            subtitle: "NEW ARRIVALS",
+            categoryIcon: "bag.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "SHOP COLLECTION",
+            gradientHexColors: ["EC4899", "8B5CF6"],
+            gradientStops: nil,
+            accentColorHex: "EC4899",
+            isPro: false,
+            subCategory: "Store",
             styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
+                dotStyle: .circular,
+                colorTheme: .royalPurple,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .circular,
+                decorativeFrame: .gradientBorder,
+                bannerText: "ONLINE STORE",
+                frameBrandColors: ["EC4899", "8B5CF6"]
+            ),
+            defaultContent: "https://maisonluxe.co/collection"
+        ),
+        QRTemplate(
+            id: "biz_store_retail",
+            name: "Retail Storefront",
+            category: .business,
+            title: "Product Showcase",
+            subtitle: "SCAN FOR INVENTORY",
+            categoryIcon: "cart.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "VIEW PRODUCTS",
+            gradientHexColors: ["0284C7", "0369A1"],
+            gradientStops: nil,
+            accentColorHex: "0284C7",
+            isPro: false,
+            subCategory: "Store",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
                 colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .solidBorder,
+                bannerText: "SHOP CATALOG",
+                frameBrandColors: ["0284C7"]
             ),
-            defaultContent: "WIFI:S:MyHome_5G;T:WPA;P:SuperSecretPass2026;;"
+            defaultContent: "https://storefront.retail/products"
         ),
         QRTemplate(
-            id: "wifi_cafe_amber",
-            name: "Coffee Shop Guest",
-            category: .wifi,
-            title: "Café Guest Wi-Fi",
-            subtitle: "FREE GUEST ACCESS",
-            categoryIcon: "cup.and.saucer.fill",
-            categoryLabel: "WI-FI",
-            footerText: "TAP TO CONNECT",
-            gradientHexColors: ["78350F", "92400E", "B45309"],
+            id: "biz_crypto_btc",
+            name: "Bitcoin Pay Card",
+            category: .business,
+            title: "Crypto Payment",
+            subtitle: "INSTANT BTC WALLET",
+            categoryIcon: "bitcoinsign.circle.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "SEND BITCOIN",
+            gradientHexColors: ["F59E0B", "D97706"],
+            gradientStops: nil,
             accentColorHex: "F59E0B",
+            isPro: true,
+            subCategory: "Blockchain",
             styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
+                dotStyle: .diamond,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .leaf,
+                decorativeFrame: .colorCard,
+                bannerText: "CRYPTO PAY",
+                frameBrandColors: ["F59E0B", "D97706"]
             ),
-            defaultContent: "WIFI:S:ArtisanCoffee_Guest;T:WPA;P:coffee2026;;"
+            defaultContent: "bitcoin:1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa?amount=0.005"
         ),
         QRTemplate(
-            id: "wifi_enterprise_dark",
-            name: "Office Enterprise",
-            category: .wifi,
-            title: "Office Secured",
-            subtitle: "CORPORATE WI-FI",
-            categoryIcon: "network",
-            categoryLabel: "WI-FI",
-            footerText: "CONNECT",
-            gradientHexColors: ["0F172A", "1E293B", "334155"],
-            accentColorHex: "38BDF8",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "WIFI:S:ApexHQ_Corp;T:WPA;P:Enterprise99281;;"
-        ),
-        QRTemplate(
-            id: "wifi_neon_fiber",
-            name: "Cyberpunk Fiber",
-            category: .wifi,
-            title: "Gigabit Fiber",
-            subtitle: "LOW LATENCY SPEED",
-            categoryIcon: "bolt.horizontal.fill",
-            categoryLabel: "WI-FI",
-            footerText: "FAST ACCESS",
-            gradientHexColors: ["4C1D95", "7C3AED", "C026D3"],
-            accentColorHex: "E879F9",
+            id: "biz_crypto_eth",
+            name: "Ethereum Wallet",
+            category: .business,
+            title: "Ethereum Transfer",
+            subtitle: "WEB3 SMART WALLET",
+            categoryIcon: "diamond.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "SEND ETH",
+            gradientHexColors: ["627EEA", "3C45A5"],
+            gradientStops: nil,
+            accentColorHex: "627EEA",
+            isPro: false,
+            subCategory: "Blockchain",
             styleConfig: QRStyleConfig(
                 dotStyle: .diamond,
                 colorTheme: .royalPurple,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .leaf,
+                decorativeFrame: .cornerBrackets,
+                bannerText: "ETH TRANSFER",
+                frameBrandColors: ["627EEA", "3C45A5"]
+            ),
+            defaultContent: "ethereum:0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe"
+        ),
+        QRTemplate(
+            id: "biz_coupon_deal",
+            name: "Flash Coupon 20%",
+            category: .business,
+            title: "Exclusive Promo",
+            subtitle: "SCAN TO REDEEM DISCOUNT",
+            categoryIcon: "tag.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "REDEEM NOW",
+            gradientHexColors: ["EF4444", "F97316"],
+            gradientStops: nil,
+            accentColorHex: "EF4444",
+            isPro: false,
+            subCategory: "Coupon",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .youtubeRed,
+                backgroundColorHex: "FFFFFF",
+                logoType: .star,
+                eyeStyle: .rounded,
+                decorativeFrame: .dashedBorder,
+                bannerText: "CLAIM 20% OFF",
+                frameBrandColors: ["EF4444", "F97316"]
+            ),
+            defaultContent: "https://deals.shop/promo/SAVE20"
+        ),
+        QRTemplate(
+            id: "biz_coupon_stamp",
+            name: "VIP Voucher Stamp",
+            category: .business,
+            title: "Loyalty Stamp",
+            subtitle: "MEMBER REWARD REBATE",
+            categoryIcon: "seal.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "VERIFY STAMP",
+            gradientHexColors: ["059669", "10B981"],
+            gradientStops: nil,
+            accentColorHex: "059669",
+            isPro: true,
+            subCategory: "Coupon",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .emeraldGreen,
+                backgroundColorHex: "FFFFFF",
+                logoType: .shield,
+                eyeStyle: .square,
+                decorativeFrame: .stampBorder,
+                bannerText: "SPECIAL VOUCHER",
+                frameBrandColors: ["059669", "10B981"]
+            ),
+            defaultContent: "https://rewards.club/voucher/vip882"
+        ),
+        QRTemplate(
+            id: "biz_pay_instant",
+            name: "Instant Tap Pay",
+            category: .business,
+            title: "Contactless Pay",
+            subtitle: "ZERO HASSLE CHECKOUT",
+            categoryIcon: "creditcard.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "PAY SECURELY",
+            gradientHexColors: ["2563EB", "1D4ED8"],
+            gradientStops: nil,
+            accentColorHex: "2563EB",
+            isPro: false,
+            subCategory: "Pay",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .colorCard,
+                bannerText: "SCAN TO PAY",
+                frameBrandColors: ["2563EB", "1D4ED8"]
+            ),
+            defaultContent: "https://pay.stripe.com/qr/instant-992"
+        ),
+        QRTemplate(
+            id: "biz_pay_checkout",
+            name: "Express Checkout",
+            category: .business,
+            title: "Express Pay",
+            subtitle: "FAST & VERIFIED",
+            categoryIcon: "dollarsign.circle.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "COMPLETE ORDER",
+            gradientHexColors: ["059669"],
+            gradientStops: nil,
+            accentColorHex: "059669",
+            isPro: false,
+            subCategory: "Pay",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .emeraldGreen,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .scanMeBanner,
+                bannerText: "TOUCHLESS PAY",
+                frameBrandColors: ["059669"]
+            ),
+            defaultContent: "https://checkout.apex.io/pay/order-401"
+        ),
+        QRTemplate(
+            id: "biz_review_google",
+            name: "Review on Google",
+            category: .business,
+            title: "5-Star Feedback",
+            subtitle: "RATE OUR SERVICE",
+            categoryIcon: "star.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "LEAVE A REVIEW",
+            gradientHexColors: ["4285F4", "34A853"],
+            gradientStops: nil,
+            accentColorHex: "4285F4",
+            isPro: false,
+            subCategory: "Review",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .star,
+                eyeStyle: .rounded,
+                decorativeFrame: .socialHeaderFrame,
+                bannerText: "REVIEW US ON GOOGLE",
+                frameBrandColors: ["4285F4", "34A853"]
+            ),
+            defaultContent: "https://g.page/r/your-google-place-id/review"
+        ),
+        QRTemplate(
+            id: "biz_exec_card",
+            name: "Corporate Executive",
+            category: .business,
+            title: "Digital Business Card",
+            subtitle: "SAVE CONTACT DIRECTLY",
+            categoryIcon: "person.crop.rectangle.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "SAVE CONTACT",
+            gradientHexColors: ["1E293B", "334155"],
+            gradientStops: nil,
+            accentColorHex: "38BDF8",
+            isPro: false,
+            subCategory: "Corporate",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .doubleLine,
+                bannerText: "BUSINESS CARD",
+                frameBrandColors: ["1E293B", "334155"]
+            ),
+            defaultContent: "BEGIN:VCARD\\nVERSION:3.0\\nFN:Alex Vance\\nORG:Apex Tech\\nTITLE:CEO\\nTEL:+15550192831\\nEMAIL:alex@apextech.com\\nEND:VCARD"
+        ),
+        QRTemplate(
+            id: "biz_realtor_tour",
+            name: "Luxury Property Tour",
+            category: .business,
+            title: "Virtual Open House",
+            subtitle: "3D WALKTHROUGH & SPECS",
+            categoryIcon: "house.fill",
+            categoryLabel: "BUSINESS",
+            footerText: "VIEW PROPERTY",
+            gradientHexColors: ["78716C", "44403C"],
+            gradientStops: nil,
+            accentColorHex: "D97706",
+            isPro: true,
+            subCategory: "Corporate",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .leaf,
+                decorativeFrame: .cornerFlourish,
+                bannerText: "3D HOME TOUR",
+                frameBrandColors: ["78716C", "44403C"]
+            ),
+            defaultContent: "https://skylinehomes.re/villa-402"
+        ),
+        QRTemplate(
+            id: "biz_fitness_pass",
+            name: "Gym Trial Pass",
+            category: .business,
+            title: "Fitness Center",
+            subtitle: "7-DAY COMPLIMENTARY ACCESS",
+            categoryIcon: "figure.run",
+            categoryLabel: "BUSINESS",
+            footerText: "GET PASS",
+            gradientHexColors: ["F43F5E", "E11D48"],
+            gradientStops: nil,
+            accentColorHex: "F43F5E",
+            isPro: false,
+            subCategory: "Store",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .ribbonBanner,
+                bannerText: "FREE TRIAL PASS",
+                frameBrandColors: ["F43F5E", "E11D48"]
+            ),
+            defaultContent: "https://peakgym.club/pass"
+        ),
+        QRTemplate(
+            id: "wifi_home_solid",
+            name: "Home Gigabit Wi-Fi",
+            category: .wifi,
+            title: "Home Network",
+            subtitle: "ONE-TAP AUTO CONNECT",
+            categoryIcon: "wifi",
+            categoryLabel: "WI-FI",
+            footerText: "CONNECT",
+            gradientHexColors: ["2563EB", "1D4ED8"],
+            gradientStops: nil,
+            accentColorHex: "2563EB",
+            isPro: false,
+            subCategory: "Home",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .wifi,
+                eyeStyle: .rounded,
+                decorativeFrame: .solidBorder,
+                bannerText: "CONNECT TO WI-FI",
+                frameBrandColors: ["2563EB"]
+            ),
+            defaultContent: "WIFI:S:Home_Gigabit_5G;T:WPA;P:SuperSecretPass2026;;"
+        ),
+        QRTemplate(
+            id: "wifi_scan_connect",
+            name: "Quick Connect Wi-Fi",
+            category: .wifi,
+            title: "Wi-Fi Hub",
+            subtitle: "SCAN TO JOIN INSTANTLY",
+            categoryIcon: "wifi",
+            categoryLabel: "WI-FI",
+            footerText: "CONNECT NOW",
+            gradientHexColors: ["0284C7", "0369A1"],
+            gradientStops: nil,
+            accentColorHex: "0284C7",
+            isPro: false,
+            subCategory: "Home",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .wifi,
+                eyeStyle: .rounded,
+                decorativeFrame: .scanMeBanner,
+                bannerText: "SCAN TO CONNECT",
+                frameBrandColors: ["0284C7"]
+            ),
+            defaultContent: "WIFI:S:Guest_FastWiFi;T:WPA;P:guestAccess888;;"
+        ),
+        QRTemplate(
+            id: "wifi_cafe_guest",
+            name: "Café Guest Wi-Fi",
+            category: .wifi,
+            title: "Coffee Shop Wi-Fi",
+            subtitle: "FREE BROADBAND ACCESS",
+            categoryIcon: "cup.and.saucer.fill",
+            categoryLabel: "WI-FI",
+            footerText: "CONNECT FREE",
+            gradientHexColors: ["92400E", "78350F"],
+            gradientStops: nil,
+            accentColorHex: "F59E0B",
+            isPro: false,
+            subCategory: "Cafe",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .wifi,
+                eyeStyle: .rounded,
+                decorativeFrame: .colorCard,
+                bannerText: "FREE CAFE WI-FI",
+                frameBrandColors: ["92400E", "78350F"]
+            ),
+            defaultContent: "WIFI:S:ArtisanCoffee_Guest;T:WPA;P:coffee2026;;"
+        ),
+        QRTemplate(
+            id: "wifi_top_badge",
+            name: "Wi-Fi Portal Banner",
+            category: .wifi,
+            title: "Guest Portal",
+            subtitle: "COMPLIMENTARY ACCESS",
+            categoryIcon: "wifi",
+            categoryLabel: "WI-FI",
+            footerText: "JOIN GUEST",
+            gradientHexColors: ["10B981", "059669"],
+            gradientStops: nil,
+            accentColorHex: "10B981",
+            isPro: false,
+            subCategory: "Guest",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .emeraldGreen,
+                backgroundColorHex: "FFFFFF",
+                logoType: .wifi,
+                eyeStyle: .leaf,
+                decorativeFrame: .topBanner,
+                bannerText: "WIFI · CONNECT",
+                frameBrandColors: ["10B981"]
+            ),
+            defaultContent: "WIFI:S:Lounge_Guest;T:nopass;P:;;"
+        ),
+        QRTemplate(
+            id: "wifi_office_net",
+            name: "Corporate Office",
+            category: .wifi,
+            title: "Enterprise Secured",
+            subtitle: "WPA3 ENTERPRISE SECURITY",
+            categoryIcon: "network",
+            categoryLabel: "WI-FI",
+            footerText: "AUTHENTICATE",
+            gradientHexColors: ["1E293B", "0F172A"],
+            gradientStops: nil,
+            accentColorHex: "38BDF8",
+            isPro: false,
+            subCategory: "Corporate",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .wifi,
+                eyeStyle: .square,
+                decorativeFrame: .cornerBrackets,
+                bannerText: "SECURED WI-FI",
+                frameBrandColors: ["1E293B"]
+            ),
+            defaultContent: "WIFI:S:ApexHQ_Corp;T:WPA;P:enterprisePass2026;;"
+        ),
+        QRTemplate(
+            id: "wifi_fiber_neon",
+            name: "Cyberpunk Fiber 10G",
+            category: .wifi,
+            title: "Gigabit Fiber",
+            subtitle: "ULTRA-LOW LATENCY STREAMING",
+            categoryIcon: "bolt.horizontal.fill",
+            categoryLabel: "WI-FI",
+            footerText: "FAST SPEED",
+            gradientHexColors: ["7C3AED", "C026D3"],
+            gradientStops: nil,
+            accentColorHex: "C026D3",
+            isPro: true,
+            subCategory: "Fast",
+            styleConfig: QRStyleConfig(
+                dotStyle: .diamond,
+                colorTheme: .royalPurple,
+                backgroundColorHex: "FFFFFF",
+                logoType: .wifi,
+                eyeStyle: .leaf,
+                decorativeFrame: .neonGlowRing,
+                bannerText: "10G FIBER SPEED",
+                frameBrandColors: ["7C3AED", "C026D3"]
             ),
             defaultContent: "WIFI:S:QuantumFiber_10G;T:WPA;P:photonWave99;;"
         ),
         QRTemplate(
             id: "wifi_hotel_lounge",
-            name: "Hotel Lounge Wi-Fi",
+            name: "Resort Lounge Wi-Fi",
             category: .wifi,
-            title: "Lounge Wi-Fi",
-            subtitle: "COMPLIMENTARY GUEST",
+            title: "Resort Lounge",
+            subtitle: "HIGH-SPEED HOTEL NETWORK",
             categoryIcon: "wifi.router.fill",
             categoryLabel: "WI-FI",
-            footerText: "WELCOME",
-            gradientHexColors: ["14532D", "166534", "15803D"],
-            accentColorHex: "4ADE80",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "WIFI:S:GrandResort_Lounge;T:WPA;P:welcomeGuest;;"
-        ),
-        QRTemplate(
-            id: "wifi_coworking",
-            name: "Co-Working Space",
-            category: .wifi,
-            title: "Co-Work Speed",
-            subtitle: "SEAMLESS SYNC",
-            categoryIcon: "laptopcomputer",
-            categoryLabel: "WI-FI",
-            footerText: "GET ACCESS",
-            gradientHexColors: ["4338CA", "6366F1", "818CF8"],
-            accentColorHex: "A5B4FC",
+            footerText: "CONNECT NOW",
+            gradientHexColors: ["0284C7", "0D9488"],
+            gradientStops: nil,
+            accentColorHex: "0284C7",
+            isPro: true,
+            subCategory: "Guest",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .wifi,
+                eyeStyle: .rounded,
+                decorativeFrame: .gradientCard,
+                bannerText: "GUEST ACCESS",
+                frameBrandColors: ["0284C7", "0D9488"]
             ),
-            defaultContent: "WIFI:S:HubWork_Member;T:WPA;P:creatorPass88;;"
+            defaultContent: "WIFI:S:GrandResort_Guest;T:WPA;P:welcomeGuest2026;;"
         ),
         QRTemplate(
-            id: "wifi_airport",
-            name: "Airport Terminal",
+            id: "wifi_event_dashed",
+            name: "Expo Convention Wi-Fi",
             category: .wifi,
-            title: "Terminal Wi-Fi",
-            subtitle: "STAY CONNECTED",
-            categoryIcon: "airplane",
-            categoryLabel: "WI-FI",
-            footerText: "CONNECT FREE",
-            gradientHexColors: ["0369A1", "0284C7", "38BDF8"],
-            accentColorHex: "7DD3FC",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "WIFI:S:SkyPort_FreeWiFi;T:nopass;P:;;"
-        ),
-        QRTemplate(
-            id: "wifi_library",
-            name: "Campus Library",
-            category: .wifi,
-            title: "Campus Network",
-            subtitle: "STUDY QUIET ZONE",
-            categoryIcon: "book.fill",
-            categoryLabel: "WI-FI",
-            footerText: "CONNECT ID",
-            gradientHexColors: ["374151", "4B5563", "6B7280"],
-            accentColorHex: "9CA3AF",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "WIFI:S:Campus_Eduroam;T:WPA;P:scholar2026;;"
-        ),
-        QRTemplate(
-            id: "wifi_event_guest",
-            name: "Event Guest Access",
-            category: .wifi,
-            title: "Event Guest Wi-Fi",
-            subtitle: "NO PASSWORD REQUIRED",
+            title: "Convention Expo",
+            subtitle: "OPEN EVENT BROADBAND",
             categoryIcon: "antenna.radiowaves.left.and.right",
             categoryLabel: "WI-FI",
             footerText: "ONE TAP JOIN",
-            gradientHexColors: ["9333EA", "A855F7", "C084FC"],
-            accentColorHex: "E9D5FF",
+            gradientHexColors: ["8B5CF6", "6D28D9"],
+            gradientStops: nil,
+            accentColorHex: "8B5CF6",
+            isPro: false,
+            subCategory: "Guest",
             styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
+                dotStyle: .circular,
                 colorTheme: .royalPurple,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .wifi,
+                eyeStyle: .circular,
+                decorativeFrame: .dashedBorder,
+                bannerText: "EXPO GUEST WIFI",
+                frameBrandColors: ["8B5CF6"]
             ),
             defaultContent: "WIFI:S:Expo2026_Guest;T:nopass;P:;;"
         ),
         QRTemplate(
-            id: "wifi_studio_prod",
-            name: "Studio Production",
+            id: "wifi_double_blue",
+            name: "Studio Production Wi-Fi",
             category: .wifi,
-            title: "Studio Network",
-            subtitle: "SECURE BROADCAST",
+            title: "Production Studio",
+            subtitle: "BROADCAST PRIORITY BAND",
             categoryIcon: "lock.shield.fill",
             categoryLabel: "WI-FI",
-            footerText: "AUTHENTICATE",
-            gradientHexColors: ["991B1B", "DC2626", "EF4444"],
-            accentColorHex: "F87171",
+            footerText: "BROADCAST PASS",
+            gradientHexColors: ["3B82F6", "1D4ED8"],
+            gradientStops: nil,
+            accentColorHex: "3B82F6",
+            isPro: false,
+            subCategory: "Corporate",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
-                colorTheme: .youtubeRed,
+                colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .wifi,
+                eyeStyle: .rounded,
+                decorativeFrame: .doubleLine,
+                bannerText: "STUDIO NETWORK",
+                frameBrandColors: ["3B82F6"]
             ),
             defaultContent: "WIFI:S:StudioStream_Private;T:WPA;P:prodCastPass42;;"
         ),
-
-        // ==========================================
-        // 4. EVENT CATEGORY (10 TEMPLATES)
-        // ==========================================
         QRTemplate(
-            id: "event_vip_gala",
-            name: "VIP Gala Night",
-            category: .event,
-            title: "VIP Gala Event",
-            subtitle: "EXCLUSIVE INVITATION",
-            categoryIcon: "ticket.fill",
-            categoryLabel: "EVENT",
-            footerText: "RSVP NOW",
-            gradientHexColors: ["18181B", "27272A", "09090B"],
-            accentColorHex: "F59E0B",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://gala2026.org/invite/vip"
-        ),
-        QRTemplate(
-            id: "event_tech_summit",
-            name: "Tech Summit 2026",
-            category: .event,
-            title: "Tech Summit",
-            subtitle: "KEYNOTE & WORKSHOPS",
-            categoryIcon: "calendar.badge.clock",
-            categoryLabel: "EVENT",
-            footerText: "VIEW SCHEDULE",
-            gradientHexColors: ["4F46E5", "7C3AED", "2563EB"],
-            accentColorHex: "60A5FA",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .royalPurple,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://techsummit2026.io/agenda"
-        ),
-        QRTemplate(
-            id: "event_live_concert",
-            name: "Live Concert Tour",
-            category: .event,
-            title: "Live Tour 2026",
-            subtitle: "CONCERT ENTRY PASS",
-            categoryIcon: "music.mic",
-            categoryLabel: "EVENT",
-            footerText: "VIEW PASS",
-            gradientHexColors: ["BE185D", "DB2777", "F43F5E"],
-            accentColorHex: "FB7185",
+            id: "wifi_waves_fiber",
+            name: "Coastal Wave Wi-Fi",
+            category: .wifi,
+            title: "Beachfront Network",
+            subtitle: "FREE PUBLIC HOTSPOT",
+            categoryIcon: "wifi",
+            categoryLabel: "WI-FI",
+            footerText: "HOTSPOT ACCESS",
+            gradientHexColors: ["06B6D4", "0284C7"],
+            gradientStops: nil,
+            accentColorHex: "06B6D4",
+            isPro: true,
+            subCategory: "Fast",
             styleConfig: QRStyleConfig(
                 dotStyle: .circular,
-                colorTheme: .sunsetOrange,
+                colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .wifi,
+                eyeStyle: .circular,
+                decorativeFrame: .wavesBorder,
+                bannerText: "HIGH SPEED WIFI",
+                frameBrandColors: ["06B6D4"]
             ),
-            defaultContent: "https://livetour2026.com/ticket/gate-a"
+            defaultContent: "WIFI:S:CoastalHotspot_Free;T:nopass;P:;;"
         ),
         QRTemplate(
-            id: "event_wedding_ceremony",
+            id: "ev_wedding_hearts",
             name: "Wedding Celebration",
             category: .event,
             title: "Save Our Date",
-            subtitle: "CELEBRATE WITH US",
+            subtitle: "JOIN OUR SPECIAL DAY",
             categoryIcon: "heart.fill",
             categoryLabel: "EVENT",
-            footerText: "OUR WEDDING",
-            gradientHexColors: ["BE123C", "FB7185", "FDA4AF"],
-            accentColorHex: "FECDD3",
+            footerText: "CELEBRATE",
+            gradientHexColors: ["FB7185", "E11D48"],
+            gradientStops: nil,
+            accentColorHex: "FB7185",
+            isPro: true,
+            subCategory: "Wedding",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .heart,
+                eyeStyle: .rounded,
+                decorativeFrame: .cornerHearts,
+                bannerText: "SAVE OUR DATE",
+                frameBrandColors: ["FB7185", "E11D48"]
             ),
             defaultContent: "https://sarah-and-daniel.wedding"
         ),
         QRTemplate(
-            id: "event_charity_gala",
-            name: "Charity Benefit Gala",
-            category: .event,
-            title: "Charity Benefit",
-            subtitle: "SUPPORT OUR MISSION",
-            categoryIcon: "gift.fill",
-            categoryLabel: "EVENT",
-            footerText: "DONATE & BID",
-            gradientHexColors: ["065F46", "047857", "0D9488"],
-            accentColorHex: "34D399",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://hopefoundation.org/gala"
-        ),
-        QRTemplate(
-            id: "event_esports_champs",
-            name: "Gaming Finals",
-            category: .event,
-            title: "Championship Finals",
-            subtitle: "BRACKETS & STREAM",
-            categoryIcon: "gamecontroller.fill",
-            categoryLabel: "EVENT",
-            footerText: "WATCH LIVE",
-            gradientHexColors: ["1E1B4B", "312E81", "4338CA"],
-            accentColorHex: "818CF8",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .royalPurple,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://esportsarena.gg/finals2026"
-        ),
-        QRTemplate(
-            id: "event_art_exhibit",
-            name: "Modern Art Exhibition",
-            category: .event,
-            title: "Art Exhibition",
-            subtitle: "VERNISSAGE OPENING",
-            categoryIcon: "paintpalette.fill",
-            categoryLabel: "EVENT",
-            footerText: "EXPLORE ART",
-            gradientHexColors: ["1C1917", "292524", "44403C"],
-            accentColorHex: "D97706",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://modernart.museum/exhibit/future"
-        ),
-        QRTemplate(
-            id: "event_marathon_42k",
-            name: "City Marathon 42K",
-            category: .event,
-            title: "City Marathon",
-            subtitle: "RUNNER INFO & TRACKING",
-            categoryIcon: "figure.run",
-            categoryLabel: "EVENT",
-            footerText: "RACE PASS",
-            gradientHexColors: ["C2410C", "EA580C", "F97316"],
-            accentColorHex: "FDBA74",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .sunsetOrange,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://citymarathon.run/bib/509"
-        ),
-        QRTemplate(
-            id: "event_birthday_party",
+            id: "ev_birthday_stars",
             name: "Birthday Party Bash",
             category: .event,
             title: "Birthday Party",
-            subtitle: "JOIN THE CELEBRATION",
+            subtitle: "YOU'RE INVITED",
             categoryIcon: "party.popper.fill",
             categoryLabel: "EVENT",
-            footerText: "YOU'RE INVITED",
-            gradientHexColors: ["7C2D12", "C2410C", "EA580C"],
-            accentColorHex: "FDE047",
+            footerText: "RSVP NOW",
+            gradientHexColors: ["F59E0B", "F43F5E"],
+            gradientStops: nil,
+            accentColorHex: "F59E0B",
+            isPro: true,
+            subCategory: "Birthday",
             styleConfig: QRStyleConfig(
                 dotStyle: .circular,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .star,
+                eyeStyle: .circular,
+                decorativeFrame: .cornerStars,
+                bannerText: "HAPPY BIRTHDAY",
+                frameBrandColors: ["F59E0B", "F43F5E"]
             ),
             defaultContent: "https://partystream.live/invite/leo30"
         ),
         QRTemplate(
-            id: "event_pitch_night",
-            name: "Demo Day Pitch",
+            id: "ev_concert_neon",
+            name: "Live Concert Tour",
             category: .event,
-            title: "Demo Day Pitch",
-            subtitle: "VENTURE PITCH NIGHT",
-            categoryIcon: "lightbulb.fill",
+            title: "Live Music Tour",
+            subtitle: "ENTRY PASS & SEAT MAP",
+            categoryIcon: "music.mic",
             categoryLabel: "EVENT",
-            footerText: "VIEW PITCHES",
-            gradientHexColors: ["0284C7", "2563EB", "1D4ED8"],
-            accentColorHex: "93C5FD",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://demoday.accelerate.vc"
-        ),
-
-        // ==========================================
-        // 5. LOCATION CATEGORY (10 TEMPLATES)
-        // ==========================================
-        QRTemplate(
-            id: "location_hq_map",
-            name: "Headquarters Map",
-            category: .location,
-            title: "Find Our HQ",
-            subtitle: "GET DIRECTIONS",
-            categoryIcon: "mappin.and.ellipse",
-            categoryLabel: "LOCATION",
-            footerText: "OPEN MAP",
-            gradientHexColors: ["0D9488", "0F766E", "115E59"],
-            accentColorHex: "2DD4BF",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=One+Infinite+Loop,Cupertino,CA"
-        ),
-        QRTemplate(
-            id: "location_downtown_venue",
-            name: "Downtown Venue",
-            category: .location,
-            title: "Downtown Venue",
-            subtitle: "CENTRAL LOCATION",
-            categoryIcon: "map.fill",
-            categoryLabel: "LOCATION",
-            footerText: "VIEW ROUTE",
-            gradientHexColors: ["2563EB", "1D4ED8", "1E40AF"],
-            accentColorHex: "60A5FA",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Civic+Center+Plaza,San+Francisco"
-        ),
-        QRTemplate(
-            id: "location_park_trail",
-            name: "Scenic Park Trail",
-            category: .location,
-            title: "National Park",
-            subtitle: "TRAILHEAD MAP & GUIDE",
-            categoryIcon: "leaf.fill",
-            categoryLabel: "LOCATION",
-            footerText: "EXPLORE TRAIL",
-            gradientHexColors: ["15803D", "166534", "14532D"],
-            accentColorHex: "4ADE80",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Yosemite+Valley+Trailhead"
-        ),
-        QRTemplate(
-            id: "location_rooftop_lounge",
-            name: "Skyview Rooftop",
-            category: .location,
-            title: "Skyview Lounge",
-            subtitle: "FLOOR 42 ROOFTOP",
-            categoryIcon: "building.2.fill",
-            categoryLabel: "LOCATION",
-            footerText: "FIND VENUE",
-            gradientHexColors: ["4C1D95", "6D28D9", "5B21B6"],
-            accentColorHex: "C084FC",
-            styleConfig: QRStyleConfig(
-                dotStyle: .diamond,
-                colorTheme: .royalPurple,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Empire+State+Building,NYC"
-        ),
-        QRTemplate(
-            id: "location_heritage_museum",
-            name: "Heritage Museum",
-            category: .location,
-            title: "Heritage Museum",
-            subtitle: "MAIN ENTRANCE",
-            categoryIcon: "building.columns.fill",
-            categoryLabel: "LOCATION",
-            footerText: "EXPLORE",
-            gradientHexColors: ["78350F", "92400E", "B45309"],
-            accentColorHex: "FBBF24",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .sunsetOrange,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Metropolitan+Museum+of+Art,NYC"
-        ),
-        QRTemplate(
-            id: "location_university_campus",
-            name: "University Campus",
-            category: .location,
-            title: "University Hall",
-            subtitle: "STUDENT CENTER",
-            categoryIcon: "graduationcap.fill",
-            categoryLabel: "LOCATION",
-            footerText: "CAMPUS MAP",
-            gradientHexColors: ["1E293B", "334155", "475569"],
-            accentColorHex: "94A3B8",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Stanford+University+Main+Quad"
-        ),
-        QRTemplate(
-            id: "location_beach_resort",
-            name: "Seaside Resort",
-            category: .location,
-            title: "Seaside Resort",
-            subtitle: "OCEANFRONT ACCESS",
-            categoryIcon: "sun.max.fill",
-            categoryLabel: "LOCATION",
-            footerText: "RESORT MAP",
-            gradientHexColors: ["0284C7", "06B6D4", "0891B2"],
-            accentColorHex: "67E8F9",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Waikiki+Beach,Honolulu"
-        ),
-        QRTemplate(
-            id: "location_express_parking",
-            name: "Express Parking P3",
-            category: .location,
-            title: "Express Parking",
-            subtitle: "P3 LEVEL ACCESS",
-            categoryIcon: "car.fill",
-            categoryLabel: "LOCATION",
-            footerText: "NAVIGATE TO SPOT",
-            gradientHexColors: ["374151", "1F2937", "111827"],
-            accentColorHex: "F59E0B",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=Terminal+2+Parking,SFO"
-        ),
-        QRTemplate(
-            id: "location_medical_center",
-            name: "Medical Clinic",
-            category: .location,
-            title: "Medical Center",
-            subtitle: "EMERGENCY & CLINIC",
-            categoryIcon: "cross.case.fill",
-            categoryLabel: "LOCATION",
-            footerText: "DIRECTIONS",
-            gradientHexColors: ["DC2626", "B91C1C", "991B1B"],
-            accentColorHex: "FCA5A5",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .youtubeRed,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "https://maps.apple.com/?q=UCSF+Medical+Center,San+Francisco"
-        ),
-        QRTemplate(
-            id: "location_festival_gate",
-            name: "Festival Entrance",
-            category: .location,
-            title: "Festival Gate B",
-            subtitle: "VIP ENTRANCE POINT",
-            categoryIcon: "flag.fill",
-            categoryLabel: "LOCATION",
-            footerText: "MAP TO GATE",
-            gradientHexColors: ["7C3AED", "A855F7", "C026D3"],
-            accentColorHex: "F472B6",
+            footerText: "GET TICKETS",
+            gradientHexColors: ["EC4899", "8B5CF6"],
+            gradientStops: nil,
+            accentColorHex: "EC4899",
+            isPro: false,
+            subCategory: "Concert",
             styleConfig: QRStyleConfig(
                 dotStyle: .circular,
                 colorTheme: .royalPurple,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .neonGlowRing,
+                bannerText: "VIP CONCERT PASS",
+                frameBrandColors: ["EC4899", "8B5CF6"]
             ),
-            defaultContent: "https://maps.apple.com/?q=Coachella+Valley+Festival+Grounds"
+            defaultContent: "https://livetour2026.com/ticket/gate-a"
         ),
-
-        // ==========================================
-        // 6. EMAIL CATEGORY (10 TEMPLATES)
-        // ==========================================
         QRTemplate(
-            id: "email_customer_support",
-            name: "Customer Support",
-            category: .email,
-            title: "Support Desk",
-            subtitle: "24/7 DEDICATED HELP",
+            id: "ev_vip_gala",
+            name: "Black-Tie Gala",
+            category: .event,
+            title: "VIP Charity Gala",
+            subtitle: "EXCLUSIVE EVENING",
+            categoryIcon: "ticket.fill",
+            categoryLabel: "EVENT",
+            footerText: "RSVP CARD",
+            gradientHexColors: ["D97706", "1C1917"],
+            gradientStops: nil,
+            accentColorHex: "D97706",
+            isPro: true,
+            subCategory: "Gala",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .cornerFlourish,
+                bannerText: "EXCLUSIVE GALA",
+                frameBrandColors: ["D97706", "1C1917"]
+            ),
+            defaultContent: "https://gala2026.org/invite/vip"
+        ),
+        QRTemplate(
+            id: "ev_party_banner",
+            name: "Weekend Party Night",
+            category: .event,
+            title: "Weekend Social",
+            subtitle: "MUSIC & DRINKS",
+            categoryIcon: "sparkles",
+            categoryLabel: "EVENT",
+            footerText: "JOIN EVENT",
+            gradientHexColors: ["9333EA", "DB2777"],
+            gradientStops: nil,
+            accentColorHex: "9333EA",
+            isPro: false,
+            subCategory: "Party",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .royalPurple,
+                backgroundColorHex: "FFFFFF",
+                logoType: .star,
+                eyeStyle: .rounded,
+                decorativeFrame: .fullBanner,
+                bannerText: "JOIN THE PARTY",
+                frameBrandColors: ["9333EA", "DB2777"]
+            ),
+            defaultContent: "https://partynight.club/event/saturday"
+        ),
+        QRTemplate(
+            id: "ev_charity_ribbon",
+            name: "Charity Fundraiser",
+            category: .event,
+            title: "Hope Foundation",
+            subtitle: "DONATE & EMPOWER",
+            categoryIcon: "gift.fill",
+            categoryLabel: "EVENT",
+            footerText: "DONATE NOW",
+            gradientHexColors: ["10B981", "059669"],
+            gradientStops: nil,
+            accentColorHex: "10B981",
+            isPro: false,
+            subCategory: "Gala",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .emeraldGreen,
+                backgroundColorHex: "FFFFFF",
+                logoType: .heart,
+                eyeStyle: .rounded,
+                decorativeFrame: .ribbonBanner,
+                bannerText: "SUPPORT CAUSE",
+                frameBrandColors: ["10B981", "059669"]
+            ),
+            defaultContent: "https://hopefoundation.org/gala"
+        ),
+        QRTemplate(
+            id: "ev_tech_summit",
+            name: "Tech Summit 2026",
+            category: .event,
+            title: "Developer Keynote",
+            subtitle: "CONFERENCE SCHEDULE",
+            categoryIcon: "calendar.badge.clock",
+            categoryLabel: "EVENT",
+            footerText: "VIEW AGENDA",
+            gradientHexColors: ["3B82F6", "1D4ED8"],
+            gradientStops: nil,
+            accentColorHex: "3B82F6",
+            isPro: false,
+            subCategory: "Conference",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .cornerBrackets,
+                bannerText: "KEYNOTE & TALKS",
+                frameBrandColors: ["3B82F6", "1D4ED8"]
+            ),
+            defaultContent: "https://techsummit2026.io/agenda"
+        ),
+        QRTemplate(
+            id: "ev_marathon_race",
+            name: "City Marathon 42K",
+            category: .event,
+            title: "Runner Check-in",
+            subtitle: "TIMING CHIP & BIB PASS",
+            categoryIcon: "figure.run",
+            categoryLabel: "EVENT",
+            footerText: "RACE PASS",
+            gradientHexColors: ["EA580C", "F97316"],
+            gradientStops: nil,
+            accentColorHex: "EA580C",
+            isPro: false,
+            subCategory: "Party",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .wavesBorder,
+                bannerText: "OFFICIAL RUNNER PASS",
+                frameBrandColors: ["EA580C", "F97316"]
+            ),
+            defaultContent: "https://citymarathon.run/bib/509"
+        ),
+        QRTemplate(
+            id: "ev_invitation_card",
+            name: "Golden Invitation",
+            category: .event,
+            title: "Special Invitation",
+            subtitle: "CORDIALLY INVITED",
+            categoryIcon: "envelope.open.fill",
+            categoryLabel: "EVENT",
+            footerText: "OPEN INVITE",
+            gradientHexColors: ["F43F5E", "FB7185", "FDA4AF"],
+            gradientStops: nil,
+            accentColorHex: "F43F5E",
+            isPro: true,
+            subCategory: "Wedding",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .heart,
+                eyeStyle: .rounded,
+                decorativeFrame: .gradientCard,
+                bannerText: "YOU'RE INVITED",
+                frameBrandColors: ["F43F5E", "FB7185", "FDA4AF"]
+            ),
+            defaultContent: "https://invitationhub.app/card/exclusive"
+        ),
+        QRTemplate(
+            id: "ev_club_neon",
+            name: "Nightclub VIP Guest",
+            category: .event,
+            title: "After-Hours Club",
+            subtitle: "VIP ACCESS TICKET",
+            categoryIcon: "moon.stars.fill",
+            categoryLabel: "EVENT",
+            footerText: "ENTER CLUB",
+            gradientHexColors: ["00F2FE", "7C3AED"],
+            gradientStops: nil,
+            accentColorHex: "00F2FE",
+            isPro: true,
+            subCategory: "Party",
+            styleConfig: QRStyleConfig(
+                dotStyle: .diamond,
+                colorTheme: .royalPurple,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .leaf,
+                decorativeFrame: .neonGlowRing,
+                bannerText: "CLUB GUESTLIST",
+                frameBrandColors: ["00F2FE", "7C3AED"]
+            ),
+            defaultContent: "https://afterhours.club/vip/entry-pass"
+        ),
+        QRTemplate(
+            id: "clr_scanme_classic",
+            name: "Classic Scan Me",
+            category: .colorful,
+            title: "Direct Link",
+            subtitle: "HIGH-CONTRAST SCAN",
+            categoryIcon: "qrcode",
+            categoryLabel: "COLORFUL",
+            footerText: "SCAN ME",
+            gradientHexColors: ["111827", "1F2937"],
+            gradientStops: nil,
+            accentColorHex: "111827",
+            isPro: false,
+            subCategory: "Minimal",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .scanMeBanner,
+                bannerText: "SCAN ME",
+                frameBrandColors: ["111827"]
+            ),
+            defaultContent: "https://qrshield.app/start"
+        ),
+        QRTemplate(
+            id: "clr_rainbow_burst",
+            name: "Rainbow Halo",
+            category: .colorful,
+            title: "Vibrant Rainbow",
+            subtitle: "MULTI-TONE GRADIENT BORDER",
+            categoryIcon: "paintpalette.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "EXPLORE",
+            gradientHexColors: ["EF4444", "F59E0B", "10B981", "3B82F6", "8B5CF6"],
+            gradientStops: nil,
+            accentColorHex: "EF4444",
+            isPro: true,
+            subCategory: "Gradient",
+            styleConfig: QRStyleConfig(
+                dotStyle: .circular,
+                colorTheme: .instagramSunset,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .circular,
+                decorativeFrame: .gradientBorder,
+                bannerText: "DISCOVER",
+                frameBrandColors: ["EF4444", "F59E0B", "10B981", "3B82F6", "8B5CF6"]
+            ),
+            defaultContent: "https://creativeart.studio/rainbow"
+        ),
+        QRTemplate(
+            id: "clr_love_card",
+            name: "Love Note Card",
+            category: .colorful,
+            title: "Sweetheart Message",
+            subtitle: "SEND A SECRET LOVE NOTE",
+            categoryIcon: "heart.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "FOR MY LOVE",
+            gradientHexColors: ["BE123C", "E11D48"],
+            gradientStops: nil,
+            accentColorHex: "E11D48",
+            isPro: true,
+            subCategory: "Hearts",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .youtubeRed,
+                backgroundColorHex: "FFFFFF",
+                logoType: .heart,
+                eyeStyle: .rounded,
+                decorativeFrame: .colorCard,
+                bannerText: "I LOVE YOU",
+                frameBrandColors: ["BE123C", "E11D48"]
+            ),
+            defaultContent: "https://mypassion.love/secret-note"
+        ),
+        QRTemplate(
+            id: "clr_corner_hearts",
+            name: "Romantic Hearts",
+            category: .colorful,
+            title: "Heart Corner Flair",
+            subtitle: "GENTLE ROSE MOTIF",
+            categoryIcon: "heart.circle.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "VIEW MESSAGE",
+            gradientHexColors: ["FB7185", "FDA4AF"],
+            gradientStops: nil,
+            accentColorHex: "FB7185",
+            isPro: false,
+            subCategory: "Hearts",
+            styleConfig: QRStyleConfig(
+                dotStyle: .rounded,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .heart,
+                eyeStyle: .leaf,
+                decorativeFrame: .cornerHearts,
+                bannerText: "FOR YOU",
+                frameBrandColors: ["FB7185"]
+            ),
+            defaultContent: "https://hearts.gift/love/note"
+        ),
+        QRTemplate(
+            id: "clr_corner_stars",
+            name: "Gold Star Sparkle",
+            category: .colorful,
+            title: "Sparkle Magic",
+            subtitle: "CELEBRATION STARS",
+            categoryIcon: "star.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "DISCOVER",
+            gradientHexColors: ["FBBF24", "D97706"],
+            gradientStops: nil,
+            accentColorHex: "FBBF24",
+            isPro: false,
+            subCategory: "Artistic",
+            styleConfig: QRStyleConfig(
+                dotStyle: .diamond,
+                colorTheme: .sunsetOrange,
+                backgroundColorHex: "FFFFFF",
+                logoType: .star,
+                eyeStyle: .circular,
+                decorativeFrame: .cornerStars,
+                bannerText: "MAGIC MOMENT",
+                frameBrandColors: ["FBBF24"]
+            ),
+            defaultContent: "https://sparkle.magic/wishes"
+        ),
+        QRTemplate(
+            id: "clr_geo_matrix",
+            name: "Geometric Matrix",
+            category: .colorful,
+            title: "Tech Geo Frame",
+            subtitle: "FUTURISTIC TRIANGLE EDGES",
+            categoryIcon: "cube.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "EXPLORE MATRIX",
+            gradientHexColors: ["0284C7", "3B82F6"],
+            gradientStops: nil,
+            accentColorHex: "0284C7",
+            isPro: true,
+            subCategory: "Artistic",
+            styleConfig: QRStyleConfig(
+                dotStyle: .square,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .geometricFrame,
+                bannerText: "EXPLORE",
+                frameBrandColors: ["0284C7", "3B82F6"]
+            ),
+            defaultContent: "https://matrix.digital/explore"
+        ),
+        QRTemplate(
+            id: "clr_retro_stamp",
+            name: "Vintage Postage Stamp",
+            category: .colorful,
+            title: "Airmail Postage",
+            subtitle: "AUTHENTIC PERFORATED STAMP",
             categoryIcon: "envelope.fill",
-            categoryLabel: "EMAIL",
-            footerText: "SEND EMAIL",
-            gradientHexColors: ["2563EB", "3B82F6", "1D4ED8"],
-            accentColorHex: "93C5FD",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .oceanBlue,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "mailto:support@qrshield.app?subject=Support%20Request"
-        ),
-        QRTemplate(
-            id: "email_sales_inquiry",
-            name: "Sales Inquiries",
-            category: .email,
-            title: "Sales Team",
-            subtitle: "REQUEST A QUOTE",
-            categoryIcon: "cart.fill",
-            categoryLabel: "EMAIL",
-            footerText: "EMAIL SALES",
-            gradientHexColors: ["059669", "10B981", "047857"],
-            accentColorHex: "6EE7B7",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "mailto:sales@apextech.com?subject=Enterprise%20Inquiry"
-        ),
-        QRTemplate(
-            id: "email_press_media",
-            name: "Press & Media",
-            category: .email,
-            title: "Press Relations",
-            subtitle: "MEDIA KIT & INTERVIEWS",
-            categoryIcon: "newspaper.fill",
-            categoryLabel: "EMAIL",
-            footerText: "CONTACT PR",
-            gradientHexColors: ["4F46E5", "6366F1", "4338CA"],
-            accentColorHex: "A5B4FC",
+            categoryLabel: "COLORFUL",
+            footerText: "MAIL SCAN",
+            gradientHexColors: ["DC2626", "B91C1C"],
+            gradientStops: nil,
+            accentColorHex: "DC2626",
+            isPro: false,
+            subCategory: "Artistic",
             styleConfig: QRStyleConfig(
                 dotStyle: .square,
-                colorTheme: .oceanBlue,
+                colorTheme: .youtubeRed,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .square,
+                decorativeFrame: .stampBorder,
+                bannerText: "SPECIAL POST",
+                frameBrandColors: ["DC2626"]
             ),
-            defaultContent: "mailto:press@qrshield.app?subject=Media%20Coverage"
+            defaultContent: "https://airmail.delivery/post/920"
         ),
         QRTemplate(
-            id: "email_careers_talent",
-            name: "Careers & Talent",
-            category: .email,
-            title: "Join Our Team",
-            subtitle: "SEND YOUR RESUME",
-            categoryIcon: "person.badge.plus",
-            categoryLabel: "EMAIL",
-            footerText: "APPLY NOW",
-            gradientHexColors: ["7C3AED", "8B5CF6", "6D28D9"],
-            accentColorHex: "C4B5FD",
+            id: "clr_neon_cyan",
+            name: "Electric Cyan",
+            category: .colorful,
+            title: "Cyber Halo",
+            subtitle: "HIGH INTENSITY GLOW",
+            categoryIcon: "bolt.circle.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "INITIALIZE",
+            gradientHexColors: ["06B6D4", "00F2FE"],
+            gradientStops: nil,
+            accentColorHex: "06B6D4",
+            isPro: true,
+            subCategory: "Neon",
+            styleConfig: QRStyleConfig(
+                dotStyle: .circular,
+                colorTheme: .oceanBlue,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .circular,
+                decorativeFrame: .neonGlowRing,
+                bannerText: "CYBER ACCESS",
+                frameBrandColors: ["06B6D4", "00F2FE"]
+            ),
+            defaultContent: "https://cyberaccess.network/sync"
+        ),
+        QRTemplate(
+            id: "clr_corner_dots",
+            name: "Studio Minimal Dots",
+            category: .colorful,
+            title: "Minimal Elegance",
+            subtitle: "CLEAN FOUR-CORNER ACCENT",
+            categoryIcon: "circle.grid.2x2",
+            categoryLabel: "COLORFUL",
+            footerText: "SCAN LINK",
+            gradientHexColors: ["4B5563", "1F2937"],
+            gradientStops: nil,
+            accentColorHex: "4B5563",
+            isPro: false,
+            subCategory: "Minimal",
+            styleConfig: QRStyleConfig(
+                dotStyle: .circular,
+                colorTheme: .classicBlack,
+                backgroundColorHex: "FFFFFF",
+                logoType: .none,
+                eyeStyle: .circular,
+                decorativeFrame: .cornerDots,
+                bannerText: "SCAN CODE",
+                frameBrandColors: ["4B5563"]
+            ),
+            defaultContent: "https://studiominimal.design"
+        ),
+        QRTemplate(
+            id: "clr_double_purple",
+            name: "Royal Purple Border",
+            category: .colorful,
+            title: "Regal Framing",
+            subtitle: "PRECISION PARALLEL STROKES",
+            categoryIcon: "crown.fill",
+            categoryLabel: "COLORFUL",
+            footerText: "ACCESS PASS",
+            gradientHexColors: ["7C3AED", "6D28D9"],
+            gradientStops: nil,
+            accentColorHex: "7C3AED",
+            isPro: false,
+            subCategory: "Artistic",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .royalPurple,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .doubleLine,
+                bannerText: "PREMIUM ACCESS",
+                frameBrandColors: ["7C3AED"]
             ),
-            defaultContent: "mailto:careers@apextech.com?subject=Application%20Submission"
+            defaultContent: "https://royalclub.exclusive/member"
         ),
         QRTemplate(
-            id: "email_executive_desk",
-            name: "Executive Office",
-            category: .email,
-            title: "Executive Desk",
-            subtitle: "CONFIDENTIAL CONTACT",
-            categoryIcon: "briefcase.fill",
-            categoryLabel: "EMAIL",
-            footerText: "DIRECT EMAIL",
-            gradientHexColors: ["0F172A", "1E293B", "334155"],
-            accentColorHex: "38BDF8",
+            id: "clr_ocean_waves",
+            name: "Oceanic Wave Flow",
+            category: .colorful,
+            title: "Deep Aqua Waves",
+            subtitle: "CURVED WATER RIPPLE EDGE",
+            categoryIcon: "water.waves",
+            categoryLabel: "COLORFUL",
+            footerText: "DIVE IN",
+            gradientHexColors: ["0284C7", "06B6D4"],
+            gradientStops: nil,
+            accentColorHex: "0284C7",
+            isPro: false,
+            subCategory: "Gradient",
             styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
+                dotStyle: .rounded,
+                colorTheme: .oceanBlue,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .none,
+                eyeStyle: .rounded,
+                decorativeFrame: .wavesBorder,
+                bannerText: "DIVE IN",
+                frameBrandColors: ["0284C7", "06B6D4"]
             ),
-            defaultContent: "mailto:executive@apextech.com?subject=Confidential%20Inquiry"
+            defaultContent: "https://aquasurf.ocean/tides"
         ),
         QRTemplate(
-            id: "email_feedback_box",
-            name: "Feedback Box",
-            category: .email,
-            title: "Feedback Desk",
-            subtitle: "TELL US YOUR THOUGHTS",
-            categoryIcon: "lightbulb.fill",
-            categoryLabel: "EMAIL",
-            footerText: "SEND FEEDBACK",
-            gradientHexColors: ["EA580C", "F97316", "FB923C"],
-            accentColorHex: "FDBA74",
+            id: "clr_luxury_gold",
+            name: "Golden Baroque Flourish",
+            category: .colorful,
+            title: "Baroque Flourish",
+            subtitle: "HAND-CRAFTED SWIRL CORNERS",
+            categoryIcon: "sparkles",
+            categoryLabel: "COLORFUL",
+            footerText: "VIP SUITE",
+            gradientHexColors: ["F59E0B", "B45309"],
+            gradientStops: nil,
+            accentColorHex: "F59E0B",
+            isPro: true,
+            subCategory: "Artistic",
             styleConfig: QRStyleConfig(
                 dotStyle: .rounded,
                 colorTheme: .sunsetOrange,
                 backgroundColorHex: "FFFFFF",
-                logoType: .none
+                logoType: .star,
+                eyeStyle: .leaf,
+                decorativeFrame: .cornerFlourish,
+                bannerText: "GOLD COLLECTION",
+                frameBrandColors: ["F59E0B", "B45309"]
             ),
-            defaultContent: "mailto:feedback@qrshield.app?subject=Product%20Feedback"
-        ),
-        QRTemplate(
-            id: "email_partner_network",
-            name: "Partner Network",
-            category: .email,
-            title: "Partner Team",
-            subtitle: "COLLABORATE WITH US",
-            categoryIcon: "hand.raised.fill",
-            categoryLabel: "EMAIL",
-            footerText: "BECOME PARTNER",
-            gradientHexColors: ["0D9488", "14B8A6", "0F766E"],
-            accentColorHex: "5EEAD4",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .emeraldGreen,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "mailto:partners@qrshield.app?subject=Partnership%20Proposal"
-        ),
-        QRTemplate(
-            id: "email_booking_desk",
-            name: "VIP Reservations",
-            category: .email,
-            title: "Reservation Desk",
-            subtitle: "CONFIRM YOUR BOOKING",
-            categoryIcon: "calendar.fill",
-            categoryLabel: "EMAIL",
-            footerText: "EMAIL BOOKING",
-            gradientHexColors: ["DB2777", "EC4899", "F43F5E"],
-            accentColorHex: "FDA4AF",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .sunsetOrange,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "mailto:reservations@bistromoderne.com?subject=Table%20Reservation"
-        ),
-        QRTemplate(
-            id: "email_legal_counsel",
-            name: "Legal & Privacy",
-            category: .email,
-            title: "Legal Counsel",
-            subtitle: "COMPLIANCE & PRIVACY",
-            categoryIcon: "shield.lefthalf.filled",
-            categoryLabel: "EMAIL",
-            footerText: "LEGAL NOTICE",
-            gradientHexColors: ["334155", "1E293B", "0F172A"],
-            accentColorHex: "CBD5E1",
-            styleConfig: QRStyleConfig(
-                dotStyle: .square,
-                colorTheme: .classicBlack,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "mailto:legal@qrshield.app?subject=Legal%20Notice"
-        ),
-        QRTemplate(
-            id: "email_weekly_digest",
-            name: "Newsletter Dispatch",
-            category: .email,
-            title: "Weekly Digest",
-            subtitle: "GET CURATED UPDATES",
-            categoryIcon: "paperplane.fill",
-            categoryLabel: "EMAIL",
-            footerText: "SUBSCRIBE",
-            gradientHexColors: ["9333EA", "C026D3", "DB2777"],
-            accentColorHex: "F472B6",
-            styleConfig: QRStyleConfig(
-                dotStyle: .rounded,
-                colorTheme: .royalPurple,
-                backgroundColorHex: "FFFFFF",
-                logoType: .none
-            ),
-            defaultContent: "mailto:subscribe@qrshield.app?subject=Subscribe%20Newsletter"
+            defaultContent: "https://goldencollection.luxe/suite"
         )
     ]
-    
+
     // Curated high-engagement popular templates shown on Home screen
     static var popularTemplates: [QRTemplate] {
-        let popularIds = [
-            "instagram_social",
-            "youtube_social",
-            "wifi_home_blue",
-            "whatsapp_direct",
-            "business_executive",
-            "tiktok_neon"
-        ]
+        let popularIds = ["ig_sunset_glow", "yt_red_banner", "clr_scanme_classic", "wifi_home_solid", "wa_direct_chat", "biz_menu_cafe", "ev_wedding_hearts", "fb_connect_header", "biz_coupon_deal", "clr_rainbow_burst"]
         let list = popularIds.compactMap { pid in
             predefinedTemplates.first(where: { $0.id == pid })
         }

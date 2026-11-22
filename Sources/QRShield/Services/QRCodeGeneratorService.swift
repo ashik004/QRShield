@@ -20,7 +20,9 @@ public final class QRCodeGeneratorService {
         size: CGSize = CGSize(width: 800, height: 800)
     ) -> UIImage? {
         let textKey = style.customText ?? ""
-        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.eyeStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(textKey)_\(style.textPositionAbove)_\(style.textFont)_\(style.textColorHex)_\(Int(size.width))x\(Int(size.height))" as NSString
+        let bannerKey = style.bannerText ?? ""
+        let brandColorsKey = (style.frameBrandColors ?? []).joined(separator: "-")
+        let cacheKey = "\(content)_\(style.dotStyle.rawValue)_\(style.eyeStyle.rawValue)_\(style.colorTheme.rawValue)_\(style.backgroundColorHex)_\(style.logoType.rawValue)_\(textKey)_\(style.textPositionAbove)_\(style.textFont)_\(style.textColorHex)_\(style.decorativeFrame.rawValue)_\(bannerKey)_\(brandColorsKey)_\(Int(size.width))x\(Int(size.height))" as NSString
         if let cached = imageCache.object(forKey: cacheKey) {
             return cached
         }
@@ -41,7 +43,17 @@ public final class QRCodeGeneratorService {
                                               y: size.height / outputCIImage.extent.height)
             let scaledCI = outputCIImage.transformed(by: transform)
             if let cgImage = context.createCGImage(scaledCI, from: scaledCI.extent) {
-                let img = UIImage(cgImage: cgImage)
+                var img = UIImage(cgImage: cgImage)
+                if style.decorativeFrame != .none {
+                    img = TemplateFrameRenderer.renderFramedQR(
+                        qrImage: img,
+                        frameType: style.decorativeFrame,
+                        canvasSize: size,
+                        brandColors: style.frameBrandColors ?? style.colorTheme.hexColors,
+                        bannerText: style.bannerText,
+                        accentColorHex: style.colorTheme.hexColors.first ?? "000000"
+                    )
+                }
                 imageCache.setObject(img, forKey: cacheKey)
                 return img
             }
@@ -49,7 +61,20 @@ public final class QRCodeGeneratorService {
         }
         
         // Render custom styled image
-        let rendered = renderStyledQR(matrix: matrix, style: style, canvasSize: size)
+        var rendered = renderStyledQR(matrix: matrix, style: style, canvasSize: size)
+        
+        // Apply decorative frame if specified
+        if style.decorativeFrame != .none {
+            rendered = TemplateFrameRenderer.renderFramedQR(
+                qrImage: rendered,
+                frameType: style.decorativeFrame,
+                canvasSize: size,
+                brandColors: style.frameBrandColors ?? style.colorTheme.hexColors,
+                bannerText: style.bannerText,
+                accentColorHex: style.colorTheme.hexColors.first ?? "000000"
+            )
+        }
+        
         imageCache.setObject(rendered, forKey: cacheKey)
         return rendered
     }

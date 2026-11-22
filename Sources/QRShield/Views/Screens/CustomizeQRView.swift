@@ -48,8 +48,9 @@ public struct CustomizeQRView: View {
     // Tab 1 (Template) Subcategories
     public enum TemplateSubCategory: String, CaseIterable, Identifiable {
         case popular = "Popular"
-        case social = "Social"
         case business = "Business"
+        case colorful = "Colorful"
+        case social = "Social"
         case wifi = "Wifi"
         case event = "Event"
         
@@ -276,6 +277,7 @@ public struct CustomizeQRView: View {
         textPositionAbove: Bool? = nil,
         textFont: String? = nil,
         textColorHex: String? = nil,
+        decorativeFrame: QRDecorativeFrame? = nil,
         with explicitConfig: QRStyleConfig? = nil
     ) {
         // 1. Cancel in-flight background QR render task immediately
@@ -291,6 +293,9 @@ public struct CustomizeQRView: View {
             newConfig.textPositionAbove = styleConfig.textPositionAbove
             newConfig.textFont = styleConfig.textFont
             newConfig.textColorHex = styleConfig.textColorHex
+        }
+        if let frame = decorativeFrame {
+            newConfig.decorativeFrame = frame
         }
         if let logo = logo {
             newConfig.logoType = logo
@@ -446,10 +451,12 @@ public struct CustomizeQRView: View {
         switch selectedSubCategory {
         case .popular:
             return QRTemplate.popularTemplates
-        case .social:
-            return QRTemplate.predefinedTemplates.filter { $0.category == .socialMedia }
         case .business:
             return QRTemplate.predefinedTemplates.filter { $0.category == .business }
+        case .colorful:
+            return QRTemplate.predefinedTemplates.filter { $0.category == .colorful }
+        case .social:
+            return QRTemplate.predefinedTemplates.filter { $0.category == .socialMedia }
         case .wifi:
             return QRTemplate.predefinedTemplates.filter { $0.category == .wifi }
         case .event:
@@ -478,13 +485,41 @@ public struct CustomizeQRView: View {
                             .resizable()
                             .interpolation(.none)
                             .scaledToFit()
-                            .padding(8)
+                            .padding(template.styleConfig.decorativeFrame != .none ? 2 : 8)
                     }
                 }
                 .aspectRatio(1.0, contentMode: .fit)
                 .overlay(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: isSelected ? 2.5 : 1)
+                )
+                .overlay(
+                    Group {
+                        if template.isPro {
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Text("PRO")
+                                        .font(.system(size: 8, weight: .black))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 2)
+                                        .background(
+                                            Capsule().fill(
+                                                LinearGradient(
+                                                    colors: [Color(hex: "F59E0B"), Color(hex: "D97706")],
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                        )
+                                        .shadow(color: Color.black.opacity(0.3), radius: 2, x: 0, y: 1)
+                                        .padding(4)
+                                }
+                                Spacer()
+                            }
+                        }
+                    }
                 )
                 .shadow(color: Color.black.opacity(0.2), radius: 6, x: 0, y: 2)
                 
@@ -891,6 +926,42 @@ public struct CustomizeQRView: View {
                                 }
                             }
                             .buttonStyle(.plain)
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                
+                // Decorative Frame Style Selector
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("Decorative Frame")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(Color(hex: "CCD0CF"))
+                    
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 10) {
+                            ForEach(QRDecorativeFrame.allCases) { frame in
+                                let isSelected = styleConfig.decorativeFrame == frame
+                                Button(action: {
+                                    let feedback = UIImpactFeedbackGenerator(style: .light)
+                                    feedback.impactOccurred()
+                                    updateQRPreview(decorativeFrame: frame)
+                                }) {
+                                    Text(frame.rawValue)
+                                        .font(.system(size: 12, weight: isSelected ? .bold : .medium))
+                                        .foregroundColor(isSelected ? Color(hex: "CCD0CF") : Color(hex: "9BA8AB"))
+                                        .padding(.horizontal, 14)
+                                        .padding(.vertical, 8)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                .fill(isSelected ? Color(hex: "4A5C6A") : Color(hex: "11212D"))
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                                .stroke(isSelected ? Color(hex: "4A5C6A") : Color(hex: "253745"), lineWidth: 1)
+                                        )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                     }
                 }

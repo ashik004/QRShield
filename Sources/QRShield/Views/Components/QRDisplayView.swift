@@ -73,7 +73,7 @@ public struct QRDisplayView: View {
                             .resizable()
                             .interpolation(.none)
                             .scaledToFit()
-                            .padding(styleConfig.hasCustomText ? 6 : 14)
+                            .padding(styleConfig.decorativeFrame != .none ? 2 : (styleConfig.hasCustomText ? 6 : 14))
                     } else {
                         ProgressView()
                             .tint(Color.shieldPurple)
@@ -92,7 +92,7 @@ public struct QRDisplayView: View {
                             .transition(.opacity)
                     }
                 }
-                .padding(8)
+                .padding(styleConfig.decorativeFrame != .none ? 4 : 8)
             }
             .frame(width: size, height: size)
             

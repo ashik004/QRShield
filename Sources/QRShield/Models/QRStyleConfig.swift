@@ -218,6 +218,9 @@ public struct QRStyleConfig: Codable, Equatable {
     public var textPositionAbove: Bool = false
     public var textFont: String = "Default"
     public var textColorHex: String = "111827"
+    public var decorativeFrame: QRDecorativeFrame = .none
+    public var bannerText: String? = nil
+    public var frameBrandColors: [String]? = nil
     
     public var hasCustomText: Bool {
         guard let customText = customText else { return false }
@@ -235,7 +238,10 @@ public struct QRStyleConfig: Codable, Equatable {
         customText: String? = nil,
         textPositionAbove: Bool = false,
         textFont: String = "Default",
-        textColorHex: String = "111827"
+        textColorHex: String = "111827",
+        decorativeFrame: QRDecorativeFrame = .none,
+        bannerText: String? = nil,
+        frameBrandColors: [String]? = nil
     ) {
         self.dotStyle = dotStyle
         self.colorTheme = colorTheme
@@ -248,11 +254,15 @@ public struct QRStyleConfig: Codable, Equatable {
         self.textPositionAbove = textPositionAbove
         self.textFont = textFont
         self.textColorHex = textColorHex
+        self.decorativeFrame = decorativeFrame
+        self.bannerText = bannerText
+        self.frameBrandColors = frameBrandColors
     }
     
     private enum CodingKeys: String, CodingKey {
         case dotStyle, colorTheme, backgroundColorHex, logoType, customLogoData, frameStyle, eyeStyle
         case customText, textPositionAbove, textFont, textColorHex
+        case decorativeFrame, bannerText, frameBrandColors
     }
     
     public init(from decoder: Decoder) throws {
@@ -268,5 +278,8 @@ public struct QRStyleConfig: Codable, Equatable {
         self.textPositionAbove = try container.decodeIfPresent(Bool.self, forKey: .textPositionAbove) ?? false
         self.textFont = try container.decodeIfPresent(String.self, forKey: .textFont) ?? "Default"
         self.textColorHex = try container.decodeIfPresent(String.self, forKey: .textColorHex) ?? "111827"
+        self.decorativeFrame = try container.decodeIfPresent(QRDecorativeFrame.self, forKey: .decorativeFrame) ?? .none
+        self.bannerText = try container.decodeIfPresent(String.self, forKey: .bannerText)
+        self.frameBrandColors = try container.decodeIfPresent([String].self, forKey: .frameBrandColors)
     }
 }
